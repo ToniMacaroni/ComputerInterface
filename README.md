@@ -3,6 +3,8 @@
 Computer Interface is a library for Gorilla Tag which enabled developers to write programs for the Gorilla Computer
 and users to make more out of the computer.
 
+If you want to contact me on discord: Toni Macaroni#8970
+
 ## Command Line
 Computer Interface ships with a CLI that enables you to execute routine / change settings.  
 Developers can also add their own commands which is discussed later.
@@ -27,8 +29,11 @@ And many more to come...
 # For Developers
 
 Before you begin reading I have created a very well documented example mod which you can use as a starting point.  
-It shows examples for creating multiple view, navigating between those and creating your own commands.
+It shows examples for creating multiple views, navigating between those and creating your own commands.
 https://github.com/ToniMacaroni/ComputerInterfaceExample
+
+For more advanced examples check out the base library views here:  
+https://github.com/ToniMacaroni/ComputerInterface/tree/main/ComputerInterface/Views
 
 ## Adding Views
 Computer Interface works with "Views" (classes that inherit ComputerView or IComputerView).  
