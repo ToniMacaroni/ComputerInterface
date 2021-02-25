@@ -44,8 +44,9 @@ namespace ComputerInterface.Views
             // setname: setname <name>
             _commandHandler.AddCommand(new Command("setname", 1, args =>
             {
-                BaseGameInterface.SetName(args[0]);
-                return $"Name set to {args[0]}";
+                var newName = args[0].ToUpper();
+                BaseGameInterface.SetName(newName);
+                return $"Name set to {newName}";
             }));
 
             // leave: leave
