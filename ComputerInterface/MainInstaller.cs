@@ -6,13 +6,12 @@ using ComputerInterface.ViewLib;
 using ComputerInterface.Views;
 using UnityEngine;
 using Zenject;
+using Object = UnityEngine.Object;
 
 namespace ComputerInterface
 {
     internal class MainInstaller : Installer
     {
-        private const string COMPUTER_PATH = "Level/Pit/UI/GorillaComputer";
-
         public override void InstallBindings()
         {
             Container
@@ -28,7 +27,7 @@ namespace ComputerInterface
 
         private GameObject ComputerGetter(InjectContext ctx)
         {
-            return GameObject.Find(COMPUTER_PATH);
+            return Object.FindObjectOfType<GorillaComputer>().gameObject;
         }
     }
 }

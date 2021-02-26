@@ -2,16 +2,16 @@
 
 namespace ComputerInterface
 {
-    public class ScreenInfo
+    public class CustomScreenInfo
     {
         public Transform Transform;
         public Renderer Renderer;
-        public Material[] Materials;
+        public Material Material;
 
         public Color Color
         {
-            get => Materials[1].color;
-            set => Materials[1].color = value;
+            get => Material.color;
+            set => Material.color = value;
         }
     }
 }

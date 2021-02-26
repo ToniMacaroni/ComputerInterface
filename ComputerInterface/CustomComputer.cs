@@ -25,7 +25,7 @@ namespace ComputerInterface
 
         private MainMenuView _mainMenuView;
 
-        private ScreenInfo _screenInfo;
+        private CustomScreenInfo _customScreenInfo;
 
         void Awake()
         {
@@ -53,8 +53,8 @@ namespace ComputerInterface
             _computerViewController.OnSwitchView += SwitchView;
 
             ReplaceKeys();
-            _screenInfo = GetScreenInfo();
-            _screenInfo.Color = Helpers.ReadSavedColor("ScreenBackground", new Color(0.02f, 0.02f, 0.02f));
+            _customScreenInfo = CreateMonitor();
+            _customScreenInfo.Color = Helpers.ReadSavedColor("ScreenBackground", new Color(0.02f, 0.02f, 0.02f));
             BaseGameInterface.InitAll();
 
             enabled = true;
@@ -75,21 +75,6 @@ namespace ComputerInterface
         {
         }
 
-        public ScreenInfo GetScreenInfo()
-        {
-            var info = new ScreenInfo();
-            info.Transform = transform.Find("monitor");
-            info.Renderer = info.Transform.GetComponent<MeshRenderer>();
-
-            var materials = info.Renderer.materials;
-            var newMaterial = new Material(materials[1].shader);
-            materials[1] = newMaterial;
-            info.Renderer.materials = materials;
-            info.Materials = materials;
-
-            return info;
-        }
-
         public void Reposition()
         {
             var monitor = transform.Find("monitor");
@@ -103,8 +88,8 @@ namespace ComputerInterface
 
         public void SetBG(float r, float g, float b)
         {
-            _screenInfo.Color = new Color(r, g, b);
-            Helpers.SaveColor("ScreenBackground", _screenInfo.Color);
+            _customScreenInfo.Color = new Color(r, g, b);
+            Helpers.SaveColor("ScreenBackground", _customScreenInfo.Color);
         }
 
         public void PressButton(CustomKeyboardKey key)
@@ -112,14 +97,31 @@ namespace ComputerInterface
             _computerViewController.NotifyOfKeyPress(key.KeyboardKey);
         }
 
-        private void CreateMonitor()
+        private CustomScreenInfo CreateMonitor()
         {
+            var monitor = transform.Find("monitor");
+            monitor.gameObject.GetComponent<MeshRenderer>().enabled = false;
+
             var newMonitor = GameObject.CreatePrimitive(PrimitiveType.Cube);
             newMonitor.name = "Custom Monitor";
-            newMonitor.GetComponent<MeshRenderer>().material.color = new Color(0.05f, 0.05f, 0.05f);
             newMonitor.transform.localScale = new Vector3(1, 0.6f, 0.02f);
             newMonitor.transform.eulerAngles = new Vector3(0, 90, 0);
-            newMonitor.transform.position = new Vector3(-68.85f, 12.00f, -83.00f);
+            newMonitor.transform.position = new Vector3(-69f, 12.00f, -83.00f);
+
+            var screen = monitor.Find("Screen");
+            screen.eulerAngles = new Vector3(0, -90, 0);
+            var pos = newMonitor.transform.position;
+            pos.x += 0.02f;
+            screen.position = pos;
+
+            var info = new CustomScreenInfo();
+
+            info.Transform = newMonitor.transform;
+            info.Renderer = newMonitor.GetComponent<MeshRenderer>();
+            info.Material = info.Renderer.material;
+            info.Color = new Color(0.05f, 0.05f, 0.05f);
+
+            return info;
         }
 
         private void SwitchView(ComputerViewSwitchEventArgs args)
