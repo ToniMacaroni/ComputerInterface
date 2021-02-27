@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using BepInEx.Bootstrap;
 using BepInEx.Configuration;
 using ComputerInterface.Interfaces;
 using ComputerInterface.ViewLib;
@@ -22,6 +23,7 @@ namespace ComputerInterface
 
             Container.Bind<MainMenuView>().AsSingle();
             Container.Bind<IComputerModEntry>().To<CommandLineEntry>().AsSingle();
+            Container.Bind<IComputerModEntry>().To<ModListEntry>().AsSingle();
             Container.Bind<CommandHandler>().AsSingle();
         }
 

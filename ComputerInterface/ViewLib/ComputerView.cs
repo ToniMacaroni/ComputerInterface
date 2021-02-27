@@ -33,7 +33,7 @@ namespace ComputerInterface.ViewLib
         /// call the base OnShow when overriding
         /// to display the current text on the computer
         /// </summary>
-        public virtual void OnShow()
+        public virtual void OnShow(object[] args)
         {
             RaisePropertyChanged(nameof(Text));
         }
@@ -42,18 +42,18 @@ namespace ComputerInterface.ViewLib
         /// Switch to another view
         /// </summary>
         /// <param name="type"></param>
-        public void ShowView<T>()
+        public void ShowView<T>(params object[] args)
         {
-            ShowView(typeof(T));
+            ShowView(typeof(T), args);
         }
 
         /// <summary>
         /// Switch to another view
         /// </summary>
         /// <param name="type"></param>
-        public void ShowView(Type type)
+        public void ShowView(Type type, params object[] args)
         {
-            OnViewSwitchRequest?.Invoke(new ComputerViewSwitchEventArgs(GetType(), type));
+            OnViewSwitchRequest?.Invoke(new ComputerViewSwitchEventArgs(GetType(), type, args));
         }
 
         /// <summary>

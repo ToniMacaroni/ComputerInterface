@@ -105,9 +105,9 @@ namespace ComputerInterface.Views
             }));
         }
 
-        public override void OnShow()
+        public override void OnShow(object[] args)
         {
-            base.OnShow();
+            base.OnShow(args);
             Redraw();
         }
 

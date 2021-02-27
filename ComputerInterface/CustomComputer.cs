@@ -1,14 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel;
-using System.Linq;
-using System.Threading.Tasks;
 using ComputerInterface.Interfaces;
 using ComputerInterface.ViewLib;
 using ComputerInterface.Views;
 using UnityEngine;
 using Zenject;
-using Object = UnityEngine.Object;
 
 namespace ComputerInterface
 {
@@ -67,7 +63,7 @@ namespace ComputerInterface
 
         private void ShowInitialView(MainMenuView view, List<IComputerModEntry> computerModEntries)
         {
-            _computerViewController.SetView(view);
+            _computerViewController.SetView(view, null);
             view.ShowMods(computerModEntries);
         }
 
@@ -121,6 +117,8 @@ namespace ComputerInterface
             info.Material = info.Renderer.material;
             info.Color = new Color(0.05f, 0.05f, 0.05f);
 
+            ((RectTransform)_gorillaComputer.screenText.transform).sizeDelta = new Vector2(200, 136);
+
             return info;
         }
 
@@ -136,7 +134,7 @@ namespace ComputerInterface
             }
 
             destinationView.CallerViewType = args.SourceType;
-            _computerViewController.SetView(destinationView);
+            _computerViewController.SetView(destinationView, args.Args);
         }
 
         private IComputerView GetOrCreateView(Type type)

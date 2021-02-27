@@ -9,11 +9,19 @@ namespace ComputerInterface.Views
     {
         private List<IComputerModEntry> _modEntries;
 
-        private int _currentCursorPosition = 0;
+        private readonly UISelectionHandler _selectionHandler;
+
+        public MainMenuView()
+        {
+            _selectionHandler =
+                new UISelectionHandler(EKeyboardKey.Option1, EKeyboardKey.Option2, EKeyboardKey.Enter, true);
+            _selectionHandler.OnSelected += ShowModView;
+        }
 
         public void ShowMods(List<IComputerModEntry> entries)
         {
             _modEntries = entries;
+            _selectionHandler.Max = _modEntries.Count - 1;
 
             Redraw();
         }
@@ -30,10 +38,10 @@ namespace ComputerInterface.Views
 
         public void DrawHeader(StringBuilder str)
         {
-            str.Append("================================").AppendLine();
-            str.Append("Computer Interface v").Append(PluginInfo.VERSION).AppendLine();
-            str.Append("        by Toni Macaroni").AppendLine();
-            str.Append("================================").AppendLine();
+            str.Append("========================================").AppendLine();
+            str.Append("    Computer Interface v").Append(PluginInfo.VERSION).AppendLine();
+            str.Append("       by Toni Macaroni").AppendLine();
+            str.Append("========================================").AppendLine();
         }
 
         public void DrawMods(StringBuilder str)
@@ -41,69 +49,25 @@ namespace ComputerInterface.Views
             for (var i = 0; i < _modEntries.Count; i++)
             {
                 var entry = _modEntries[i];
-                str.Append(_currentCursorPosition == i ? "> " : "  ");
+                str.Append(_selectionHandler.CurrentSelectionIndex == i ? "> " : "  ");
                 str.Append(entry.EntryName).Append("\n");
             }
         }
 
-        public override void OnShow()
+        public override void OnShow(object[] args)
         {
-            base.OnShow();
+            base.OnShow(args);
         }
 
         public override void OnKeyPressed(EKeyboardKey key)
         {
-            switch (key)
-            {
-                case EKeyboardKey.Option1:
-                    SelectPrevMod();
-                    break;
-                case EKeyboardKey.Option2:
-                    SelectNextMod();
-                    break;
-                case EKeyboardKey.Enter:
-                    ShowModView();
-                    break;
-            }
-        }
-
-        public void ShowModView()
-        {
-            if (_currentCursorPosition < 0 || _currentCursorPosition > _modEntries.Count - 1) return;
-
-            ShowView(_modEntries[_currentCursorPosition].EntryViewType);
-        }
-
-        public void SelectPrevMod()
-        {
-            if (_modEntries.Count < 1) return;
-
-            _currentCursorPosition--;
-
-            ClampSelection();
+            _selectionHandler.HandleKeypress(key);
             Redraw();
         }
 
-        public void SelectNextMod()
+        public void ShowModView(int idx)
         {
-            if (_modEntries.Count < 1) return;
-
-            _currentCursorPosition++;
-
-            ClampSelection();
-            Redraw();
-        }
-
-        public void ClampSelection()
-        {
-            if (_currentCursorPosition < 0)
-            {
-                _currentCursorPosition = 0;
-            }
-            else if (_currentCursorPosition > _modEntries.Count - 1)
-            {
-                _currentCursorPosition = _modEntries.Count - 1;
-            }
+            ShowView(_modEntries[idx].EntryViewType);
         }
     }
 }
