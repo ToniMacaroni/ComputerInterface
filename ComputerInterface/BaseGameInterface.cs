@@ -65,14 +65,21 @@ namespace ComputerInterface
         public static void JoinRoom(string roomId)
         {
             if (GorillaComputer.instance == null) return;
+            if (string.IsNullOrWhiteSpace(roomId)) return;
 
             var networkController = GorillaComputer.instance.networkController;
+
             networkController.currentGameType = "privatetag";
             networkController.customRoomID = roomId;
             networkController.isPrivate = true;
+
             if (PhotonNetwork.InRoom && PhotonNetwork.CurrentRoom.Name != roomId)
             {
-                PhotonNetworkController.instance.currentGorillaParent.GetComponentInChildren<GorillaScoreboardSpawner>().OnLeftRoom();
+                GorillaScoreboardSpawner[] componentsInChildren = PhotonNetworkController.instance.currentGorillaParent.GetComponentsInChildren<GorillaScoreboardSpawner>();
+                for (int i = 0; i < componentsInChildren.Length; i++)
+                {
+                    componentsInChildren[i].OnLeftRoom();
+                }
                 networkController.attemptingToConnect = true;
                 foreach (SkinnedMeshRenderer skinnedMeshRenderer2 in networkController.offlineVRRig)
                 {
@@ -82,6 +89,8 @@ namespace ComputerInterface
                     }
                 }
                 PhotonNetwork.Disconnect();
+                Player.Instance.maxJumpSpeed = 6.5f;
+                Player.Instance.jumpMultiplier = 1.1f;
                 return;
             }
 
