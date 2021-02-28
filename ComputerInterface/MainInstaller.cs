@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using BepInEx.Bootstrap;
 using BepInEx.Configuration;
+using BepInEx.Logging;
+using Bepinject;
 using ComputerInterface.Interfaces;
 using ComputerInterface.ViewLib;
 using ComputerInterface.Views;
@@ -25,6 +27,8 @@ namespace ComputerInterface
             Container.Bind<IComputerModEntry>().To<CommandLineEntry>().AsSingle();
             Container.Bind<IComputerModEntry>().To<ModListEntry>().AsSingle();
             Container.Bind<CommandHandler>().AsSingle();
+            Container.BindInterfacesAndSelfTo<AssetsLoader>().AsSingle();
+            Container.Bind<CIConfig>().AsSingle();
         }
 
         private GameObject ComputerGetter(InjectContext ctx)

@@ -13,7 +13,7 @@ namespace ComputerInterface.Views
 
         public ModView()
         {
-            _selectionHandler = new UISelectionHandler(EKeyboardKey.Option1, EKeyboardKey.Option2, EKeyboardKey.Enter, false);
+            _selectionHandler = new UISelectionHandler(EKeyboardKey.Up, EKeyboardKey.Down, EKeyboardKey.Enter, false);
             _selectionHandler.Max = 1;
         }
 
@@ -42,13 +42,13 @@ namespace ComputerInterface.Views
         private void RedrawSelection(StringBuilder str)
         {
             str.AppendLine();
-            str.Append(GetSelectionString(0, "[")).Append("Enable ").Append(GetSelectionString(0, "]")).AppendLine();
+            str.Append(GetSelectionString(0, "[")).Append("Enable").Append(GetSelectionString(0, "]")).AppendLine();
             str.Append(GetSelectionString(1, "[")).Append("Disable").Append(GetSelectionString(1, "]")).AppendLine();
         }
 
         private string GetSelectionString(int idx, string chararcter)
         {
-            return _selectionHandler.CurrentSelectionIndex == idx ? chararcter : " ";
+            return _selectionHandler.CurrentSelectionIndex == idx ? "<color=#ed6540>" + chararcter+ "</color>" : " ";
         }
 
         public override void OnKeyPressed(EKeyboardKey key)
@@ -59,7 +59,7 @@ namespace ComputerInterface.Views
                 return;
             }
 
-            if (key == EKeyboardKey.Delete)
+            if (key == EKeyboardKey.Back)
             {
                 ReturnView();
             }

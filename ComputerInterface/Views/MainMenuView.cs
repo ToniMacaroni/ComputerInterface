@@ -14,7 +14,7 @@ namespace ComputerInterface.Views
         public MainMenuView()
         {
             _selectionHandler =
-                new UISelectionHandler(EKeyboardKey.Option1, EKeyboardKey.Option2, EKeyboardKey.Enter, true);
+                new UISelectionHandler(EKeyboardKey.Up, EKeyboardKey.Down, EKeyboardKey.Enter, true);
             _selectionHandler.OnSelected += ShowModView;
         }
 
@@ -39,7 +39,7 @@ namespace ComputerInterface.Views
         public void DrawHeader(StringBuilder str)
         {
             str.Append("========================================").AppendLine();
-            str.Append("    Computer Interface v").Append(PluginInfo.VERSION).AppendLine();
+            str.Append("    <color=#ed6540>Computer Interface</color> v").Append(PluginInfo.VERSION).AppendLine();
             str.Append("       by Toni Macaroni").AppendLine();
             str.Append("========================================").AppendLine();
         }
@@ -49,7 +49,7 @@ namespace ComputerInterface.Views
             for (var i = 0; i < _modEntries.Count; i++)
             {
                 var entry = _modEntries[i];
-                str.Append(_selectionHandler.CurrentSelectionIndex == i ? "> " : "  ");
+                str.Append(_selectionHandler.CurrentSelectionIndex == i ? "<color=#ed6540>></color> " : "  ");
                 str.Append(entry.EntryName).Append("\n");
             }
         }

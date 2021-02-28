@@ -133,10 +133,10 @@ namespace ComputerInterface.Views
         {
             if (!string.IsNullOrEmpty(_notification))
             {
-                str.Append("  ").Append(_notification.Replace("\n", "\n  ")).AppendLine();
+                str.Append("  <color=#ffffff60>").Append(_notification.Replace("\n", "\n  ")).Append("</color>").AppendLine();
             }
 
-            str.Append("> ").Append(_textInputHandler.Text).AppendLine();
+            str.Append("<color=#ffffff60>></color> ").Append(_textInputHandler.Text).AppendLine();
         }
 
         public override void OnKeyPressed(EKeyboardKey key)
@@ -152,7 +152,7 @@ namespace ComputerInterface.Views
                 case EKeyboardKey.Enter:
                     RunCommand();
                     break;
-                case EKeyboardKey.Option1:
+                case EKeyboardKey.Back:
                     ReturnToMainMenu();
                     break;
             }

@@ -25,7 +25,7 @@ namespace ComputerInterface.Views
         {
             _plugins = Chainloader.PluginInfos.Values.ToList();
             _selectionHandler =
-                new UISelectionHandler(EKeyboardKey.Option1, EKeyboardKey.Option2, EKeyboardKey.Enter, true);
+                new UISelectionHandler(EKeyboardKey.Up, EKeyboardKey.Down, EKeyboardKey.Enter, true);
             _selectionHandler.Max = _plugins.Count - 1;
             _selectionHandler.OnSelected += SelectMod;
         }
@@ -56,7 +56,7 @@ namespace ComputerInterface.Views
             for (int i = 0; i < _plugins.Count; i++)
             {
                 var plugin = _plugins[i];
-                str.Append(_selectionHandler.CurrentSelectionIndex == i ? "> " : "  ").Append(plugin.Metadata.Name).AppendLine();
+                str.Append(_selectionHandler.CurrentSelectionIndex == i ? "<color=#ed6540>></color> " : "  ").Append(plugin.Metadata.Name).AppendLine();
             }
         }
 
@@ -70,7 +70,7 @@ namespace ComputerInterface.Views
 
             switch (key)
             {
-                case EKeyboardKey.Delete:
+                case EKeyboardKey.Back:
                     ReturnToMainMenu();
                     break;
             }

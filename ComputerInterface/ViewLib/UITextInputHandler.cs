@@ -12,7 +12,7 @@
                 return true;
             }
 
-            if (key == EKeyboardKey.Option3)
+            if (key == EKeyboardKey.Space)
             {
                 AddSpace();
                 return true;

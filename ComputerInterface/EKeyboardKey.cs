@@ -46,6 +46,13 @@
         RoomConfig,
         NameConfig,
         ColorConfig,
-        TurnConfig
+        TurnConfig,
+        // custom keys
+        Left,
+        Right,
+        Down,
+        Up,
+        Space,
+        Back
     }
 }

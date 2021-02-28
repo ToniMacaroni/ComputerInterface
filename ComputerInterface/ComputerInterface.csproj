@@ -5,6 +5,21 @@
 	</PropertyGroup>
 
 	<ItemGroup>
+	  <None Remove="Resources\assets" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <EmbeddedResource Include="Resources\assets" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <PackageReference Include="BeatSaberModdingTools.Tasks" Version="1.3.2">
+	    <PrivateAssets>all</PrivateAssets>
+	    <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+	  </PackageReference>
+	</ItemGroup>
+
+	<ItemGroup>
 		<Reference Include="0Harmony">
 		  <HintPath>D:\SteamLibrary\steamapps\common\Gorilla Tag\BepInEx\core\0Harmony.dll</HintPath>
 		</Reference>
@@ -15,7 +30,7 @@
 			<HintPath>D:\SteamLibrary\steamapps\common\Gorilla Tag\BepInEx\core\BepInEx.dll</HintPath>
 		</Reference>
 		<Reference Include="Bepinject">
-		  <HintPath>D:\SteamLibrary\steamapps\common\Gorilla Tag\BepInEx\plugins\Bepinject\Bepinject.dll</HintPath>
+		  <HintPath>D:\SteamLibrary\steamapps\common\Gorilla Tag\BepInEx\plugins\Bepinject-Auros\Bepinject.dll</HintPath>
 		</Reference>
 		<Reference Include="PhotonRealtime">
 		  <HintPath>D:\SteamLibrary\steamapps\common\Gorilla Tag\Gorilla Tag_Data\Managed\PhotonRealtime.dll</HintPath>
@@ -23,11 +38,17 @@
 		<Reference Include="PhotonUnityNetworking">
 		  <HintPath>D:\SteamLibrary\steamapps\common\Gorilla Tag\Gorilla Tag_Data\Managed\PhotonUnityNetworking.dll</HintPath>
 		</Reference>
+		<Reference Include="Unity.TextMeshPro">
+		  <HintPath>D:\SteamLibrary\steamapps\common\Gorilla Tag\BepInEx\plugins\ComputerInterface\Unity.TextMeshPro.dll</HintPath>
+		</Reference>
 		<Reference Include="Unity.XR.Interaction.Toolkit">
 		  <HintPath>D:\SteamLibrary\steamapps\common\Gorilla Tag\Gorilla Tag_Data\Managed\Unity.XR.Interaction.Toolkit.dll</HintPath>
 		</Reference>
 		<Reference Include="UnityEngine">
 			<HintPath>D:\SteamLibrary\steamapps\common\Gorilla Tag\Gorilla Tag_Data\Managed\UnityEngine.dll</HintPath>
+		</Reference>
+		<Reference Include="UnityEngine.AssetBundleModule">
+		  <HintPath>D:\SteamLibrary\steamapps\common\Gorilla Tag\Gorilla Tag_Data\Managed\UnityEngine.AssetBundleModule.dll</HintPath>
 		</Reference>
 		<Reference Include="UnityEngine.CoreModule">
 			<HintPath>D:\SteamLibrary\steamapps\common\Gorilla Tag\Gorilla Tag_Data\Managed\UnityEngine.CoreModule.dll</HintPath>
@@ -42,10 +63,10 @@
 		  <HintPath>D:\SteamLibrary\steamapps\common\Gorilla Tag\Gorilla Tag_Data\Managed\UnityEngine.XRModule.dll</HintPath>
 		</Reference>
 		<Reference Include="Zenject">
-		  <HintPath>D:\SteamLibrary\steamapps\common\Gorilla Tag\BepInEx\plugins\Bepinject\Zenject.dll</HintPath>
+		  <HintPath>D:\SteamLibrary\steamapps\common\Gorilla Tag\BepInEx\plugins\Extenject\Zenject.dll</HintPath>
 		</Reference>
 		<Reference Include="Zenject-usage">
-		  <HintPath>D:\SteamLibrary\steamapps\common\Gorilla Tag\BepInEx\plugins\Bepinject\Zenject-usage.dll</HintPath>
+		  <HintPath>D:\SteamLibrary\steamapps\common\Gorilla Tag\BepInEx\plugins\Extenject\Zenject-usage.dll</HintPath>
 		</Reference>
 	</ItemGroup>
 

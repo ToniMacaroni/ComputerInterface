@@ -1,5 +1,6 @@
 ﻿using System.Threading.Tasks;
 using UnityEngine;
+using UnityEngine.UI;
 
 namespace ComputerInterface
 {
@@ -33,6 +34,15 @@ namespace ComputerInterface
         {
             _computer = computer;
             KeyboardKey = key;
+
+            enabled = true;
+        }
+
+        public void Init(CustomComputer computer, EKeyboardKey key, string text)
+        {
+            _computer = computer;
+            KeyboardKey = key;
+            GetComponentInChildren<Text>().text = text;
 
             enabled = true;
         }

@@ -16,8 +16,6 @@ namespace ComputerInterface
         /// </summary>
         public bool Loaded { get; private set; }
 
-        private Harmony _harmony;
-
         private void Awake()
         {
             Load();
@@ -29,42 +27,9 @@ namespace ComputerInterface
 
             Debug.Log("Computer Interface loading");
 
-            Zenjector.Install<MainInstaller>().OnProject();
-
-            Patch();
+            Zenjector.Install<MainInstaller>().OnProject().WithConfig(Config).WithLog(Logger);
 
             Loaded = true;
-        }
-
-        private void Unload()
-        {
-            if (!Loaded) return;
-
-            Unpatch();
-
-            Loaded = false;
-        }
-
-        private void Patch()
-        {
-            if (_harmony != null)
-            {
-                return;
-            }
-
-            _harmony = new Harmony(PluginInfo.ID);
-            _harmony.PatchAll(Assembly.GetExecutingAssembly());
-        }
-
-        private void Unpatch()
-        {
-            if (_harmony == null)
-            {
-                return;
-            }
-
-            _harmony.UnpatchAll();
-            _harmony = null;
         }
     }
 }
