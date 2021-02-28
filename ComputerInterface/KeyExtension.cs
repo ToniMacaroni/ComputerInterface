@@ -14,7 +14,12 @@ namespace ComputerInterface
             EKeyboardKey.Delete,
             EKeyboardKey.Option1,
             EKeyboardKey.Option2,
-            EKeyboardKey.Option3
+            EKeyboardKey.Option3,
+            EKeyboardKey.Left,
+            EKeyboardKey.Right,
+            EKeyboardKey.Down,
+            EKeyboardKey.Up,
+            EKeyboardKey.Back
         };
 
         public static bool IsFunctionKey(this EKeyboardKey key)

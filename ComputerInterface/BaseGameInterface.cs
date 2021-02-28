@@ -1,4 +1,5 @@
-﻿using Photon.Pun;
+﻿using GorillaLocomotion;
+using Photon.Pun;
 using UnityEngine;
 using UnityEngine.XR.Interaction.Toolkit;
 
@@ -35,18 +36,30 @@ namespace ComputerInterface
         {
             if (GorillaComputer.instance == null) return;
 
-            GorillaComputer.instance.networkController.attemptingToConnect = false;
-            PhotonNetworkController.instance.currentGorillaParent.GetComponentInChildren<GorillaScoreboardSpawner>().OnLeftRoom();
-            foreach (var skinnedMeshRenderer in GorillaComputer.instance.networkController.offlineVRRig)
+            if (PhotonNetwork.InRoom)
             {
-                if (skinnedMeshRenderer != null)
+                GorillaComputer.instance.networkController.attemptingToConnect = false;
+                GorillaScoreboardSpawner[] componentsInChildren = PhotonNetworkController.instance.currentGorillaParent.GetComponentsInChildren<GorillaScoreboardSpawner>();
+                for (int i = 0; i < componentsInChildren.Length; i++)
                 {
-                    skinnedMeshRenderer.enabled = true;
+                    componentsInChildren[i].OnLeftRoom();
                 }
+                foreach (SkinnedMeshRenderer skinnedMeshRenderer in GorillaComputer.instance.networkController.offlineVRRig)
+                {
+                    if (skinnedMeshRenderer != null)
+                    {
+                        skinnedMeshRenderer.enabled = true;
+                    }
+                }
+                foreach (GorillaLevelScreen gorillaLevelScreen in GorillaComputer.instance.levelScreens)
+                {
+                    gorillaLevelScreen.UpdateText(gorillaLevelScreen.startingText, true);
+                }
+                Player.Instance.maxJumpSpeed = 6.5f;
+                Player.Instance.jumpMultiplier = 1.1f;
+                PhotonNetwork.Disconnect();
+                PhotonNetwork.ConnectUsingSettings();
             }
-
-            PhotonNetwork.Disconnect();
-            PhotonNetwork.ConnectUsingSettings();
         }
 
         public static void JoinRoom(string roomId)

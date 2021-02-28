@@ -12,7 +12,7 @@ namespace ComputerInterface.Interfaces
 
         void OnKeyPressed(EKeyboardKey key);
 
-        void OnShow();
+        void OnShow(object[] args);
 
         event ComputerViewSwitchEventHandler OnViewSwitchRequest;
     }

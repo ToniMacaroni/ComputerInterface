@@ -18,13 +18,13 @@ namespace ComputerInterface.ViewLib
             _propUpdateBinder.Bind("Text", RaiseOnTextChanged);
         }
 
-        public void SetView(IComputerView computerView)
+        public void SetView(IComputerView computerView, object[] args)
         {
             UnregisterView(CurrentComputerView);
             RegisterView(computerView);
 
             CurrentComputerView = computerView;
-            CurrentComputerView.OnShow();
+            CurrentComputerView.OnShow(args);
         }
 
         public void NotifyOfKeyPress(EKeyboardKey key)

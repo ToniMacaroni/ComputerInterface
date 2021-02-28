@@ -1,14 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.Linq;
 using System.Threading.Tasks;
 using ComputerInterface.Interfaces;
 using ComputerInterface.ViewLib;
 using ComputerInterface.Views;
+using TMPro;
 using UnityEngine;
 using Zenject;
-using Object = UnityEngine.Object;
 
 namespace ComputerInterface
 {
@@ -25,7 +24,13 @@ namespace ComputerInterface
 
         private MainMenuView _mainMenuView;
 
-        private ScreenInfo _screenInfo;
+        private CustomScreenInfo _customScreenInfo;
+
+        private List<CustomKeyboardKey> _keys;
+
+        private AssetsLoader _assetsLoader;
+
+        private CIConfig _config;
 
         void Awake()
         {
@@ -33,11 +38,20 @@ namespace ComputerInterface
         }
 
         [Inject]
-        public void Construct(MainMenuView mainMenuView, ComputerViewPlaceholderFactory viewFactory, List<IComputerModEntry> computerModEntries)
+        internal async void Construct(
+            CIConfig config,
+            AssetsLoader assetsLoader,
+            MainMenuView mainMenuView,
+            ComputerViewPlaceholderFactory viewFactory,
+            List<IComputerModEntry> computerModEntries)
         {
             if (_initialized) return;
+            _initialized = true;
 
             Debug.Log($"Found {computerModEntries.Count} computer mod entries");
+
+            _config = config;
+            _assetsLoader = assetsLoader;
 
             _mainMenuView = mainMenuView;
             _cachedViews.Add(typeof(MainMenuView), _mainMenuView);
@@ -53,12 +67,11 @@ namespace ComputerInterface
             _computerViewController.OnSwitchView += SwitchView;
 
             ReplaceKeys();
-            _screenInfo = GetScreenInfo();
-            _screenInfo.Color = Helpers.ReadSavedColor("ScreenBackground", new Color(0.02f, 0.02f, 0.02f));
+            _customScreenInfo = await CreateMonitor();
+            _customScreenInfo.Color = _config.ScreenBackgroundColor.Value;
             BaseGameInterface.InitAll();
 
             enabled = true;
-            _initialized = true;
 
             ShowInitialView(_mainMenuView, computerModEntries);
 
@@ -67,27 +80,12 @@ namespace ComputerInterface
 
         private void ShowInitialView(MainMenuView view, List<IComputerModEntry> computerModEntries)
         {
-            _computerViewController.SetView(view);
+            _computerViewController.SetView(view, null);
             view.ShowMods(computerModEntries);
         }
 
         public void Initialize()
         {
-        }
-
-        public ScreenInfo GetScreenInfo()
-        {
-            var info = new ScreenInfo();
-            info.Transform = transform.Find("monitor");
-            info.Renderer = info.Transform.GetComponent<MeshRenderer>();
-
-            var materials = info.Renderer.materials;
-            var newMaterial = new Material(materials[1].shader);
-            materials[1] = newMaterial;
-            info.Renderer.materials = materials;
-            info.Materials = materials;
-
-            return info;
         }
 
         public void Reposition()
@@ -98,28 +96,18 @@ namespace ComputerInterface
 
         public void SetText(string text)
         {
-            _gorillaComputer.screenText.text = text;
+            _customScreenInfo.Text = text;
         }
 
         public void SetBG(float r, float g, float b)
         {
-            _screenInfo.Color = new Color(r, g, b);
-            Helpers.SaveColor("ScreenBackground", _screenInfo.Color);
+            _customScreenInfo.Color = new Color(r, g, b);
+            _config.ScreenBackgroundColor.Value = _customScreenInfo.Color;
         }
 
         public void PressButton(CustomKeyboardKey key)
         {
             _computerViewController.NotifyOfKeyPress(key.KeyboardKey);
-        }
-
-        private void CreateMonitor()
-        {
-            var newMonitor = GameObject.CreatePrimitive(PrimitiveType.Cube);
-            newMonitor.name = "Custom Monitor";
-            newMonitor.GetComponent<MeshRenderer>().material.color = new Color(0.05f, 0.05f, 0.05f);
-            newMonitor.transform.localScale = new Vector3(1, 0.6f, 0.02f);
-            newMonitor.transform.eulerAngles = new Vector3(0, 90, 0);
-            newMonitor.transform.position = new Vector3(-68.85f, 12.00f, -83.00f);
         }
 
         private void SwitchView(ComputerViewSwitchEventArgs args)
@@ -134,7 +122,7 @@ namespace ComputerInterface
             }
 
             destinationView.CallerViewType = args.SourceType;
-            _computerViewController.SetView(destinationView);
+            _computerViewController.SetView(destinationView, args.Args);
         }
 
         private IComputerView GetOrCreateView(Type type)
@@ -151,6 +139,8 @@ namespace ComputerInterface
 
         private void ReplaceKeys()
         {
+            _keys = new List<CustomKeyboardKey>();
+
             var nameToEnum = new Dictionary<string, EKeyboardKey>();
 
             foreach (var enumString in Enum.GetNames(typeof(EKeyboardKey)))
@@ -171,7 +161,79 @@ namespace ComputerInterface
                 DestroyImmediate(button);
 
                 customButton.Init(this, key);
+                _keys.Add(customButton);
             }
+
+            var enterKey = _keys.First(x => x.KeyboardKey == EKeyboardKey.Enter);
+            var mKey = _keys.First(x => x.KeyboardKey == EKeyboardKey.M);
+            var deleteKey = _keys.First(x => x.KeyboardKey == EKeyboardKey.Delete);
+
+            var spaceKey = Instantiate(enterKey.gameObject, enterKey.transform.parent);
+            spaceKey.name = "Space";
+            spaceKey.transform.localPosition += new Vector3(2.6f, 0, 3);
+            spaceKey.GetComponent<CustomKeyboardKey>().Init(this, EKeyboardKey.Space, "Space");
+
+            var newDeleteKey = Instantiate(deleteKey.gameObject, deleteKey.transform.parent);
+            newDeleteKey.name = "Delete";
+            newDeleteKey.transform.localPosition += new Vector3(2.3f, 0, 0);
+            newDeleteKey.GetComponent<CustomKeyboardKey>().Init(this, EKeyboardKey.Delete);
+
+            ColorUtility.TryParseHtmlString("#303090", out var backButtonColor);
+            deleteKey.GetComponent<CustomKeyboardKey>().Init(this, EKeyboardKey.Back, "Back", backButtonColor);
+
+            ColorUtility.TryParseHtmlString("#309030FF", out var arrowKeyButtonColor);
+
+            var leftKey = Instantiate(mKey.gameObject, mKey.transform.parent);
+            leftKey.name = "Left";
+            leftKey.transform.localPosition += new Vector3(0, 0, 5.6f);
+            leftKey.GetComponent<CustomKeyboardKey>().Init(this, EKeyboardKey.Left, ".", arrowKeyButtonColor);
+
+            var downKey = Instantiate(leftKey.gameObject, leftKey.transform.parent);
+            downKey.name = "Down";
+            downKey.transform.localPosition += new Vector3(0, 0, 2.3f);
+            downKey.GetComponent<CustomKeyboardKey>().Init(this, EKeyboardKey.Down, ".", arrowKeyButtonColor);
+
+            var rightKey = Instantiate(downKey.gameObject, downKey.transform.parent);
+            rightKey.name = "Right";
+            rightKey.transform.localPosition += new Vector3(0, 0, 2.3f);
+            rightKey.GetComponent<CustomKeyboardKey>().Init(this, EKeyboardKey.Right, ".", arrowKeyButtonColor);
+
+            var upKey = Instantiate(downKey.gameObject, downKey.transform.parent);
+            upKey.name = "Up";
+            upKey.transform.localPosition += new Vector3(-2.3f, 0, 0);
+            upKey.GetComponent<CustomKeyboardKey>().Init(this, EKeyboardKey.Up, ".", arrowKeyButtonColor);
+        }
+
+        private async Task<CustomScreenInfo> CreateMonitor()
+        {
+            transform.Find("monitor").gameObject.SetActive(false);
+
+            var tmpSettings = await _assetsLoader.GetAsset<TMP_Settings>("TMP Settings");
+            typeof(TMP_Settings).GetField(
+                    "s_Instance",
+                    System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Static)?
+                .SetValue(null, tmpSettings);
+
+            var monitorAsset = await _assetsLoader.GetAsset<GameObject>("monitor");
+
+
+            var newMonitor = Instantiate(monitorAsset);
+            newMonitor.name = "Custom Monitor";
+            newMonitor.transform.localScale = new Vector3(0.4f, 0.4f, 0.4f);
+            newMonitor.transform.eulerAngles = new Vector3(0, 90, 0);
+            newMonitor.transform.position = new Vector3(-69f, 12.02f, -82.8f);
+
+            var info = new CustomScreenInfo();
+
+            info.Transform = newMonitor.transform;
+            info.TextMeshProUgui = newMonitor.GetComponentInChildren<TextMeshProUGUI>();
+            info.Renderer = newMonitor.GetComponentInChildren<MeshRenderer>();
+            info.Materials = info.Renderer.materials;
+
+            info.Color = new Color(0.05f, 0.05f, 0.05f);
+            info.FontSize = 80f;
+
+            return info;
         }
     }
 }

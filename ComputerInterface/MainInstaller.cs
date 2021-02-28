@@ -1,18 +1,20 @@
 ﻿using System;
 using System.Collections.Generic;
+using BepInEx.Bootstrap;
 using BepInEx.Configuration;
+using BepInEx.Logging;
+using Bepinject;
 using ComputerInterface.Interfaces;
 using ComputerInterface.ViewLib;
 using ComputerInterface.Views;
 using UnityEngine;
 using Zenject;
+using Object = UnityEngine.Object;
 
 namespace ComputerInterface
 {
     internal class MainInstaller : Installer
     {
-        private const string COMPUTER_PATH = "Level/Pit/UI/GorillaComputer";
-
         public override void InstallBindings()
         {
             Container
@@ -23,12 +25,15 @@ namespace ComputerInterface
 
             Container.Bind<MainMenuView>().AsSingle();
             Container.Bind<IComputerModEntry>().To<CommandLineEntry>().AsSingle();
+            Container.Bind<IComputerModEntry>().To<ModListEntry>().AsSingle();
             Container.Bind<CommandHandler>().AsSingle();
+            Container.BindInterfacesAndSelfTo<AssetsLoader>().AsSingle();
+            Container.Bind<CIConfig>().AsSingle();
         }
 
         private GameObject ComputerGetter(InjectContext ctx)
         {
-            return GameObject.Find(COMPUTER_PATH);
+            return Object.FindObjectOfType<GorillaComputer>().gameObject;
         }
     }
 }

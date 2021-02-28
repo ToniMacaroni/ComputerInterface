@@ -1,5 +1,6 @@
 ﻿using System.Threading.Tasks;
 using UnityEngine;
+using UnityEngine.UI;
 
 namespace ComputerInterface
 {
@@ -35,6 +36,19 @@ namespace ComputerInterface
             KeyboardKey = key;
 
             enabled = true;
+        }
+
+        public void Init(CustomComputer computer, EKeyboardKey key, string text)
+        {
+            Init(computer, key);
+            GetComponentInChildren<Text>().text = text;
+        }
+
+        public void Init(CustomComputer computer, EKeyboardKey key, string text, Color buttonColor)
+        {
+            Init(computer, key, text);
+            _material.color = buttonColor;
+            _originalColor = buttonColor;
         }
 
         private async void OnTriggerEnter(Collider collider)

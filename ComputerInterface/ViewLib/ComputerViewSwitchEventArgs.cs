@@ -6,11 +6,13 @@ namespace ComputerInterface.ViewLib
     {
         public Type SourceType;
         public Type DestinationType;
+        public object[] Args;
 
-        public ComputerViewSwitchEventArgs(Type sourceType, Type destinationType)
+        public ComputerViewSwitchEventArgs(Type sourceType, Type destinationType, object[] args)
         {
             SourceType = sourceType;
             DestinationType = destinationType;
+            Args = args;
         }
     }
 }

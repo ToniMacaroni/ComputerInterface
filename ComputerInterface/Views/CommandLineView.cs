@@ -18,8 +18,8 @@ namespace ComputerInterface.Views
         [Inject] private readonly CustomComputer _computer = null;
 
         private readonly CommandHandler _commandHandler;
+        private readonly UITextInputHandler _textInputHandler;
 
-        private string _currentCommand = "";
         private string _notification = "";
 
         public CommandLineView(CommandHandler commandHandler)
@@ -103,11 +103,13 @@ namespace ComputerInterface.Views
 
                 return "Background set";
             }));
+
+            _textInputHandler = new UITextInputHandler();
         }
 
-        public override void OnShow()
+        public override void OnShow(object[] args)
         {
-            base.OnShow();
+            base.OnShow(args);
             Redraw();
         }
 
@@ -131,17 +133,17 @@ namespace ComputerInterface.Views
         {
             if (!string.IsNullOrEmpty(_notification))
             {
-                str.Append("  ").Append(_notification.Replace("\n", "\n  ")).AppendLine();
+                str.Append("  <color=#ffffff60>").Append(_notification.Replace("\n", "\n  ")).Append("</color>").AppendLine();
             }
 
-            str.Append("> ").Append(_currentCommand).AppendLine();
+            str.Append("<color=#ffffff60>></color> ").Append(_textInputHandler.Text).AppendLine();
         }
 
         public override void OnKeyPressed(EKeyboardKey key)
         {
-            if (!key.IsFunctionKey())
+            if (_textInputHandler.HandleKey(key))
             {
-                TypeChar(key);
+                Redraw();
                 return;
             }
 
@@ -150,57 +152,24 @@ namespace ComputerInterface.Views
                 case EKeyboardKey.Enter:
                     RunCommand();
                     break;
-                case EKeyboardKey.Delete:
-                    DeleteCharacter();
-                    break;
-                case EKeyboardKey.Option1:
+                case EKeyboardKey.Back:
                     ReturnToMainMenu();
                     break;
-                case EKeyboardKey.Option3:
-                    AddSpace();
-                    break;
             }
-        }
-
-        public void TypeChar(EKeyboardKey key)
-        {
-            if (key.TryParseNumber(out var num))
-            {
-                _currentCommand += num;
-                Redraw();
-                return;
-            }
-
-            _currentCommand += key;
-            Redraw();
-        }
-
-        public void AddSpace()
-        {
-            _currentCommand += " ";
-            Redraw();
         }
 
         public void RunCommand()
         {
             _notification = "";
-            var success = _commandHandler.Execute(_currentCommand, out var messageString);
+            var success = _commandHandler.Execute(_textInputHandler.Text, out var messageString);
 
             _notification = messageString;
 
             if (success)
             {
-                _currentCommand = "";
+                _textInputHandler.Text = "";
             }
 
-            Redraw();
-        }
-
-        public void DeleteCharacter()
-        {
-            if (_currentCommand.Length == 0) return;
-
-            _currentCommand = _currentCommand.Substring(0, _currentCommand.Length - 1);
             Redraw();
         }
     }
