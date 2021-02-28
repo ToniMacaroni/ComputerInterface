@@ -27,11 +27,11 @@ namespace ComputerInterface.Views
             _commandHandler = commandHandler;
 
             // setcolor: setcolor <r> <g> <b>
-            _commandHandler.AddCommand(new Command("setcolor", 3, args =>
+            _commandHandler.AddCommand(new Command("setcolor", new []{typeof(float), typeof(float) , typeof(float) }, args =>
             {
-                var r = float.Parse(args[0]);
-                var g = float.Parse(args[1]);
-                var b = float.Parse(args[2]);
+                var r = (float)args[0];
+                var g = (float)args[1];
+                var b = (float)args[2];
 
                 if (r > 0) r /= 255;
                 if (g > 0) g /= 255;
@@ -42,16 +42,16 @@ namespace ComputerInterface.Views
             }));
 
             // setname: setname <name>
-            _commandHandler.AddCommand(new Command("setname", 1, args =>
+            _commandHandler.AddCommand(new Command("setname", new Type[]{null}, args =>
             {
-                var newName = args[0].ToUpper();
+                var newName = ((string)args[0]).ToUpper();
                 BaseGameInterface.SetName(newName);
                 return $"Name set to {newName}";
             }));
 
             // leave: leave
             // disconnects from the current room
-            _commandHandler.AddCommand(new Command("leave", 0, args =>
+            _commandHandler.AddCommand(new Command("leave", null, args =>
             {
                 BaseGameInterface.Disconnect();
                 return "Left room";
@@ -59,26 +59,28 @@ namespace ComputerInterface.Views
 
             // join <roomId>
             // join a private room
-            _commandHandler.AddCommand(new Command("join", 1, args =>
+            _commandHandler.AddCommand(new Command("join", new Type[]{null}, args =>
             {
-                BaseGameInterface.JoinRoom(args[0]);
+                BaseGameInterface.JoinRoom((string)args[0]);
                 return $"Joined {args[0]}";
             }));
 
             // cam <fp|tp>
             // sets the screen camera to either first or third person
-            _commandHandler.AddCommand(new Command("cam", 1, args =>
+            _commandHandler.AddCommand(new Command("cam", new Type[]{null}, args =>
             {
                 var cam = GameObject.Find("Shoulder Camera")?.GetComponent<Camera>();
                 if (cam == null) return "camera not found";
 
-                if (args[0] == "fp")
+                var argString = (string) args[0];
+
+                if (argString == "fp")
                 {
                     cam.enabled = false;
                     return "Set to first person";
                 }
 
-                if(args[0] == "tp")
+                if(argString == "tp")
                 {
                     cam.enabled = true;
                     return "Set to third person";
@@ -89,11 +91,11 @@ namespace ComputerInterface.Views
 
             // setbg <r> <g> <b>
             // sets the background of the screen
-            _commandHandler.AddCommand(new Command("setbg", 3, args =>
+            _commandHandler.AddCommand(new Command("setbg", new[] { typeof(float), typeof(float), typeof(float) }, args =>
             {
-                var r = float.Parse(args[0]);
-                var g = float.Parse(args[1]);
-                var b = float.Parse(args[2]);
+                var r = (float) args[0];
+                var g = (float) args[1];
+                var b = (float) args[2];
 
                 if (r > 0) r /= 255;
                 if (g > 0) g /= 255;
@@ -136,7 +138,7 @@ namespace ComputerInterface.Views
                 str.Append("  <color=#ffffff60>").Append(_notification.Replace("\n", "\n  ")).Append("</color>").AppendLine();
             }
 
-            str.Append("<color=#ffffff60>></color> ").Append(_textInputHandler.Text).AppendLine();
+            str.AppendClr(">", "ffffff60").Append(_textInputHandler.Text).AppendClr("_", "ffffff60").AppendLine();
         }
 
         public override void OnKeyPressed(EKeyboardKey key)
