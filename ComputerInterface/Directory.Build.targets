@@ -13,6 +13,7 @@
 			<OldBuilds Include="$(DestinationDirectory)*.*"/>
 		</ItemGroup>
 		<Copy SourceFiles="$(TargetPath)" DestinationFiles="$(DestinationDirectory)\BepInEx\plugins\ComputerInterface\$(TargetFileName)" />
+		<Copy SourceFiles="$(TargetDir)\Unity.TextMeshPro.dll" DestinationFiles="$(DestinationDirectory)\BepInEx\plugins\ComputerInterface\Unity.TextMeshPro.dll" />
 		<Delete Files="@(OldBuilds)" TreatErrorsAsWarnings="true" ContinueOnError="true" />
 		<Delete Files="@(OldZips)" TreatErrorsAsWarnings="false" ContinueOnError="false" />
 		<ZipDir SourceDirectory="$(DestinationDirectory)" DestinationFile="$(SolutionDir)$(TargetName).zip" />
