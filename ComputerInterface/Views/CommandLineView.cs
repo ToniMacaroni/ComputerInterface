@@ -138,7 +138,7 @@ namespace ComputerInterface.Views
                 str.Append("  <color=#ffffff60>").Append(_notification.Replace("\n", "\n  ")).Append("</color>").AppendLine();
             }
 
-            str.Append("<color=#ffffff60>></color> ").Append(_textInputHandler.Text).AppendLine();
+            str.AppendClr(">", "ffffff60").Append(_textInputHandler.Text).AppendClr("_", "ffffff60").AppendLine();
         }
 
         public override void OnKeyPressed(EKeyboardKey key)

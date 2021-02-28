@@ -71,7 +71,16 @@ namespace ComputerInterface
                     continue;
                 }
 
-                arguments[i - 1] = TomlTypeConverter.ConvertToValue(commandStrings[i], command.ArgumentTypes[i-1]);
+                try
+                {
+                    arguments[i - 1] = TomlTypeConverter.ConvertToValue(commandStrings[i], command.ArgumentTypes[i - 1]);
+                }
+                catch
+                {
+                    messageString = "arguments not in correct format";
+                    return false;
+                }
+                
             }
 
             messageString = command.Callback?.Invoke(arguments);
