@@ -178,27 +178,30 @@ namespace ComputerInterface
             newDeleteKey.transform.localPosition += new Vector3(2.3f, 0, 0);
             newDeleteKey.GetComponent<CustomKeyboardKey>().Init(this, EKeyboardKey.Delete);
 
-            deleteKey.GetComponent<CustomKeyboardKey>().Init(this, EKeyboardKey.Back, "Back");
+            ColorUtility.TryParseHtmlString("#303090", out var backButtonColor);
+            deleteKey.GetComponent<CustomKeyboardKey>().Init(this, EKeyboardKey.Back, "Back", backButtonColor);
+
+            ColorUtility.TryParseHtmlString("#309030FF", out var arrowKeyButtonColor);
 
             var leftKey = Instantiate(mKey.gameObject, mKey.transform.parent);
             leftKey.name = "Left";
             leftKey.transform.localPosition += new Vector3(0, 0, 5.6f);
-            leftKey.GetComponent<CustomKeyboardKey>().Init(this, EKeyboardKey.Left, ".");
+            leftKey.GetComponent<CustomKeyboardKey>().Init(this, EKeyboardKey.Left, ".", arrowKeyButtonColor);
 
             var downKey = Instantiate(leftKey.gameObject, leftKey.transform.parent);
             downKey.name = "Down";
             downKey.transform.localPosition += new Vector3(0, 0, 2.3f);
-            downKey.GetComponent<CustomKeyboardKey>().Init(this, EKeyboardKey.Down, ".");
+            downKey.GetComponent<CustomKeyboardKey>().Init(this, EKeyboardKey.Down, ".", arrowKeyButtonColor);
 
             var rightKey = Instantiate(downKey.gameObject, downKey.transform.parent);
             rightKey.name = "Right";
             rightKey.transform.localPosition += new Vector3(0, 0, 2.3f);
-            rightKey.GetComponent<CustomKeyboardKey>().Init(this, EKeyboardKey.Right, ".");
+            rightKey.GetComponent<CustomKeyboardKey>().Init(this, EKeyboardKey.Right, ".", arrowKeyButtonColor);
 
             var upKey = Instantiate(downKey.gameObject, downKey.transform.parent);
             upKey.name = "Up";
             upKey.transform.localPosition += new Vector3(-2.3f, 0, 0);
-            upKey.GetComponent<CustomKeyboardKey>().Init(this, EKeyboardKey.Up, ".");
+            upKey.GetComponent<CustomKeyboardKey>().Init(this, EKeyboardKey.Up, ".", arrowKeyButtonColor);
         }
 
         private async Task<CustomScreenInfo> CreateMonitor()

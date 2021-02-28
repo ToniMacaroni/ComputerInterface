@@ -40,11 +40,15 @@ namespace ComputerInterface
 
         public void Init(CustomComputer computer, EKeyboardKey key, string text)
         {
-            _computer = computer;
-            KeyboardKey = key;
+            Init(computer, key);
             GetComponentInChildren<Text>().text = text;
+        }
 
-            enabled = true;
+        public void Init(CustomComputer computer, EKeyboardKey key, string text, Color buttonColor)
+        {
+            Init(computer, key, text);
+            _material.color = buttonColor;
+            _originalColor = buttonColor;
         }
 
         private async void OnTriggerEnter(Collider collider)
