@@ -44,6 +44,8 @@ namespace ComputerInterface.Views
             str.AppendLine();
             str.Append(GetSelectionString(0, "[")).Append("Enable").Append(GetSelectionString(0, "]")).AppendLine();
             str.Append(GetSelectionString(1, "[")).Append("Disable").Append(GetSelectionString(1, "]")).AppendLine();
+            str.AppendLine().AppendLine();
+            str.Append("<color=#ffffff60>Toggling of mods currently not implemented</color>").AppendLine();
         }
 
         private string GetSelectionString(int idx, string chararcter)
