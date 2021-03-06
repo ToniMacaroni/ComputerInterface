@@ -10,7 +10,7 @@ namespace ComputerInterface.Views
     {
         private readonly Dictionary<int, Command[]> _pageCommandsDict;
 
-        private int _commandsPerPage = 4;
+        private int _commandsPerPage = 7;
         private int _maxPage = 12;
 
         private int _currentPage;
@@ -38,8 +38,8 @@ namespace ComputerInterface.Views
 
         public void DrawHeader(StringBuilder str)
         {
-            str.Append("<color=#ffffff80>Page ").Append(_currentPage).AppendLine();
-            str.Append("Navigate with left / rigth arrow key").AppendLine();
+            str.Append("<color=#ffffff80><align=\"center\">Page ").Append(_currentPage+1).Append("</align>").AppendLine();
+            str.Append("Navigate with left / right arrow key").AppendLine();
 
             for (int x = 0; x < SCREEN_WIDTH; x++)
             {
@@ -135,9 +135,11 @@ namespace ComputerInterface.Views
                 var commands = new Command[_commandsPerPage];
                 for (int i = 0; i < _commandsPerPage; i++)
                 {
-                    var commandIdx = (pageNum+1) * i;
+                    var commandIdx = (pageNum*_commandsPerPage) + i;
+
                     if (commandIdx > numOfCommands - 1)
                     {
+                        dict.Add(pageNum, commands);
                         return dict;
                     }
 
