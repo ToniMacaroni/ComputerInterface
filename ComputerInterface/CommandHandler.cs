@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using BepInEx.Configuration;
 using UnityEngine;
 using UnityEngine.Windows.WebCam;
@@ -86,6 +87,11 @@ namespace ComputerInterface
             messageString = command.Callback?.Invoke(arguments);
 
             return true;
+        }
+
+        public IList<Command> GetAllCommands()
+        {
+            return _commands.Values.ToList();
         }
     }
 

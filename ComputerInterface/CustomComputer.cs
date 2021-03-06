@@ -178,10 +178,10 @@ namespace ComputerInterface
             newDeleteKey.transform.localPosition += new Vector3(2.3f, 0, 0);
             newDeleteKey.GetComponent<CustomKeyboardKey>().Init(this, EKeyboardKey.Delete);
 
-            ColorUtility.TryParseHtmlString("#303090", out var backButtonColor);
+            ColorUtility.TryParseHtmlString("#8787e0", out var backButtonColor);
             deleteKey.GetComponent<CustomKeyboardKey>().Init(this, EKeyboardKey.Back, "Back", backButtonColor);
 
-            ColorUtility.TryParseHtmlString("#309030FF", out var arrowKeyButtonColor);
+            ColorUtility.TryParseHtmlString("#abdbab", out var arrowKeyButtonColor);
 
             var leftKey = Instantiate(mKey.gameObject, mKey.transform.parent);
             leftKey.name = "Left";
