@@ -10,6 +10,17 @@ namespace ComputerInterface.ViewLib
 {
     public class ComputerView : IComputerView
     {
+        /// <summary>
+        /// How many characters fit in the x axis of the screen
+        /// </summary>
+        public static int SCREEN_WIDTH = 40;
+
+        /// <summary>
+        /// How many characters fit in the y axis of the screen
+        /// </summary>
+        public static int SCREEN_HEIGHT = 10;
+
+
         public string Text
         {
             get => _text;

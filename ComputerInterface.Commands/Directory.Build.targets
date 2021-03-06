@@ -3,27 +3,25 @@
 <Project>
 
 	<ItemGroup>
-		<FilesToCopy Include="
-							$(TargetDir)\Unity.TextMeshPro.dll;
-							$(TargetDir)\$(TargetFileName);" />
+		<FilesToCopy Include="$(TargetPath)" />
 	</ItemGroup>
 
 	<Target Name="CopyToPlugins" AfterTargets="Build">
-		<Copy SourceFiles="@(FilesToCopy)" DestinationFolder="$(PluginsPath)\$(ProjectName)\" />
+		<Copy SourceFiles="@(FilesToCopy)" DestinationFolder="$(PluginsPath)\$(SolutionName)\" />
 		<Message Text="Copied to Plugins" Importance="high" />
 	</Target>
 
 	<Target Name="ZipRelease" AfterTargets="AfterBuild" Condition="'$(Configuration)' == 'Release'">
 		<!--<ItemGroup>
 			<OldZips Include="$(SolutionDir)$(TargetName).zip" />
-			<OldBuilds Include="$(DestinationDirectory)*.*" />
+			<OldBuilds Include="$(ZipDir)*.*" />
 		</ItemGroup>-->
 
-		<!--<Delete Files="@(OldBuilds)" TreatErrorsAsWarnings="true" ContinueOnError="true" />
-		<Delete Files="@(OldZips)" TreatErrorsAsWarnings="false" ContinueOnError="false" />-->
+		<!--<Delete Files="@(OldBuilds)" TreatErrorsAsWarnings="true" ContinueOnError="true" />-->
+		<!--<Delete Files="@(OldZips)" TreatErrorsAsWarnings="false" ContinueOnError="false" />-->
 
 		<Copy SourceFiles="@(FilesToCopy)"
-		      DestinationFolder="$(ZipDir)\BepInEx\plugins\$(ProjectName)\" />
+		      DestinationFolder="$(ZipDir)\BepInEx\plugins\$(SolutionName)\" />
 
 		<!--<ZipDir SourceDirectory="$(DestinationDirectory)" DestinationFile="$(SolutionDir)$(TargetName).zip" />-->
 

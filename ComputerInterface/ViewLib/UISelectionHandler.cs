@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace ComputerInterface.Views
+namespace ComputerInterface.ViewLib
 {
     public class UISelectionHandler
     {

@@ -8,6 +8,7 @@ using Zenject;
 
 namespace ComputerInterface
 {
+    [BepInDependency("dev.auros.bepinex.bepinject")]
     [BepInPlugin(PluginInfo.ID, PluginInfo.NAME, PluginInfo.VERSION)]
     public class Plugin : BaseUnityPlugin
     {
