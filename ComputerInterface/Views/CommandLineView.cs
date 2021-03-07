@@ -1,10 +1,7 @@
 ﻿using System;
 using System.Text;
-using BepInEx;
 using ComputerInterface.Interfaces;
 using ComputerInterface.ViewLib;
-using UnityEngine;
-using Zenject;
 
 namespace ComputerInterface.Views
 {

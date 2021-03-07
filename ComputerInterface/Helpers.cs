@@ -1,6 +1,4 @@
-﻿using UnityEngine;
-
-namespace ComputerInterface
+﻿namespace ComputerInterface
 {
     public static class Helpers
     {

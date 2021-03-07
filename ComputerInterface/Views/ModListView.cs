@@ -5,7 +5,6 @@ using System.Text;
 using BepInEx.Bootstrap;
 using ComputerInterface.Interfaces;
 using ComputerInterface.ViewLib;
-using UnityEngine.Playables;
 
 namespace ComputerInterface.Views
 {
@@ -56,7 +55,9 @@ namespace ComputerInterface.Views
             for (int i = 0; i < _plugins.Count; i++)
             {
                 var plugin = _plugins[i];
-                str.Append(_selectionHandler.CurrentSelectionIndex == i ? "<color=#ed6540>></color> " : "  ").Append(plugin.Metadata.Name).AppendLine();
+                str.Append(_selectionHandler.CurrentSelectionIndex == i ? "<color=#ed6540>></color> " : "  ")
+                    .Append(plugin.Metadata.Name);
+                str.Append("  ").Append(plugin.Instance.enabled ? "<color=#00ff00>E</color>" : "<color=#ff0000>D</color>").AppendLine();
             }
         }
 

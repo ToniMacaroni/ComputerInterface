@@ -38,6 +38,9 @@
 		<Reference Include="PhotonUnityNetworking">
 		  <HintPath>D:\SteamLibrary\steamapps\common\Gorilla Tag\Gorilla Tag_Data\Managed\PhotonUnityNetworking.dll</HintPath>
 		</Reference>
+		<Reference Include="Unity.InputSystem">
+		  <HintPath>D:\SteamLibrary\steamapps\common\Gorilla Tag\Gorilla Tag_Data\Managed\Unity.InputSystem.dll</HintPath>
+		</Reference>
 		<Reference Include="Unity.TextMeshPro">
 		  <HintPath>D:\SteamLibrary\steamapps\common\Gorilla Tag\BepInEx\plugins\ComputerInterface\Unity.TextMeshPro.dll</HintPath>
 		</Reference>

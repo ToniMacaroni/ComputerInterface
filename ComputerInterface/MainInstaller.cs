@@ -1,9 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using BepInEx.Bootstrap;
-using BepInEx.Configuration;
-using BepInEx.Logging;
-using Bepinject;
 using ComputerInterface.Interfaces;
 using ComputerInterface.ViewLib;
 using ComputerInterface.Views;

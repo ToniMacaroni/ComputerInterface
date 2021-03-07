@@ -1,19 +1,21 @@
-﻿using System.Runtime.InteropServices;
-using System.Text;
+﻿using System.Text;
 using ComputerInterface.ViewLib;
-using UnityEngine.Playables;
+using UnityEngine;
 
 namespace ComputerInterface.Views
 {
     internal class ModView : ComputerView
     {
+        private readonly CIConfig _config;
         private BepInEx.PluginInfo _plugin;
 
         private readonly UISelectionHandler _selectionHandler;
 
-        public ModView()
+        public ModView(CIConfig config)
         {
-            _selectionHandler = new UISelectionHandler(EKeyboardKey.Up, EKeyboardKey.Down, EKeyboardKey.Enter, false);
+            _config = config;
+            _selectionHandler = new UISelectionHandler(EKeyboardKey.Up, EKeyboardKey.Down, EKeyboardKey.Enter, true);
+            _selectionHandler.OnSelected += OnOptionSelected;
             _selectionHandler.Max = 1;
         }
 
@@ -37,6 +39,7 @@ namespace ComputerInterface.Views
         private void RedrawHeader(StringBuilder str)
         {
             str.Append("/// ").Append(_plugin.Metadata.Name).Append(" ").Append(_plugin.Metadata.Version).Append(" ///").AppendLine();
+            str.Append("/// ").Append(_plugin.Instance.enabled ? "<color=#00ff00>Enabled</color>" : "<color=#ff0000>Disabled</color>").AppendLine();
         }
 
         private void RedrawSelection(StringBuilder str)
@@ -45,12 +48,31 @@ namespace ComputerInterface.Views
             str.Append(GetSelectionString(0, "[")).Append("Enable").Append(GetSelectionString(0, "]")).AppendLine();
             str.Append(GetSelectionString(1, "[")).Append("Disable").Append(GetSelectionString(1, "]")).AppendLine();
             str.AppendLine().AppendLine();
-            str.Append("<color=#ffffff60>Toggling of mods currently not implemented</color>").AppendLine();
         }
 
         private string GetSelectionString(int idx, string chararcter)
         {
             return _selectionHandler.CurrentSelectionIndex == idx ? "<color=#ed6540>" + chararcter+ "</color>" : " ";
+        }
+
+        private void OnOptionSelected(int idx)
+        {
+            if (idx == 0)
+            {
+                // Enable was pressed
+                _plugin.Instance.enabled = true;
+                _config.RemoveDisabledMod(_plugin.Metadata.GUID);
+                return;
+            }
+
+            if (idx == 1)
+            {
+                // Disable was pressed
+                _plugin.Instance.enabled = false;
+                _config.AddDisabledMod(_plugin.Metadata.GUID);
+            }
+
+            Redraw();
         }
 
         public override void OnKeyPressed(EKeyboardKey key)
