@@ -1,5 +1,9 @@
-﻿using System.Threading.Tasks;
+﻿using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 using UnityEngine;
+using UnityEngine.InputSystem;
+using UnityEngine.InputSystem.Controls;
 using UnityEngine.UI;
 
 namespace ComputerInterface
@@ -9,6 +13,10 @@ namespace ComputerInterface
         private const int PRESS_COOLDOWN = 150;
         private const float KEY_BUMP_AMOUNT = 0.2f;
         private readonly Color _pressedColor = new Color(0.5f, 0.5f, 0.5f);
+
+        public static bool KeyDebuggerEnabled;
+
+        private static Dictionary<EKeyboardKey, Key> _keyMap;
 
         public EKeyboardKey KeyboardKey { get; private set; }
 
@@ -22,18 +30,40 @@ namespace ComputerInterface
 
         private Material _material;
         private Color _originalColor;
+        private KeyHandler _keyHandler;
 
         private void Awake()
         {
             enabled = false;
             _material = GetComponent<MeshRenderer>().material;
             _originalColor = _material.color;
+
+            CreateKeyMap();
+        }
+
+        /// <summary>
+        /// Used for debugging keyboard feature
+        /// </summary>
+        public void Fetch()
+        {
+            _keyHandler?.Fetch();
         }
 
         public void Init(CustomComputer computer, EKeyboardKey key)
         {
             _computer = computer;
             KeyboardKey = key;
+
+            if (_keyHandler != null)
+            {
+                _keyHandler.OnClick -= OnISKeyPress;
+            }
+
+            if (_keyMap.TryGetValue(key, out var ISKey))
+            {
+                _keyHandler = new KeyHandler(Keyboard.current[ISKey]);
+                _keyHandler.OnClick += OnISKeyPress;
+            }
 
             enabled = true;
         }
@@ -94,6 +124,73 @@ namespace ComputerInterface
             transform.localPosition = pos;
 
             _material.color = _originalColor;
+        }
+
+        private void OnISKeyPress()
+        {
+            _computer.PressButton(this);
+        }
+
+        private void CreateKeyMap()
+        {
+            if (_keyMap != null) return;
+
+            _keyMap = new Dictionary<EKeyboardKey, Key>();
+
+            _keyMap.Add(EKeyboardKey.Left, Key.LeftArrow);
+            _keyMap.Add(EKeyboardKey.Right, Key.RightArrow);
+            _keyMap.Add(EKeyboardKey.Up, Key.UpArrow);
+            _keyMap.Add(EKeyboardKey.Down, Key.DownArrow);
+
+            _keyMap.Add(EKeyboardKey.Back, Key.Escape);
+            _keyMap.Add(EKeyboardKey.Delete, Key.Backspace);
+
+            // add num keys
+            for (int i = 0; i < 10; i++)
+            {
+                var localKey = (EKeyboardKey)Enum.Parse(typeof(EKeyboardKey), "NUM" + i);
+                var key = (Key) Enum.Parse(typeof(Key), "Digit" + i);
+
+                _keyMap.Add(localKey, key);
+            }
+
+            // add keys that match in name like alphabet keys
+            foreach (var gtKey in Enum.GetNames(typeof(EKeyboardKey)))
+            {
+                var val = (EKeyboardKey) Enum.Parse(typeof(EKeyboardKey), gtKey);
+                if(_keyMap.ContainsKey(val))continue;
+
+                if (!Enum.TryParse(gtKey, true, out Key key)) continue;
+
+                _keyMap.Add(val, key);
+            }
+        }
+
+        internal class KeyHandler
+        {
+            public event Action OnClick;
+
+            private readonly KeyControl _key;
+            private bool _wasPressed;
+
+            public KeyHandler(KeyControl key)
+            {
+                _key = key;
+            }
+
+            public void Fetch()
+            {
+                if (_key.isPressed && !_wasPressed)
+                {
+                    _wasPressed = true;
+                    OnClick?.Invoke();
+                }
+
+                if (!_key.isPressed && _wasPressed)
+                {
+                    _wasPressed = false;
+                }
+            }
         }
     }
 }

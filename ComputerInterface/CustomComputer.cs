@@ -1,7 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Threading.Tasks;
+using BepInEx;
+using BepInEx.Bootstrap;
 using ComputerInterface.Interfaces;
 using ComputerInterface.ViewLib;
 using ComputerInterface.Views;
@@ -86,6 +89,24 @@ namespace ComputerInterface
 
         public void Initialize()
         {
+            foreach (var pluginInfo in Chainloader.PluginInfos.Values)
+            {
+                if (_config.IsModDisabled(pluginInfo.Metadata.GUID))
+                {
+                    pluginInfo.Instance.enabled = false;
+                }
+            }
+        }
+
+        private void Update()
+        {
+            if (CustomKeyboardKey.KeyDebuggerEnabled && _keys != null)
+            {
+                foreach (var key in _keys)
+                {
+                    key.Fetch();
+                }
+            }
         }
 
         public void Reposition()
@@ -168,40 +189,45 @@ namespace ComputerInterface
             var mKey = _keys.First(x => x.KeyboardKey == EKeyboardKey.M);
             var deleteKey = _keys.First(x => x.KeyboardKey == EKeyboardKey.Delete);
 
-            var spaceKey = Instantiate(enterKey.gameObject, enterKey.transform.parent);
-            spaceKey.name = "Space";
-            spaceKey.transform.localPosition += new Vector3(2.6f, 0, 3);
-            spaceKey.GetComponent<CustomKeyboardKey>().Init(this, EKeyboardKey.Space, "Space");
-
-            var newDeleteKey = Instantiate(deleteKey.gameObject, deleteKey.transform.parent);
-            newDeleteKey.name = "Delete";
-            newDeleteKey.transform.localPosition += new Vector3(2.3f, 0, 0);
-            newDeleteKey.GetComponent<CustomKeyboardKey>().Init(this, EKeyboardKey.Delete);
+            CreateKey(enterKey.gameObject, "Space", new Vector3(2.6f, 0, 3), EKeyboardKey.Space, "Space");
+            CreateKey(deleteKey.gameObject, "Delete", new Vector3(2.3f, 0, 0), EKeyboardKey.Delete);
 
             ColorUtility.TryParseHtmlString("#8787e0", out var backButtonColor);
             deleteKey.GetComponent<CustomKeyboardKey>().Init(this, EKeyboardKey.Back, "Back", backButtonColor);
 
             ColorUtility.TryParseHtmlString("#abdbab", out var arrowKeyButtonColor);
 
-            var leftKey = Instantiate(mKey.gameObject, mKey.transform.parent);
-            leftKey.name = "Left";
-            leftKey.transform.localPosition += new Vector3(0, 0, 5.6f);
-            leftKey.GetComponent<CustomKeyboardKey>().Init(this, EKeyboardKey.Left, ".", arrowKeyButtonColor);
 
-            var downKey = Instantiate(leftKey.gameObject, leftKey.transform.parent);
-            downKey.name = "Down";
-            downKey.transform.localPosition += new Vector3(0, 0, 2.3f);
-            downKey.GetComponent<CustomKeyboardKey>().Init(this, EKeyboardKey.Down, ".", arrowKeyButtonColor);
+            var leftKey = CreateKey(mKey.gameObject, "Left", new Vector3(0, 0, 5.6f), EKeyboardKey.Left, ".", arrowKeyButtonColor);
+            var downKey = CreateKey(leftKey.gameObject, "Down", new Vector3(0, 0, 2.3f), EKeyboardKey.Down, ".", arrowKeyButtonColor);
+            CreateKey(downKey.gameObject, "Right", new Vector3(0, 0, 2.3f), EKeyboardKey.Right, ".", arrowKeyButtonColor);
+            CreateKey(downKey.gameObject, "Up", new Vector3(-2.3f, 0, 0), EKeyboardKey.Up, ".", arrowKeyButtonColor);
+        }
 
-            var rightKey = Instantiate(downKey.gameObject, downKey.transform.parent);
-            rightKey.name = "Right";
-            rightKey.transform.localPosition += new Vector3(0, 0, 2.3f);
-            rightKey.GetComponent<CustomKeyboardKey>().Init(this, EKeyboardKey.Right, ".", arrowKeyButtonColor);
-
-            var upKey = Instantiate(downKey.gameObject, downKey.transform.parent);
-            upKey.name = "Up";
-            upKey.transform.localPosition += new Vector3(-2.3f, 0, 0);
-            upKey.GetComponent<CustomKeyboardKey>().Init(this, EKeyboardKey.Up, ".", arrowKeyButtonColor);
+        private CustomKeyboardKey CreateKey(GameObject prefab, string goName, Vector3 offset, EKeyboardKey key,
+            string label = null, Color? color = null)
+        {
+            var newKey = Instantiate(prefab.gameObject, prefab.transform.parent);
+            newKey.name = goName;
+            newKey.transform.localPosition += offset;
+            var customKeyboardKey = newKey.GetComponent<CustomKeyboardKey>();
+            if (label.IsNullOrWhiteSpace())
+            {
+                customKeyboardKey.Init(this, key);
+            }
+            else
+            {
+                if (color.HasValue)
+                {
+                    customKeyboardKey.Init(this, key, label, color.Value);
+                }
+                else
+                {
+                    customKeyboardKey.Init(this, key, label);
+                }
+            }
+            _keys.Add(customKeyboardKey);
+            return customKeyboardKey;
         }
 
         private async Task<CustomScreenInfo> CreateMonitor()

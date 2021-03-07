@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using BepInEx.Configuration;
 using UnityEngine;
-using UnityEngine.Windows.WebCam;
 
 namespace ComputerInterface
 {
@@ -11,7 +10,7 @@ namespace ComputerInterface
     {
         private readonly Dictionary<string, Command> _commands = new Dictionary<string, Command>();
 
-        public void AddCommand(Command command)
+        public CommandToken AddCommand(Command command)
         {
             if (_commands.ContainsKey(command.Name))
             {
@@ -32,6 +31,13 @@ namespace ComputerInterface
             }
 
             _commands.Add(command.Name, command);
+            return new CommandToken(this, command.Name, true);
+        }
+
+        internal void UnregisterCommand(string name)
+        {
+            _commands.Remove(name);
+            Debug.LogError("unregistered " + name);
         }
 
         public bool Execute(string commandString, out string messageString)
@@ -108,6 +114,30 @@ namespace ComputerInterface
             Name = name;
             ArgumentTypes = argumentTypes;
             Callback = callback;
+        }
+    }
+
+    public class CommandToken
+    {
+        private readonly CommandHandler _commandHandler;
+        private readonly string _name;
+        private readonly bool _success;
+
+        private bool _unregistered;
+
+        internal CommandToken(CommandHandler commandHandler, string name, bool success)
+        {
+            _commandHandler = commandHandler;
+            _name = name;
+            _success = success;
+        }
+
+        public void UnregisterCommand()
+        {
+            if (!_success || _unregistered) return;
+
+            _unregistered = true;
+            _commandHandler.UnregisterCommand(_name);
         }
     }
 

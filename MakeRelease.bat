@@ -1,2 +1,2 @@
-powershell.exe -ExecutionPolicy Bypass -NoProfile -NonInteractive -File %CD%\MakeRelease.ps1 %*
+python MakeRelease.py
 pause

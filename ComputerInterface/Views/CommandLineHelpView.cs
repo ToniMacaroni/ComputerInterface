@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Text;
 using ComputerInterface.ViewLib;
 using UnityEngine;
@@ -8,7 +7,8 @@ namespace ComputerInterface.Views
 {
     public class CommandLineHelpView : ComputerView
     {
-        private readonly Dictionary<int, Command[]> _pageCommandsDict;
+        private readonly CommandHandler _commandHandler;
+        private Dictionary<int, Command[]> _pageCommandsDict;
 
         private int _commandsPerPage = 7;
         private int _maxPage = 12;
@@ -17,12 +17,14 @@ namespace ComputerInterface.Views
 
         public CommandLineHelpView(CommandHandler commandHandler)
         {
-            _pageCommandsDict = CreatePages(commandHandler.GetAllCommands());
+            _commandHandler = commandHandler;
         }
 
         public override void OnShow(object[] args)
         {
             base.OnShow(args);
+
+            _pageCommandsDict = CreatePages(_commandHandler.GetAllCommands());
             Redraw();
         }
 
