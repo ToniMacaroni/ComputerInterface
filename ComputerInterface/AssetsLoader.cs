@@ -65,9 +65,18 @@ namespace ComputerInterface
             IsLoaded = true;
         }
 
+        public void Unload()
+        {
+            if (!IsLoaded) return;
+            Debug.LogError("Unloading bundle");
+            IsLoaded = false;
+            _loadedBundle.Unload(true);
+            _loadedBundle = null;
+        }
+
         public void Dispose()
         {
-            _loadedBundle.Unload(true);
+            Unload();
         }
     }
 }

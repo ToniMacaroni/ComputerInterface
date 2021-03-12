@@ -61,6 +61,7 @@ namespace ComputerInterface.Commands
                     return "Invalid room";
                 }
 
+                roomId = roomId.ToUpper();
                 BaseGameInterface.JoinRoom(roomId);
 
                 return $"Joined {args[0]}";

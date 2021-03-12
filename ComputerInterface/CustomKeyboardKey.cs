@@ -146,13 +146,15 @@ namespace ComputerInterface
             _keyMap.Add(EKeyboardKey.Delete, Key.Backspace);
 
             // add num keys
-            for (int i = 0; i < 10; i++)
+            for (int i = 1; i < 9; i++)
             {
-                var localKey = (EKeyboardKey)Enum.Parse(typeof(EKeyboardKey), "NUM" + i);
-                var key = (Key) Enum.Parse(typeof(Key), "Digit" + i);
+                var localKey = (EKeyboardKey)i;
+                var key = (Key) 40+i;
 
                 _keyMap.Add(localKey, key);
             }
+
+            _keyMap.Add(EKeyboardKey.NUM0, Key.Digit0);
 
             // add keys that match in name like alphabet keys
             foreach (var gtKey in Enum.GetNames(typeof(EKeyboardKey)))

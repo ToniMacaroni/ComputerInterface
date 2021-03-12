@@ -1,0 +1,35 @@
+ManifestFileVersion: 0
+CRC: 1537136302
+Hashes:
+  AssetFileHash:
+    serializedVersion: 2
+    Hash: 540c9e4db019e69e8e6e48f9c272a2a5
+  TypeTreeHash:
+    serializedVersion: 2
+    Hash: 7a50b74d478d7152d2c3a3349cd63e9e
+HashAppended: 0
+ClassTypes:
+- Class: 1
+  Script: {instanceID: 0}
+- Class: 4
+  Script: {instanceID: 0}
+- Class: 21
+  Script: {instanceID: 0}
+- Class: 23
+  Script: {instanceID: 0}
+- Class: 28
+  Script: {instanceID: 0}
+- Class: 33
+  Script: {instanceID: 0}
+- Class: 43
+  Script: {instanceID: 0}
+- Class: 48
+  Script: {instanceID: 0}
+- Class: 64
+  Script: {instanceID: 0}
+- Class: 137
+  Script: {instanceID: 0}
+Assets:
+- Assets/_Pillow.prefab
+- Assets/Plane.prefab
+Dependencies: []
