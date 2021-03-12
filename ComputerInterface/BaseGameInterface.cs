@@ -1,4 +1,7 @@
-﻿using GorillaLocomotion;
+﻿using System;
+using BepInEx;
+using GorillaLocomotion;
+using HarmonyLib;
 using Photon.Pun;
 using UnityEngine;
 using UnityEngine.XR.Interaction.Toolkit;
@@ -20,6 +23,23 @@ namespace ComputerInterface
                 GorillaTagger.Instance.myVRRig.photonView.RPC("InitializeNoobMaterial", RpcTarget.All, r, g, b);
             }
         }
+        public static void SetColor(Color color)
+        {
+            SetColor(color.r, color.g, color.b);
+        }
+
+        public static void GetColor(out float r, out float g, out float b)
+        {
+            r = PlayerPrefs.GetFloat("redValue");
+            g = PlayerPrefs.GetFloat("greenValue");
+            b = PlayerPrefs.GetFloat("blueValue");
+        }
+
+        public static Color GetColor()
+        {
+            GetColor(out var r, out var g, out var b);
+            return new Color(r, g, b);
+        }
 
         public static void SetName(string name)
         {
@@ -30,6 +50,31 @@ namespace ComputerInterface
             GorillaComputer.instance.savedName = name;
             PlayerPrefs.SetString("playerName", name);
             PlayerPrefs.Save();
+        }
+
+        public static string GetName()
+        {
+            return PhotonNetwork.LocalPlayer.NickName;
+        }
+
+        public static void SetTurnMode(ETurnMode turnMode)
+        {
+            if (GorillaComputer.instance == null) return;
+
+            var turnModeString = turnMode.ToString();
+            var turnTypeField = AccessTools.Field(typeof(GorillaComputer), "turnType");
+            var turnValueField = AccessTools.Field(typeof(GorillaComputer), "turnValue");
+            turnTypeField.SetValue(GorillaComputer.instance, turnModeString);
+            PlayerPrefs.SetString("stickTurning", turnModeString);
+            PlayerPrefs.Save();
+            GorillaTagger.Instance.GetComponent<GorillaSnapTurn>().ChangeTurnMode(turnModeString, (int)turnValueField.GetValue(GorillaComputer.instance));
+        }
+
+        public static ETurnMode GetTurnMode()
+        {
+            var turnMode = PlayerPrefs.GetString("stickTurning");
+            if (turnMode.IsNullOrWhiteSpace()) return ETurnMode.NONE;
+            return (ETurnMode) Enum.Parse(typeof(ETurnMode), turnMode);
         }
 
         public static void Disconnect()
@@ -130,6 +175,13 @@ namespace ComputerInterface
             InitColorState();
             InitNameState();
             InitTurnState();
+        }
+
+        public enum ETurnMode
+        {
+            SNAP,
+            SMOOTH,
+            NONE
         }
     }
 }

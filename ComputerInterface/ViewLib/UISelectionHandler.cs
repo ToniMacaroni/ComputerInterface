@@ -7,8 +7,18 @@ namespace ComputerInterface.ViewLib
         public event Action<int> OnSelected; 
 
         public int CurrentSelectionIndex;
+
+        /// <summary>
+        /// Min 0 indexed item
+        /// This can stay on 0 
+        /// </summary>
         public int Min = 0;
-        public int Max;
+
+        /// <summary>
+        /// Max 0 indexed item
+        /// e.g. If you have two items this should be 1
+        /// </summary>
+        public int Max { get; set; }
 
         private readonly EKeyboardKey _upKey;
         private readonly EKeyboardKey _downKey;
@@ -21,6 +31,10 @@ namespace ComputerInterface.ViewLib
             _downKey = downKey;
             _selectKey = selectKey;
             _canSelect = canSelect;
+        }
+
+        public UISelectionHandler(EKeyboardKey upKey, EKeyboardKey downKey) : this(upKey, downKey, EKeyboardKey.Enter, false)
+        {
         }
 
         public bool HandleKeypress(EKeyboardKey key)
@@ -46,13 +60,13 @@ namespace ComputerInterface.ViewLib
             return false;
         }
 
-        private void MoveSelectionUp()
+        public void MoveSelectionUp()
         {
             CurrentSelectionIndex--;
             ClampSelection();
         }
 
-        private void MoveSelectionDown()
+        public void MoveSelectionDown()
         {
             CurrentSelectionIndex++;
             ClampSelection();

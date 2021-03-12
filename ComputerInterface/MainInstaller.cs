@@ -19,6 +19,7 @@ namespace ComputerInterface
             Container.BindInterfacesAndSelfTo<CustomComputer>().FromNewComponentOn(ComputerGetter).AsSingle();
 
             Container.Bind<MainMenuView>().AsSingle();
+            Container.Bind<IComputerModEntry>().To<GameSettingsEntry>().AsSingle();
             Container.Bind<IComputerModEntry>().To<CommandLineEntry>().AsSingle();
             Container.Bind<IComputerModEntry>().To<ModListEntry>().AsSingle();
             Container.Bind<CommandHandler>().AsSingle();

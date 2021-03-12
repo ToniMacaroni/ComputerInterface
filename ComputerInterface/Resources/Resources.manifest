@@ -1,0 +1,10 @@
+ManifestFileVersion: 0
+CRC: 862862272
+AssetBundleManifest:
+  AssetBundleInfos:
+    Info_0:
+      Name: pillows
+      Dependencies: {}
+    Info_1:
+      Name: assets
+      Dependencies: {}

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 using BepInEx;
@@ -30,6 +31,8 @@ namespace ComputerInterface
         private CustomScreenInfo _customScreenInfo;
 
         private List<CustomKeyboardKey> _keys;
+        private GameObject _keyboard;
+        private AudioSource _keyboardAudio;
 
         private AssetsLoader _assetsLoader;
 
@@ -128,6 +131,7 @@ namespace ComputerInterface
 
         public void PressButton(CustomKeyboardKey key)
         {
+            _keyboardAudio.Play();
             _computerViewController.NotifyOfKeyPress(key.KeyboardKey);
         }
 
@@ -158,7 +162,7 @@ namespace ComputerInterface
             return newView;
         }
 
-        private void ReplaceKeys()
+        private async Task ReplaceKeys()
         {
             _keys = new List<CustomKeyboardKey>();
 
@@ -184,6 +188,15 @@ namespace ComputerInterface
                 customButton.Init(this, key);
                 _keys.Add(customButton);
             }
+
+            _keyboard = _keys[0].transform.parent.parent.parent.gameObject;
+
+            var clickSound = await _assetsLoader.GetAsset<AudioClip>("ClickSound");
+            _keyboardAudio = _keyboard.AddComponent<AudioSource>();
+            _keyboardAudio.loop = false;
+            _keyboardAudio.clip = clickSound;
+
+            _keyboard.GetComponent<MeshRenderer>().material.color = new Color(0.3f, 0.3f, 0.3f);
 
             var enterKey = _keys.First(x => x.KeyboardKey == EKeyboardKey.Enter);
             var mKey = _keys.First(x => x.KeyboardKey == EKeyboardKey.M);

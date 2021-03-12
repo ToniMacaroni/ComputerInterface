@@ -30,6 +30,18 @@ namespace ComputerInterface.Views
         {
             var builder = new StringBuilder();
 
+
+            //var sb = new StringBuilder()
+            //    .AppendLine("<noparse> << BACK            ENTER - LOAD MAP</noparse>")
+            //    .AppendLine()
+            //    .AppendLine("MAP DETAILS")
+            //    .AppendLine()
+            //    .Append("NAME:  <color=#00cc44>").Append("gkz_beginnerblock").AppendLine("</color>")
+            //    .Append("AUTHOR:  <color=#00cc44>").Append("Graic").AppendLine("</color>")
+            //    .Append("DESCRIPTION:  <color=#00cc44>").Append("A large tower.").AppendLine("</color>");
+            //Text = sb.ToString();
+            //return;
+
             DrawHeader(builder);
             DrawMods(builder);
 
@@ -38,10 +50,11 @@ namespace ComputerInterface.Views
 
         public void DrawHeader(StringBuilder str)
         {
-            str.Append("========================================").AppendLine();
-            str.Append("    <color=#ed6540>Computer Interface</color> v").Append(PluginInfo.VERSION).AppendLine();
-            str.Append("       by Toni Macaroni").AppendLine();
-            str.Append("========================================").AppendLine();
+            str.Repeat("=", SCREEN_WIDTH).AppendLine();
+            str.BeginCenter().AppendClr("Computer Interface", "ed6540").EndColor().Append(" v")
+                .Append(PluginInfo.VERSION).AppendLine();
+            str.Append("by ").AppendClr("Toni Macaroni", "9be68a").EndAlign().AppendLine();
+            str.Repeat("=", SCREEN_WIDTH).AppendLine();
         }
 
         public void DrawMods(StringBuilder str)
@@ -61,8 +74,18 @@ namespace ComputerInterface.Views
 
         public override void OnKeyPressed(EKeyboardKey key)
         {
-            _selectionHandler.HandleKeypress(key);
-            Redraw();
+            if (_selectionHandler.HandleKeypress(key))
+            {
+                Redraw();
+                return;
+            }
+
+            switch (key)
+            {
+                case EKeyboardKey.Option1:
+                    BaseGameInterface.Disconnect();
+                    break;
+            }
         }
 
         public void ShowModView(int idx)
