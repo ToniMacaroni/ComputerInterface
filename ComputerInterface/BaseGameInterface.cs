@@ -147,6 +147,12 @@ namespace ComputerInterface
             }
         }
 
+        public static string GetRoomCode()
+        {
+            if (PhotonNetwork.InRoom) return PhotonNetwork.CurrentRoom.Name;
+            return null;
+        }
+
         public static void InitColorState()
         {
             GorillaTagger.Instance.UpdateColor(
