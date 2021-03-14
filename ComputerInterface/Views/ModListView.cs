@@ -18,6 +18,7 @@ namespace ComputerInterface.Views
     {
         private readonly List<BepInEx.PluginInfo> _plugins;
 
+        private readonly UIPageHandler _pageHandler;
         private readonly UISelectionHandler _selectionHandler;
 
         public ModListView()
@@ -27,6 +28,26 @@ namespace ComputerInterface.Views
                 new UISelectionHandler(EKeyboardKey.Up, EKeyboardKey.Down, EKeyboardKey.Enter, true);
             _selectionHandler.Max = _plugins.Count - 1;
             _selectionHandler.OnSelected += SelectMod;
+            _selectionHandler.ConfigureSelectionIndicator("<color=#ed6540>></color> ", "", "   ", "");
+
+            _pageHandler = new UIPageHandler();
+            _pageHandler.EntriesPerPage = 8;
+
+            var lines = new string[_plugins.Count];
+
+            for (int i = 0; i < lines.Length; i++)
+            {
+                lines[i] = _plugins[i].Metadata.Name;
+                if (_plugins[i].Instance.enabled)
+                {
+                    lines[i] += "<color=#00ff00>  E</color>";
+                }
+                else
+                {
+                    lines[i] += "<color=#ff0000>  D</color>";
+                }
+            }
+            _pageHandler.SetLines(lines);
         }
 
         public override void OnShow(object[] args)
@@ -52,13 +73,16 @@ namespace ComputerInterface.Views
 
         private void RedrawMods(StringBuilder str)
         {
-            for (int i = 0; i < _plugins.Count; i++)
+            var lineIdx = _pageHandler.MovePageToLine(_selectionHandler.CurrentSelectionIndex);
+            var lines = _pageHandler.GetLinesForCurrentPage();
+            for (var i = 0; i < lines.Length; i++)
             {
-                var plugin = _plugins[i];
-                str.Append(_selectionHandler.CurrentSelectionIndex == i ? "<color=#ed6540>></color> " : "  ")
-                    .Append(plugin.Metadata.Name);
-                str.Append("  ").Append(plugin.Instance.enabled ? "<color=#00ff00>E</color>" : "<color=#ff0000>D</color>").AppendLine();
+                str.Append(_selectionHandler.GetIndicatedText(i, lineIdx, lines[i]));
+                str.AppendLine();
             }
+
+            _pageHandler.AppendFooter(str);
+            str.AppendLine();
         }
 
         public override void OnKeyPressed(EKeyboardKey key)

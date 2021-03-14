@@ -41,8 +41,8 @@ namespace ComputerInterface.Views
 
         public void DrawHeader(StringBuilder str)
         {
-            str.Append("/// CICL ///").AppendLine();
-            str.Append("/ Press option 1 for help").AppendLine();
+            str.AppendClr("/// MonkeShell ///", "ffffff").AppendLine();
+            str.AppendClr("/ Press option 1 for help", "ffffff50").AppendLine();
         }
 
         public void DrawCurrentCommand(StringBuilder str)

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
+using System.Text;
 using ComputerInterface.Interfaces;
 using ComputerInterface.Views;
 using JetBrains.Annotations;
@@ -20,7 +21,10 @@ namespace ComputerInterface.ViewLib
         /// </summary>
         public static int SCREEN_HEIGHT = 10;
 
-
+        /// <summary>
+        /// Text that is shown on screen
+        /// assigning to it automatically updates the text
+        /// </summary>
         public string Text
         {
             get => _text;
@@ -30,6 +34,15 @@ namespace ComputerInterface.ViewLib
         protected string _text;
 
         public Type CallerViewType { get; set; }
+
+        /// <summary>
+        /// Set text from a <see cref="StringBuilder"/>
+        /// </summary>
+        /// <param name="str"></param>
+        public virtual void SetText(StringBuilder str)
+        {
+            Text = str.ToString();
+        }
 
         /// <summary>
         /// Gets called when a key is pressed on the keyboard

@@ -9,6 +9,7 @@ namespace ComputerInterface.Views
     {
         private List<IComputerModEntry> _modEntries;
 
+        private readonly UIPageHandler _pageHandler;
         private readonly UISelectionHandler _selectionHandler;
 
         public MainMenuView()
@@ -16,12 +17,23 @@ namespace ComputerInterface.Views
             _selectionHandler =
                 new UISelectionHandler(EKeyboardKey.Up, EKeyboardKey.Down, EKeyboardKey.Enter, true);
             _selectionHandler.OnSelected += ShowModView;
+            _selectionHandler.ConfigureSelectionIndicator("<color=#ed6540>></color> ", "", "   ", "");
+
+            _pageHandler = new UIPageHandler(EKeyboardKey.Left, EKeyboardKey.Right);
+            _pageHandler.EntriesPerPage = 4;
         }
 
         public void ShowMods(List<IComputerModEntry> entries)
         {
             _modEntries = entries;
             _selectionHandler.Max = _modEntries.Count - 1;
+
+            var lines = new string[entries.Count];
+            for (int i = 0; i < entries.Count; i++)
+            {
+                lines[i] = entries[i].EntryName;
+            }
+            _pageHandler.SetLines(lines);
 
             Redraw();
         }
@@ -30,22 +42,10 @@ namespace ComputerInterface.Views
         {
             var builder = new StringBuilder();
 
-
-            //var sb = new StringBuilder()
-            //    .AppendLine("<noparse> << BACK            ENTER - LOAD MAP</noparse>")
-            //    .AppendLine()
-            //    .AppendLine("MAP DETAILS")
-            //    .AppendLine()
-            //    .Append("NAME:  <color=#00cc44>").Append("gkz_beginnerblock").AppendLine("</color>")
-            //    .Append("AUTHOR:  <color=#00cc44>").Append("Graic").AppendLine("</color>")
-            //    .Append("DESCRIPTION:  <color=#00cc44>").Append("A large tower.").AppendLine("</color>");
-            //Text = sb.ToString();
-            //return;
-
             DrawHeader(builder);
             DrawMods(builder);
 
-            Text = builder.ToString();
+            SetText(builder);
         }
 
         public void DrawHeader(StringBuilder str)
@@ -59,12 +59,17 @@ namespace ComputerInterface.Views
 
         public void DrawMods(StringBuilder str)
         {
-            for (var i = 0; i < _modEntries.Count; i++)
+            var lineIdx = _pageHandler.MovePageToLine(_selectionHandler.CurrentSelectionIndex);
+            var lines = _pageHandler.GetLinesForCurrentPage();
+            for (var i = 0; i < lines.Length; i++)
             {
-                var entry = _modEntries[i];
-                str.Append(_selectionHandler.CurrentSelectionIndex == i ? "<color=#ed6540>></color> " : "  ");
-                str.Append(entry.EntryName).Append("\n");
+                str.Append(_selectionHandler.GetIndicatedText(i, lineIdx, lines[i]));
+                str.AppendLine();
             }
+
+            str.AppendLine();
+            _pageHandler.AppendFooter(str);
+            str.AppendLine();
         }
 
         public override void OnShow(object[] args)

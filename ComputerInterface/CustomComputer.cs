@@ -72,7 +72,7 @@ namespace ComputerInterface
             _computerViewController.OnTextChanged += SetText;
             _computerViewController.OnSwitchView += SwitchView;
 
-            ReplaceKeys();
+            await ReplaceKeys();
             _customScreenInfo = await CreateMonitor();
             _customScreenInfo.Color = _config.ScreenBackgroundColor.Value;
             BaseGameInterface.InitAll();

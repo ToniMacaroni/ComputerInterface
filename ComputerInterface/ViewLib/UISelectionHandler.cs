@@ -25,6 +25,11 @@ namespace ComputerInterface.ViewLib
         private readonly EKeyboardKey _selectKey;
         private readonly bool _canSelect;
 
+        private string _startSelected;
+        private string _endSelected;
+        private string _startNormal;
+        private string _endNormal;
+
         public UISelectionHandler(EKeyboardKey upKey, EKeyboardKey downKey, EKeyboardKey selectKey, bool canSelect)
         {
             _upKey = upKey;
@@ -70,6 +75,29 @@ namespace ComputerInterface.ViewLib
         {
             CurrentSelectionIndex++;
             ClampSelection();
+        }
+
+        public void ConfigureSelectionIndicator(string startSelected, string EndSelected, string startNormal, string endNormal)
+        {
+            _startSelected = startSelected;
+            _endSelected = EndSelected;
+            _startNormal = startNormal;
+            _endNormal = endNormal;
+        }
+
+        public string GetIndicatedText(int idx, int current, string text)
+        {
+            if (idx == current)
+            {
+                return _startSelected + text + _endSelected;
+            }
+
+            return _startNormal + text + _endNormal;
+        }
+
+        public string GetIndicatedText(int idx, string text)
+        {
+            return GetIndicatedText(idx, CurrentSelectionIndex, text);
         }
 
         private void ClampSelection()
