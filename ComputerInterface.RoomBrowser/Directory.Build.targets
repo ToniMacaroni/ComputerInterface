@@ -16,6 +16,7 @@
 		<Copy SourceFiles="@(FilesToCopy)"
 		      DestinationFolder="$(ZipDir)\BepInEx\plugins\$(SolutionName)\" />
 
+
 		<Message Text="Copied to zip folder" Importance="high" />
 	</Target>
 

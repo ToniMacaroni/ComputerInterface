@@ -28,9 +28,9 @@ namespace ComputerInterface.Views
                 new Tuple<string, Type>("Turn Mode", typeof(TurnSettingView))
             };
 
-            _selectionHandler = new UISelectionHandler(EKeyboardKey.Up, EKeyboardKey.Down, EKeyboardKey.Enter, true);
+            _selectionHandler = new UISelectionHandler(EKeyboardKey.Up, EKeyboardKey.Down, EKeyboardKey.Enter);
             _selectionHandler.OnSelected += ItemSelected;
-            _selectionHandler.Max = _gameSettingsViews.Count - 1;
+            _selectionHandler.MaxIdx = _gameSettingsViews.Count - 1;
         }
 
         public override void OnShow(object[] args)

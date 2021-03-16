@@ -8,12 +8,12 @@ namespace ComputerInterface.Views
     public class CommandLineHelpView : ComputerView
     {
         private readonly CommandHandler _commandHandler;
-        private readonly UIPageHandler _pageHandler;
+        private readonly UITextPageHandler _pageHandler;
 
         public CommandLineHelpView(CommandHandler commandHandler)
         {
             _commandHandler = commandHandler;
-            _pageHandler = new UIPageHandler(EKeyboardKey.Left, EKeyboardKey.Right);
+            _pageHandler = new UITextPageHandler(EKeyboardKey.Left, EKeyboardKey.Right);
             _pageHandler.EntriesPerPage = 5;
         }
 
@@ -61,7 +61,7 @@ namespace ComputerInterface.Views
 
         public void DrawHeader(StringBuilder str)
         {
-            str.Append("<color=#ffffff80><align=\"center\">Page ").Append(_pageHandler.CurrentPage+1).Append("</align>").AppendLine();
+            str.BeginColor("ffffff80").BeginCenter().Append("Page ").Append(_pageHandler.CurrentPage+1).EndAlign().AppendLine();
             str.Append("Navigate with left / right arrow key").AppendLine();
 
             for (int x = 0; x < SCREEN_WIDTH; x++)
@@ -69,7 +69,7 @@ namespace ComputerInterface.Views
                 str.Append("=");
             }
 
-            str.Append("</color>").AppendLine();
+            str.EndColor().AppendLine();
         }
 
         public void DrawCommands(StringBuilder str)

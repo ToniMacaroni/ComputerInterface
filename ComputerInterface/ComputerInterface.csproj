@@ -32,6 +32,9 @@
 		<Reference Include="Bepinject">
 		  <HintPath>D:\SteamLibrary\steamapps\common\Gorilla Tag\BepInEx\plugins\Bepinject-Auros\Bepinject.dll</HintPath>
 		</Reference>
+		<Reference Include="Photon3Unity3D">
+		  <HintPath>D:\SteamLibrary\steamapps\common\Gorilla Tag\Gorilla Tag_Data\Managed\Photon3Unity3D.dll</HintPath>
+		</Reference>
 		<Reference Include="PhotonRealtime">
 		  <HintPath>D:\SteamLibrary\steamapps\common\Gorilla Tag\Gorilla Tag_Data\Managed\PhotonRealtime.dll</HintPath>
 		</Reference>

@@ -47,5 +47,29 @@ namespace ComputerInterface
 
             return str;
         }
+
+        public static StringBuilder AppendLines(this StringBuilder str, int numOfLines)
+        {
+            str.Repeat("\n", numOfLines);
+            return str;
+        }
+
+        public static StringBuilder BeginMono(this StringBuilder str, int spacing = 58)
+        {
+            str.Append("<mspace=58>");
+            return str;
+        }
+
+        public static StringBuilder EndMono(this StringBuilder str)
+        {
+            str.Append("</mspace>");
+            return str;
+        }
+
+        public static StringBuilder AppendMono(this StringBuilder str, string text, int spacing = 58)
+        {
+            str.BeginMono(spacing).Append(text).EndMono();
+            return str;
+        }
     }
 }

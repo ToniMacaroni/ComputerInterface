@@ -12,6 +12,7 @@ using ComputerInterface.Views;
 using TMPro;
 using UnityEngine;
 using Zenject;
+using Object = UnityEngine.Object;
 
 namespace ComputerInterface
 {
@@ -87,7 +88,7 @@ namespace ComputerInterface
         private void ShowInitialView(MainMenuView view, List<IComputerModEntry> computerModEntries)
         {
             _computerViewController.SetView(view, null);
-            view.ShowMods(computerModEntries);
+            view.ShowEntries(computerModEntries);
         }
 
         public void Initialize()

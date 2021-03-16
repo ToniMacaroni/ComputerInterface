@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Text;
 using ComputerInterface.Interfaces;
 using ComputerInterface.ViewLib;
@@ -9,31 +10,26 @@ namespace ComputerInterface.Views
     {
         private List<IComputerModEntry> _modEntries;
 
-        private readonly UIPageHandler _pageHandler;
+        private readonly UIElementPageHandler<IComputerModEntry> _pageHandler;
         private readonly UISelectionHandler _selectionHandler;
 
         public MainMenuView()
         {
             _selectionHandler =
-                new UISelectionHandler(EKeyboardKey.Up, EKeyboardKey.Down, EKeyboardKey.Enter, true);
+                new UISelectionHandler(EKeyboardKey.Up, EKeyboardKey.Down, EKeyboardKey.Enter);
             _selectionHandler.OnSelected += ShowModView;
             _selectionHandler.ConfigureSelectionIndicator("<color=#ed6540>></color> ", "", "   ", "");
 
-            _pageHandler = new UIPageHandler(EKeyboardKey.Left, EKeyboardKey.Right);
+            _pageHandler = new UIElementPageHandler<IComputerModEntry>(EKeyboardKey.Left, EKeyboardKey.Right);
             _pageHandler.EntriesPerPage = 4;
         }
 
-        public void ShowMods(List<IComputerModEntry> entries)
+        public void ShowEntries(List<IComputerModEntry> entries)
         {
             _modEntries = entries;
-            _selectionHandler.Max = _modEntries.Count - 1;
+            _selectionHandler.MaxIdx = _modEntries.Count - 1;
 
-            var lines = new string[entries.Count];
-            for (int i = 0; i < entries.Count; i++)
-            {
-                lines[i] = entries[i].EntryName;
-            }
-            _pageHandler.SetLines(lines);
+            _pageHandler.SetElements(entries.ToArray());
 
             Redraw();
         }
@@ -51,21 +47,27 @@ namespace ComputerInterface.Views
         public void DrawHeader(StringBuilder str)
         {
             str.Repeat("=", SCREEN_WIDTH).AppendLine();
-            str.BeginCenter().AppendClr("Computer Interface", "ed6540").EndColor().Append(" v")
+
+            str.BeginCenter()
+                .AppendClr("Computer Interface", "ed6540")
+                .EndColor()
+                .Append(" v")
                 .Append(PluginInfo.VERSION).AppendLine();
+
             str.Append("by ").AppendClr("Toni Macaroni", "9be68a").EndAlign().AppendLine();
+
             str.Repeat("=", SCREEN_WIDTH).AppendLine();
         }
 
         public void DrawMods(StringBuilder str)
         {
-            var lineIdx = _pageHandler.MovePageToLine(_selectionHandler.CurrentSelectionIndex);
-            var lines = _pageHandler.GetLinesForCurrentPage();
-            for (var i = 0; i < lines.Length; i++)
+            var lineIdx = _pageHandler.MovePageToIdx(_selectionHandler.CurrentSelectionIndex);
+
+            _pageHandler.DrawElements((entry, idx) =>
             {
-                str.Append(_selectionHandler.GetIndicatedText(i, lineIdx, lines[i]));
+                str.Append(_selectionHandler.GetIndicatedText(idx, lineIdx, entry.EntryName));
                 str.AppendLine();
-            }
+            });
 
             str.AppendLine();
             _pageHandler.AppendFooter(str);

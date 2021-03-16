@@ -14,9 +14,9 @@ namespace ComputerInterface.Views
         public ModView(CIConfig config)
         {
             _config = config;
-            _selectionHandler = new UISelectionHandler(EKeyboardKey.Up, EKeyboardKey.Down, EKeyboardKey.Enter, true);
+            _selectionHandler = new UISelectionHandler(EKeyboardKey.Up, EKeyboardKey.Down, EKeyboardKey.Enter);
             _selectionHandler.OnSelected += OnOptionSelected;
-            _selectionHandler.Max = 1;
+            _selectionHandler.MaxIdx = 1;
         }
 
         public override void OnShow(object[] args)

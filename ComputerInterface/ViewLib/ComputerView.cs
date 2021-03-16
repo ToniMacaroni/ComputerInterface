@@ -21,6 +21,8 @@ namespace ComputerInterface.ViewLib
         /// </summary>
         public static int SCREEN_HEIGHT = 10;
 
+        public string PrimaryColor = "ed6540";
+
         /// <summary>
         /// Text that is shown on screen
         /// assigning to it automatically updates the text
