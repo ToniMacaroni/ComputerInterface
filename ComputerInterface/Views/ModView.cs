@@ -1,6 +1,5 @@
 ﻿using System.Text;
 using ComputerInterface.ViewLib;
-using UnityEngine;
 
 namespace ComputerInterface.Views
 {

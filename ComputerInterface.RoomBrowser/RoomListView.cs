@@ -2,7 +2,6 @@
 using System.Text;
 using ComputerInterface.ViewLib;
 using Photon.Realtime;
-using UnityEngine;
 
 namespace ComputerInterface.RoomBrowser
 {

@@ -1,9 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Text;
 using ComputerInterface.Interfaces;
 using ComputerInterface.ViewLib;
-using UnityEngine;
 
 namespace ComputerInterface.Views
 {

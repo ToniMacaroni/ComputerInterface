@@ -2,7 +2,6 @@
 using System.Threading.Tasks;
 using Photon.Pun;
 using Photon.Realtime;
-using UnityEngine;
 using Zenject;
 
 namespace ComputerInterface.RoomBrowser

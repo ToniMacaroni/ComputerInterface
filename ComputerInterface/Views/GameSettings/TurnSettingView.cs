@@ -1,8 +1,4 @@
-﻿using ComputerInterface.Interfaces;
-using ComputerInterface.ViewLib;
-using ComputerInterface.Views.GameSettings;
-using System;
-using System.Collections.Generic;
+﻿using ComputerInterface.ViewLib;
 using System.Text;
 
 namespace ComputerInterface.Views.GameSettings

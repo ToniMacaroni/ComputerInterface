@@ -1,8 +1,5 @@
-﻿using System.Collections.Generic;
-using System.Text;
-using JetBrains.Annotations;
+﻿using System.Text;
 using UnityEngine;
-using UnityEngine.InputSystem;
 
 namespace ComputerInterface.ViewLib
 {

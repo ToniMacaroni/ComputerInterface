@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-
-namespace ComputerInterface
+﻿namespace ComputerInterface
 {
     public static class KeyExtension
     {
