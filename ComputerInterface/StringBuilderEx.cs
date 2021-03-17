@@ -71,5 +71,16 @@ namespace ComputerInterface
             str.BeginMono(spacing).Append(text).EndMono();
             return str;
         }
+
+        public static string Clamp(this string str, int length)
+        {
+            if (str.Length > length)
+            {
+                var newStr = str.Substring(0, length-3);
+                return newStr + "...";
+            }
+
+            return str;
+        }
     }
 }

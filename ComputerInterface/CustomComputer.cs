@@ -104,6 +104,7 @@ namespace ComputerInterface
 
         private void Update()
         {
+            // get key state for the key debugging feature
             if (CustomKeyboardKey.KeyDebuggerEnabled && _keys != null)
             {
                 foreach (var key in _keys)
@@ -111,12 +112,6 @@ namespace ComputerInterface
                     key.Fetch();
                 }
             }
-        }
-
-        public void Reposition()
-        {
-            var monitor = transform.Find("monitor");
-            monitor.gameObject.SetActive(false);
         }
 
         public void SetText(string text)
@@ -256,10 +251,9 @@ namespace ComputerInterface
 
             var monitorAsset = await _assetsLoader.GetAsset<GameObject>("monitor");
 
-
             var newMonitor = Instantiate(monitorAsset);
             newMonitor.name = "Custom Monitor";
-            newMonitor.transform.localScale = new Vector3(0.4f, 0.4f, 0.4f);
+            //newMonitor.transform.localScale = new Vector3(0.4f, 0.4f, 0.4f);
             newMonitor.transform.eulerAngles = new Vector3(0, 90, 0);
             newMonitor.transform.position = new Vector3(-69f, 12.02f, -82.8f);
 

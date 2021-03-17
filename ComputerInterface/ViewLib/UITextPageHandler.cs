@@ -36,6 +36,7 @@ namespace ComputerInterface.ViewLib
             _lines = lines;
             MaxPage = Mathf.CeilToInt((float)lines.Length / EntriesPerPage) - 1;
             CurrentPage = 0;
+            ItemsOnScreen = Math.Min(EntriesPerPage, _lines.Length);
         }
 
         /// <summary>

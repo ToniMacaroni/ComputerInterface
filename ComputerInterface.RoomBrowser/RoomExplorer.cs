@@ -16,7 +16,7 @@ namespace ComputerInterface.RoomBrowser
             foreach (var roomInfo in roomList)
             { 
                 var added = Rooms.Add(roomInfo);
-                if(added) Debug.LogWarning("Added room "+roomInfo.Name);
+                //if(added) Debug.LogWarning("Added room "+roomInfo.Name);
             }
         }
 

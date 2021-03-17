@@ -14,7 +14,7 @@ namespace ComputerInterface.ViewLib
         /// <summary>
         /// How many characters fit in the x axis of the screen
         /// </summary>
-        public static int SCREEN_WIDTH = 40;
+        public static int SCREEN_WIDTH = 39;
 
         /// <summary>
         /// How many characters fit in the y axis of the screen
@@ -44,6 +44,17 @@ namespace ComputerInterface.ViewLib
         public virtual void SetText(StringBuilder str)
         {
             Text = str.ToString();
+        }
+
+        /// <summary>
+        /// Set text from a <see cref="StringBuilder"/> the the callback is providing
+        /// </summary>
+        /// <param name="builderCallback"></param>
+        public virtual void SetText(Action<StringBuilder> builderCallback)
+        {
+            var str = new StringBuilder();
+            builderCallback(str);
+            SetText(str);
         }
 
         /// <summary>

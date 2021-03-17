@@ -28,10 +28,10 @@ namespace ComputerInterface.Views
                 new UISelectionHandler(EKeyboardKey.Up, EKeyboardKey.Down, EKeyboardKey.Enter);
             _selectionHandler.MaxIdx = _plugins.Length - 1;
             _selectionHandler.OnSelected += SelectMod;
-            _selectionHandler.ConfigureSelectionIndicator("<color=#ed6540>></color> ", "", "   ", "");
+            _selectionHandler.ConfigureSelectionIndicator("<color=#ed6540>> </color>", "", "  ", "");
 
             _pageHandler = new UIElementPageHandler<BepInEx.PluginInfo>();
-            _pageHandler.EntriesPerPage = 8;
+            _pageHandler.EntriesPerPage = 7;
 
             _pageHandler.SetElements(_plugins);
         }
@@ -64,12 +64,14 @@ namespace ComputerInterface.Views
 
             var lineIdx = _pageHandler.MovePageToIdx(_selectionHandler.CurrentSelectionIndex);
 
-            _pageHandler.DrawElements((plugin, idx) =>
+            _pageHandler.EnumarateElements((plugin, idx) =>
             {
                 str.Append(_selectionHandler.GetIndicatedText(idx, lineIdx, plugin.Metadata.Name));
                 str.Append(plugin.Instance.enabled ? enabledPostfix : disabledPostfix);
                 str.AppendLine();
             });
+
+            str.AppendLine();
 
             _pageHandler.AppendFooter(str);
             str.AppendLine();

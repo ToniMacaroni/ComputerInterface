@@ -26,6 +26,7 @@ namespace ComputerInterface.ViewLib
             _elements = elements;
             MaxPage = Mathf.CeilToInt((float)elements.Length / EntriesPerPage) - 1;
             CurrentPage = 0;
+            ItemsOnScreen = Math.Min(EntriesPerPage, _elements.Length);
         }
 
         /// <summary>
@@ -34,7 +35,7 @@ namespace ComputerInterface.ViewLib
         /// </summary>
         /// <param name="page"></param>
         /// <param name="elementCallback">Callback with (Element T, Index i)</param>
-        public void DrawElements(int page, Action<T, int> elementCallback)
+        public void EnumarateElements(int page, Action<T, int> elementCallback)
         {
             if (elementCallback == null)
             {
@@ -53,7 +54,7 @@ namespace ComputerInterface.ViewLib
         /// and returns them with the callback
         /// </summary>
         /// <param name="elementCallback">Callback with (Element T, Index i)</param>
-        public void DrawElements(Action<T, int> elementCallback)
+        public void EnumarateElements(Action<T, int> elementCallback)
         {
             if (elementCallback == null)
             {

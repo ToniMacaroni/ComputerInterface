@@ -12,16 +12,16 @@ namespace ComputerInterface.RoomBrowser
         private readonly UIElementPageHandler<RoomInfo> _pageHandler;
         private readonly UISelectionHandler _selectionHandler;
 
-        private FastList<RoomInfo> _rooms;
+        private RoomInfo[] _rooms;
 
         public RoomListView(RoomExplorer roomExplorer)
         {
             _roomExplorer = roomExplorer;
-            _pageHandler = new UIElementPageHandler<RoomInfo>();
+            _pageHandler = new UIElementPageHandler<RoomInfo>(EKeyboardKey.Left, EKeyboardKey.Right);
             _pageHandler.EntriesPerPage = 6;
 
             _selectionHandler = new UISelectionHandler(EKeyboardKey.Up, EKeyboardKey.Down, EKeyboardKey.Enter);
-            _selectionHandler.ConfigureSelectionIndicator("<color=#ed6540>></color> ", "", " ", "");
+            _selectionHandler.ConfigureSelectionIndicator("<color=#ed6540>> </color>", "", "  ", "");
             _selectionHandler.OnSelected += OnRoomSelect;
         }
 
@@ -35,8 +35,8 @@ namespace ComputerInterface.RoomBrowser
 
         public void RefreshPages()
         {
-            _rooms = new FastList<RoomInfo>();
-            _pageHandler.SetElements(_roomExplorer.Rooms.Where(x=>x.PlayerCount!=x.MaxPlayers).ToArray());
+            _rooms = _roomExplorer.Rooms.Where(x => x.PlayerCount != x.MaxPlayers).ToArray();
+            _pageHandler.SetElements(_rooms);
         }
 
         public void Redraw()
@@ -52,17 +52,17 @@ namespace ComputerInterface.RoomBrowser
         {
             _selectionHandler.MaxIdx = _pageHandler.ItemsOnScreen - 1;
 
-            _pageHandler.DrawElements((room, idx) =>
+            _pageHandler.EnumarateElements((room, idx) =>
             {
-                str.Repeat(" ", 4).Append(_selectionHandler.GetIndicatedText(idx, room.Name));
-                str.Repeat(" ", 3).AppendClr($"{room.PlayerCount}/{room.MaxPlayers}", "ffffff50");
+                str.Repeat(" ", 3).Append(_selectionHandler.GetIndicatedText(idx, room.Name.PadRight(10)));
+                str.AppendClr($"{room.PlayerCount}/{room.MaxPlayers}", "ffffff50");
                 str.AppendLine();
             });
         }
 
         private void OnRoomSelect(int idx)
         {
-            var roomIdx = _pageHandler.TransformIdx(idx);
+            var roomIdx = _pageHandler.GetAbsoluteIndex(idx);
             var room = _rooms[roomIdx];
             ShowView<RoomDetailsView>(room);
         }

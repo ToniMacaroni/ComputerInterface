@@ -8,7 +8,7 @@ namespace ComputerInterface.ViewLib
 {
     public class UIPageHandler
     {
-        public int CurrentPage { get; protected set; }
+        public int CurrentPage { get; set; }
 
         /// <summary>
         /// Last Page (0 indexed)
@@ -114,7 +114,7 @@ namespace ComputerInterface.ViewLib
         /// <param name="page"></param>
         /// <param name="itemIdx"></param>
         /// <returns></returns>
-        public int TransformIdx(int page, int itemIdx)
+        public int GetAbsoluteIndex(int page, int itemIdx)
         {
             return page * EntriesPerPage + itemIdx;
         }
@@ -125,9 +125,9 @@ namespace ComputerInterface.ViewLib
         /// </summary>
         /// <param name="itemIdx"></param>
         /// <returns></returns>
-        public int TransformIdx(int itemIdx)
+        public int GetAbsoluteIndex(int itemIdx)
         {
-            return TransformIdx(CurrentPage, itemIdx);
+            return GetAbsoluteIndex(CurrentPage, itemIdx);
         }
 
         public void AppendFooter(StringBuilder str)
@@ -143,9 +143,9 @@ namespace ComputerInterface.ViewLib
         private string GetFooter()
         {
             return string.Format(Footer,
-                CurrentPage > 0 ? PrevMark : "  ",
-                CurrentPage < MaxPage ? NextMark : "  ",
-                CurrentPage, MaxPage);
+                CurrentPage > 0 ? PrevMark : " ",
+                CurrentPage < MaxPage ? NextMark : " ",
+                CurrentPage+1, MaxPage+1);
         }
     }
 }

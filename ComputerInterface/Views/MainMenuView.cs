@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Text;
 using ComputerInterface.Interfaces;
 using ComputerInterface.ViewLib;
+using UnityEngine;
 
 namespace ComputerInterface.Views
 {
@@ -18,7 +19,7 @@ namespace ComputerInterface.Views
             _selectionHandler =
                 new UISelectionHandler(EKeyboardKey.Up, EKeyboardKey.Down, EKeyboardKey.Enter);
             _selectionHandler.OnSelected += ShowModView;
-            _selectionHandler.ConfigureSelectionIndicator("<color=#ed6540>></color> ", "", "   ", "");
+            _selectionHandler.ConfigureSelectionIndicator("<color=#ed6540>></color> ", "", "  ", "");
 
             _pageHandler = new UIElementPageHandler<IComputerModEntry>(EKeyboardKey.Left, EKeyboardKey.Right);
             _pageHandler.EntriesPerPage = 4;
@@ -63,7 +64,7 @@ namespace ComputerInterface.Views
         {
             var lineIdx = _pageHandler.MovePageToIdx(_selectionHandler.CurrentSelectionIndex);
 
-            _pageHandler.DrawElements((entry, idx) =>
+            _pageHandler.EnumarateElements((entry, idx) =>
             {
                 str.Append(_selectionHandler.GetIndicatedText(idx, lineIdx, entry.EntryName));
                 str.AppendLine();
