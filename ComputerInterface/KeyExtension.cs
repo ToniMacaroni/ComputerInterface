@@ -5,7 +5,7 @@
         public static bool IsFunctionKey(this EKeyboardKey key)
         {
             var idx = (uint) key;
-            return idx > 35 && idx < 51;
+            return idx > 35 && idx < 47;
         }
 
         public static bool IsNumberKey(this EKeyboardKey key)

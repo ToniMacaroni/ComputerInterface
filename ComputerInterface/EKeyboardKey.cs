@@ -43,10 +43,6 @@
         Option1,
         Option2,
         Option3,
-        RoomConfig,
-        NameConfig,
-        ColorConfig,
-        TurnConfig,
         // custom keys
         Left,
         Right,

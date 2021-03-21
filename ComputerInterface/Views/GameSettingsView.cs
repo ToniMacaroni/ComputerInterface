@@ -25,7 +25,10 @@ namespace ComputerInterface.Views
                 new Tuple<string, Type>("Room", typeof(JoinRoomView)),
                 new Tuple<string, Type>("Color", typeof(ColorSettingView)),
                 new Tuple<string, Type>("Name", typeof(NameSettingView)),
-                new Tuple<string, Type>("Turn Mode", typeof(TurnSettingView))
+                new Tuple<string, Type>("Turn Mode", typeof(TurnSettingView)),
+                new Tuple<string, Type>("Mic Mode", typeof(MicSettingsView)),
+                new Tuple<string, Type>("Queue", typeof(QueueSettingsView)),
+                new Tuple<string, Type>("Group", typeof(GroupView))
             };
 
             _selectionHandler = new UISelectionHandler(EKeyboardKey.Up, EKeyboardKey.Down, EKeyboardKey.Enter);
@@ -42,7 +45,7 @@ namespace ComputerInterface.Views
         private void Redraw()
         {
             var str = new StringBuilder();
-            str.Append("\n\n\n");
+            str.AppendLine();
             for (var i = 0; i < _gameSettingsViews.Count; i++)
             {
                 var pair = _gameSettingsViews[i];

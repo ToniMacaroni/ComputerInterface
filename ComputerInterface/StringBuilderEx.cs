@@ -71,6 +71,34 @@ namespace ComputerInterface
             return str;
         }
 
+        public static StringBuilder AppendSize(this StringBuilder str, string text, int size)
+        {
+            str.Append($"<size={size}%>").Append(text).Append("</size>");
+            return str;
+        }
+
+        public static StringBuilder BeginVOffset(this StringBuilder str, float offset)
+        {
+            str.Append($"<voffset={offset}em>");
+            return str;
+        }
+
+        public static StringBuilder EndVOffset(this StringBuilder str)
+        {
+            str.Append("</voffset>");
+            return str;
+        }
+
+        public static StringBuilder MakeBar(this StringBuilder str, char chr, int length, float offset, string color = null)
+        {
+            str.BeginVOffset(offset);
+            if (color != null) str.BeginColor(color);
+            str.Repeat(chr.ToString(), length);
+            if (color != null) str.EndColor();
+            str.EndVOffset();
+            return str;
+        }
+
         public static string Clamp(this string str, int length)
         {
             if (str.Length > length)

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Text;
+using BepInEx;
 using ComputerInterface.Interfaces;
 using ComputerInterface.ViewLib;
 using Photon.Pun;
@@ -17,11 +18,6 @@ namespace ComputerInterface.Views
         private string _name;
         private string _roomCode;
         private int _playerCount;
-
-        public DetailsView()
-        {
-            
-        }
 
         public override void OnShow(object[] args)
         {
@@ -42,9 +38,24 @@ namespace ComputerInterface.Views
             var str = new StringBuilder();
 
             str.AppendLine();
-            str.AppendClr("Name: ", "ffffff50").AppendLine().Repeat(" ", 4).Append(_name).AppendLine().AppendLine();
-            str.AppendClr("Current Room   : ", "ffffff50").AppendLine().Repeat(" ", 4).Append(_roomCode).AppendLine().AppendLine();
-            str.AppendClr("Players Online : ", "ffffff50").AppendLine().Repeat(" ", 4).Append(_playerCount).AppendLine();
+
+            str.AppendClr("Name: ", "ffffff50")
+                .AppendLine()
+                .Repeat(" ", 4)
+                .Append(_name)
+                .AppendLines(2);
+
+            str.AppendClr("Current Room   : ", "ffffff50")
+                .AppendLine()
+                .Repeat(" ", 4)
+                .Append(_roomCode.IsNullOrWhiteSpace() ? "-None-" : _roomCode)
+                .AppendLines(2);
+
+            str.AppendClr("Players Online : ", "ffffff50")
+                .AppendLine()
+                .Repeat(" ", 4)
+                .Append(_playerCount)
+                .AppendLine();
 
             Text = str.ToString();
         }

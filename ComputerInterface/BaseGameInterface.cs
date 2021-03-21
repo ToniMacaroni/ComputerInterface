@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using BepInEx;
 using GorillaLocomotion;
 using HarmonyLib;
@@ -77,6 +78,99 @@ namespace ComputerInterface
             return (ETurnMode) Enum.Parse(typeof(ETurnMode), turnMode);
         }
 
+        public static void SetPttMode(EPTTMode mode)
+        {
+            if (!CheckForComputer(out var computer)) return;
+
+            var modeString = mode switch
+            {
+                EPTTMode.AllChat => "ALL CHAT",
+                EPTTMode.PushToTalk => "PUSH TO TALK",
+                EPTTMode.PushToMute => "PUSH TO MUTE",
+                _ => throw new ArgumentOutOfRangeException()
+            };
+
+            computer.pttType = modeString;
+            PlayerPrefs.SetString("pttType", modeString);
+            PlayerPrefs.Save();
+        }
+
+        public static EPTTMode GetPttMode()
+        {
+            var modeString = PlayerPrefs.GetString("pttType", "ALL CHAT");
+            return modeString switch
+            {
+                "ALL CHAT" => EPTTMode.AllChat,
+                "PUSH TO TALK" => EPTTMode.PushToTalk,
+                "PUSH TO MUTE" => EPTTMode.PushToMute,
+                _ => throw new ArgumentOutOfRangeException()
+            };
+        }
+
+        public static void SetQueueMode(EQueueMode mode)
+        {
+            if (!CheckForComputer(out var computer)) return;
+
+            computer.currentQueue = mode.ToString().ToUpper();
+            PlayerPrefs.SetString("currentQueue", computer.currentQueue);
+            PlayerPrefs.Save();
+        }
+
+        public static EQueueMode GetQueueMode()
+        {
+            var modeString = PlayerPrefs.GetString("currentQueue", "DEFAULT");
+            return (EQueueMode) Enum.Parse(typeof(EQueueMode), modeString, true);
+        }
+
+        public static void SetGroupMode(EGroup mode)
+        {
+            if (!CheckForComputer(out var computer)) return;
+
+            computer.groupMapJoin = mode.ToString().ToUpper();
+            PlayerPrefs.SetString("groupMapJoin", computer.groupMapJoin);
+            PlayerPrefs.Save();
+        }
+
+        public static EGroup GetGroupMode()
+        {
+            var modeString = PlayerPrefs.GetString("groupMapJoin", "FOREST");
+            return (EGroup)Enum.Parse(typeof(EGroup), modeString, true);
+        }
+
+        public static void JoinAsGroup()
+        {
+            if (!CheckForComputer(out var computer)) return;
+
+            if (PhotonNetwork.InRoom && !PhotonNetwork.CurrentRoom.IsVisible)
+            {
+                computer.networkController.joinWithFriends = true;
+                computer.networkController.friendIDList = new List<string>(computer.friendJoinCollider.playerIDsCurrentlyTouching);
+                Debug.Log(computer.networkController.friendIDList);
+                computer.networkController.currentGameType = "";
+                foreach (string message in computer.networkController.friendIDList)
+                {
+                    Debug.Log(message);
+                }
+                foreach (Photon.Realtime.Player player in PhotonNetwork.PlayerList)
+                {
+                    if (computer.friendJoinCollider.playerIDsCurrentlyTouching.Contains(player.UserId) && player != PhotonNetwork.LocalPlayer)
+                    {
+                        Debug.Log("sending player! " + player.UserId);
+                        GorillaTagManager.instance.photonView.RPC("JoinPubWithFreinds", player, Array.Empty<object>());
+                    }
+                }
+                PhotonNetwork.SendAllOutgoingCommands();
+                if (computer.groupMapJoin == "FOREST")
+                {
+                    computer.forestMapTrigger.ComputerJoin();
+                }
+                else if (computer.groupMapJoin == "CAVE")
+                {
+                    computer.caveMapTrigger.ComputerJoin();
+                }
+            }
+        }
+
         public static void Disconnect()
         {
             if (GorillaComputer.instance == null) return;
@@ -107,16 +201,16 @@ namespace ComputerInterface
             }
         }
 
-        public static void JoinRoom(string roomId)
+        public static void JoinRoom(string roomId, string gameType, bool isPrivate)
         {
             if (GorillaComputer.instance == null) return;
             if (string.IsNullOrWhiteSpace(roomId)) return;
 
             var networkController = GorillaComputer.instance.networkController;
 
-            networkController.currentGameType = "privatetag";
+            networkController.currentGameType = gameType;
             networkController.customRoomID = roomId;
-            networkController.isPrivate = true;
+            networkController.isPrivate = isPrivate;
 
             if (PhotonNetwork.InRoom && PhotonNetwork.CurrentRoom.Name != roomId)
             {
@@ -145,6 +239,11 @@ namespace ComputerInterface
                 networkController.AttemptToConnectToRoom();
                 Debug.Log("attempting to connect");
             }
+        }
+
+        public static void JoinRoom(string roomId)
+        {
+            JoinRoom(roomId, "privatetag", true);
         }
 
         public static string GetRoomCode()
@@ -176,11 +275,41 @@ namespace ComputerInterface
             gorillaTurn.ChangeTurnMode(turnType, turnValue);
         }
 
+        public static void InitMicState()
+        {
+            SetPttMode(GetPttMode());
+        }
+
+        public static void InitQueueState()
+        {
+            SetQueueMode(GetQueueMode());
+        }
+
+        public static void InitGroupState()
+        {
+            SetGroupMode(GetGroupMode());
+        }
+
         public static void InitAll()
         {
             InitColorState();
             InitNameState();
             InitTurnState();
+            InitMicState();
+            InitQueueState();
+            InitGroupState();
+        }
+
+        private static bool CheckForComputer(out GorillaComputer computer)
+        {
+            if (GorillaComputer.instance == null)
+            {
+                computer = null;
+                return false;
+            }
+
+            computer = GorillaComputer.instance;
+            return true;
         }
 
         public enum ETurnMode
@@ -188,6 +317,25 @@ namespace ComputerInterface
             SNAP,
             SMOOTH,
             NONE
+        }
+
+        public enum EPTTMode
+        {
+            AllChat = 0,
+            PushToTalk = 1,
+            PushToMute = 2
+        }
+
+        public enum EQueueMode
+        {
+            Default,
+            Competitive
+        }
+
+        public enum EGroup
+        {
+            Forest,
+            Cave
         }
     }
 }

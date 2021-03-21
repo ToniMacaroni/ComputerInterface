@@ -1,5 +1,6 @@
 ﻿using System.Text;
 using ComputerInterface.ViewLib;
+using HarmonyLib;
 
 namespace ComputerInterface.Views
 {
@@ -30,8 +31,11 @@ namespace ComputerInterface.Views
         private void Redraw()
         {
             var builder = new StringBuilder();
+
             RedrawHeader(builder);
             RedrawSelection(builder);
+            DrawNotice(builder);
+
             Text = builder.ToString();
         }
 
@@ -47,6 +51,14 @@ namespace ComputerInterface.Views
             str.Append(GetSelectionString(0, "[")).Append("Enable").Append(GetSelectionString(0, "]")).AppendLine();
             str.Append(GetSelectionString(1, "[")).Append("Disable").Append(GetSelectionString(1, "]")).AppendLine();
             str.AppendLine().AppendLine();
+        }
+
+        private void DrawNotice(StringBuilder str)
+        {
+            if (!DoesModImplementFeature())
+            {
+                str.BeginCenter().AppendClr("Mod doesn't implement this feature", "ffffff50").EndAlign();
+            }
         }
 
         private string GetSelectionString(int idx, string chararcter)
@@ -72,6 +84,13 @@ namespace ComputerInterface.Views
             }
 
             Redraw();
+        }
+
+        private bool DoesModImplementFeature()
+        {
+            var onEnable = AccessTools.Method(_plugin.Instance.GetType(), "OnEnable");
+            var onDisable = AccessTools.Method(_plugin.Instance.GetType(), "OnDisable");
+            return onEnable != null && onDisable != null;
         }
 
         public override void OnKeyPressed(EKeyboardKey key)

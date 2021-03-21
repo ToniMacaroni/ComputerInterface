@@ -45,17 +45,15 @@ namespace ComputerInterface.Views
 
         public void DrawHeader(StringBuilder str)
         {
-            str.Repeat("=", SCREEN_WIDTH).AppendLine();
-
-            str.BeginCenter()
-                .AppendClr("Computer Interface", "ed6540")
+            str.BeginCenter().MakeBar('-', SCREEN_WIDTH, 0, "ffffff10");
+            str.AppendClr("Computer Interface", "ed6540")
                 .EndColor()
                 .Append(" v")
                 .Append(PluginInfo.VERSION).AppendLine();
 
-            str.Append("by ").AppendClr("Toni Macaroni", "9be68a").EndAlign().AppendLine();
+            str.Append("by ").AppendClr("Toni Macaroni", "9be68a").AppendLine();
 
-            str.Repeat("=", SCREEN_WIDTH).AppendLine();
+            str.MakeBar('-', SCREEN_WIDTH, 0, "ffffff10").EndAlign().AppendLine();
         }
 
         public void DrawMods(StringBuilder str)

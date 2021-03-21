@@ -5,7 +5,7 @@ namespace ComputerInterface.RoomBrowser
 {
     internal class RoomBrowserEntry : IComputerModEntry
     {
-        public string EntryName => "Room Browser";
+        public string EntryName => "Room Browser Alpha";
         public Type EntryViewType => typeof(RoomListView);
     }
 }

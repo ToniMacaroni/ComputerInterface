@@ -7,7 +7,7 @@ namespace ComputerInterface.RoomBrowser
     {
         public override void InstallBindings()
         {
-            Container.BindInterfacesAndSelfTo<RoomExplorer>().FromNewComponentOnNewGameObject().AsSingle();
+            Container.BindInterfacesAndSelfTo<CIRoomManager>().FromNewComponentOnNewGameObject().AsSingle();
 
             Container.Bind<IComputerModEntry>().To<RoomBrowserEntry>().AsSingle();
         }
