@@ -20,7 +20,10 @@ namespace ComputerInterface.Views
             _selectionHandler.ConfigureSelectionIndicator("<color=#ed6540>></color> ", "", "  ", "");
 
             _pageHandler = new UIElementPageHandler<IComputerModEntry>(EKeyboardKey.Left, EKeyboardKey.Right);
-            _pageHandler.EntriesPerPage = 4;
+            _pageHandler.Footer = "<color=#ffffff50>{0}{1}        <align=\"right\"><margin-right=2em>page {2}/{3}</margin></align></color>";
+            _pageHandler.NextMark = "▼";
+            _pageHandler.PrevMark = "▲";
+            _pageHandler.EntriesPerPage = 5;
         }
 
         public void ShowEntries(List<IComputerModEntry> entries)
@@ -66,7 +69,6 @@ namespace ComputerInterface.Views
                 str.AppendLine();
             });
 
-            str.AppendLine();
             _pageHandler.AppendFooter(str);
             str.AppendLine();
         }

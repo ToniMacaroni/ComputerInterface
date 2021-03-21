@@ -9,7 +9,7 @@ namespace ComputerInterface.Views
 {
     internal class ModListEntry : IComputerModEntry
     {
-        public string EntryName => "Mods";
+        public string EntryName => "Mod Status";
         public Type EntryViewType => typeof(ModListView);
     }
 
