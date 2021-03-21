@@ -8,6 +8,8 @@ namespace ComputerInterface.Views.GameSettings
     {
         private readonly UITextInputHandler _textInputHandler;
 
+        private string _joinedRoom;
+
         public JoinRoomView()
         {
             _textInputHandler = new UITextInputHandler();
@@ -25,7 +27,16 @@ namespace ComputerInterface.Views.GameSettings
 
             str.Repeat("=", SCREEN_WIDTH).AppendLine();
             str.BeginCenter().Append("Join Room").AppendLine();
-            str.AppendClr("Enter to join", "ffffff50").EndAlign().AppendLine();
+
+            if (_joinedRoom.IsNullOrWhiteSpace())
+            {
+                str.AppendClr("Enter to join", "ffffff50").EndAlign().AppendLine();
+            }
+            else
+            {
+                str.AppendClr($"Joined room {_joinedRoom}", "ffffff50").EndAlign().AppendLine();
+            }
+
             str.Repeat("=", SCREEN_WIDTH).AppendLine();
             str.AppendLine();
             str.BeginColor("ffffff50").Append("> ").EndColor().Append(_textInputHandler.Text).AppendClr("_", "ffffff50");
@@ -49,7 +60,9 @@ namespace ComputerInterface.Views.GameSettings
                 case EKeyboardKey.Enter:
                     if (!_textInputHandler.Text.IsNullOrWhiteSpace())
                     {
-                        BaseGameInterface.JoinRoom(_textInputHandler.Text.ToUpper());
+                        _joinedRoom = _textInputHandler.Text.ToUpper();
+                        BaseGameInterface.JoinRoom(_joinedRoom);
+                        Redraw();
                     }
                     break;
                 case EKeyboardKey.Option1:

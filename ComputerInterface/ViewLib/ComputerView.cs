@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
+using System.Text;
 using ComputerInterface.Interfaces;
 using ComputerInterface.Views;
 using JetBrains.Annotations;
@@ -13,14 +14,19 @@ namespace ComputerInterface.ViewLib
         /// <summary>
         /// How many characters fit in the x axis of the screen
         /// </summary>
-        public static int SCREEN_WIDTH = 40;
+        public static int SCREEN_WIDTH = 39;
 
         /// <summary>
         /// How many characters fit in the y axis of the screen
         /// </summary>
         public static int SCREEN_HEIGHT = 10;
 
+        public string PrimaryColor = "ed6540";
 
+        /// <summary>
+        /// Text that is shown on screen
+        /// assigning to it automatically updates the text
+        /// </summary>
         public string Text
         {
             get => _text;
@@ -30,6 +36,26 @@ namespace ComputerInterface.ViewLib
         protected string _text;
 
         public Type CallerViewType { get; set; }
+
+        /// <summary>
+        /// Set text from a <see cref="StringBuilder"/>
+        /// </summary>
+        /// <param name="str"></param>
+        public virtual void SetText(StringBuilder str)
+        {
+            Text = str.ToString();
+        }
+
+        /// <summary>
+        /// Set text from a <see cref="StringBuilder"/> the the callback is providing
+        /// </summary>
+        /// <param name="builderCallback"></param>
+        public virtual void SetText(Action<StringBuilder> builderCallback)
+        {
+            var str = new StringBuilder();
+            builderCallback(str);
+            SetText(str);
+        }
 
         /// <summary>
         /// Gets called when a key is pressed on the keyboard

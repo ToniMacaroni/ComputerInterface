@@ -1,8 +1,4 @@
-﻿using ComputerInterface.Interfaces;
-using ComputerInterface.ViewLib;
-using ComputerInterface.Views.GameSettings;
-using System;
-using System.Collections.Generic;
+﻿using ComputerInterface.ViewLib;
 using System.Text;
 
 namespace ComputerInterface.Views.GameSettings
@@ -14,7 +10,7 @@ namespace ComputerInterface.Views.GameSettings
         private TurnSettingView()
         {
             _selectionHandler = new UISelectionHandler(EKeyboardKey.Up, EKeyboardKey.Down);
-            _selectionHandler.Max = 2;
+            _selectionHandler.MaxIdx = 2;
         }
 
         public override void OnShow(object[] args)

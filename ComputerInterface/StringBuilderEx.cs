@@ -1,5 +1,4 @@
 ﻿using System.Text;
-using UnityEngine.Rendering;
 
 namespace ComputerInterface
 {
@@ -43,6 +42,69 @@ namespace ComputerInterface
             for (int i = 0; i < repeatNum; i++)
             {
                 str.Append(toRepeat);
+            }
+
+            return str;
+        }
+
+        public static StringBuilder AppendLines(this StringBuilder str, int numOfLines)
+        {
+            str.Repeat("\n", numOfLines);
+            return str;
+        }
+
+        public static StringBuilder BeginMono(this StringBuilder str, int spacing = 58)
+        {
+            str.Append("<mspace=58>");
+            return str;
+        }
+
+        public static StringBuilder EndMono(this StringBuilder str)
+        {
+            str.Append("</mspace>");
+            return str;
+        }
+
+        public static StringBuilder AppendMono(this StringBuilder str, string text, int spacing = 58)
+        {
+            str.BeginMono(spacing).Append(text).EndMono();
+            return str;
+        }
+
+        public static StringBuilder AppendSize(this StringBuilder str, string text, int size)
+        {
+            str.Append($"<size={size}%>").Append(text).Append("</size>");
+            return str;
+        }
+
+        public static StringBuilder BeginVOffset(this StringBuilder str, float offset)
+        {
+            str.Append($"<voffset={offset}em>");
+            return str;
+        }
+
+        public static StringBuilder EndVOffset(this StringBuilder str)
+        {
+            str.Append("</voffset>");
+            return str;
+        }
+
+        public static StringBuilder MakeBar(this StringBuilder str, char chr, int length, float offset, string color = null)
+        {
+            str.BeginVOffset(offset);
+            if (color != null) str.BeginColor(color);
+            str.Repeat(chr.ToString(), length);
+            if (color != null) str.EndColor();
+            str.EndVOffset();
+            return str;
+        }
+
+        public static string Clamp(this string str, int length)
+        {
+            if (str.Length > length)
+            {
+                var newStr = str.Substring(0, length-3);
+                return newStr + "...";
             }
 
             return str;

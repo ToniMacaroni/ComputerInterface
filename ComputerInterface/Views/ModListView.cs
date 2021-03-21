@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using BepInEx.Bootstrap;
@@ -16,17 +15,24 @@ namespace ComputerInterface.Views
 
     internal class ModListView : ComputerView
     {
-        private readonly List<BepInEx.PluginInfo> _plugins;
+        private readonly BepInEx.PluginInfo[] _plugins;
 
+        private readonly UIElementPageHandler<BepInEx.PluginInfo> _pageHandler;
         private readonly UISelectionHandler _selectionHandler;
 
         public ModListView()
         {
-            _plugins = Chainloader.PluginInfos.Values.ToList();
+            _plugins = Chainloader.PluginInfos.Values.ToArray();
             _selectionHandler =
-                new UISelectionHandler(EKeyboardKey.Up, EKeyboardKey.Down, EKeyboardKey.Enter, true);
-            _selectionHandler.Max = _plugins.Count - 1;
+                new UISelectionHandler(EKeyboardKey.Up, EKeyboardKey.Down, EKeyboardKey.Enter);
+            _selectionHandler.MaxIdx = _plugins.Length - 1;
             _selectionHandler.OnSelected += SelectMod;
+            _selectionHandler.ConfigureSelectionIndicator("<color=#ed6540>> </color>", "", "  ", "");
+
+            _pageHandler = new UIElementPageHandler<BepInEx.PluginInfo>();
+            _pageHandler.EntriesPerPage = 7;
+
+            _pageHandler.SetElements(_plugins);
         }
 
         public override void OnShow(object[] args)
@@ -40,25 +46,34 @@ namespace ComputerInterface.Views
             var builder = new StringBuilder();
 
             RedrawHeader(builder);
-            RedrawMods(builder);
+            DrawMods(builder);
 
             Text = builder.ToString();
         }
 
         private void RedrawHeader(StringBuilder str)
         {
-            str.Append("/// ").Append(_plugins.Count).Append(" Mods loaded ///").AppendLine();
+            str.Append("/// ").Append(_plugins.Length).Append(" Mods loaded ///").AppendLine();
         }
 
-        private void RedrawMods(StringBuilder str)
+        private void DrawMods(StringBuilder str)
         {
-            for (int i = 0; i < _plugins.Count; i++)
+            var enabledPostfix = "<color=#00ff00>  E</color>";
+            var disabledPostfix = "<color=#ff0000>  D</color>";
+
+            var lineIdx = _pageHandler.MovePageToIdx(_selectionHandler.CurrentSelectionIndex);
+
+            _pageHandler.EnumarateElements((plugin, idx) =>
             {
-                var plugin = _plugins[i];
-                str.Append(_selectionHandler.CurrentSelectionIndex == i ? "<color=#ed6540>></color> " : "  ")
-                    .Append(plugin.Metadata.Name);
-                str.Append("  ").Append(plugin.Instance.enabled ? "<color=#00ff00>E</color>" : "<color=#ff0000>D</color>").AppendLine();
-            }
+                str.Append(_selectionHandler.GetIndicatedText(idx, lineIdx, plugin.Metadata.Name));
+                str.Append(plugin.Instance.enabled ? enabledPostfix : disabledPostfix);
+                str.AppendLine();
+            });
+
+            str.AppendLine();
+
+            _pageHandler.AppendFooter(str);
+            str.AppendLine();
         }
 
         public override void OnKeyPressed(EKeyboardKey key)

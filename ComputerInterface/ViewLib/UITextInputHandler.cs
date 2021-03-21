@@ -1,8 +1,21 @@
-﻿namespace ComputerInterface.ViewLib
+﻿using System;
+
+namespace ComputerInterface.ViewLib
 {
     public class UITextInputHandler
     {
         public string Text;
+
+        public bool IsValid
+        {
+            get
+            {
+                if (Validator == null) return false;
+                return Validator.Invoke(Text);
+            }
+        }
+
+        public Func<string, bool> Validator;
 
         public bool HandleKey(EKeyboardKey key)
         {

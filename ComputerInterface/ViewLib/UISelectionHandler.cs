@@ -18,23 +18,30 @@ namespace ComputerInterface.ViewLib
         /// Max 0 indexed item
         /// e.g. If you have two items this should be 1
         /// </summary>
-        public int Max { get; set; }
+        public int MaxIdx { get; set; }
 
         private readonly EKeyboardKey _upKey;
         private readonly EKeyboardKey _downKey;
         private readonly EKeyboardKey _selectKey;
         private readonly bool _canSelect;
 
-        public UISelectionHandler(EKeyboardKey upKey, EKeyboardKey downKey, EKeyboardKey selectKey, bool canSelect)
+        private string _startSelected;
+        private string _endSelected;
+        private string _startNormal;
+        private string _endNormal;
+
+        public UISelectionHandler(EKeyboardKey upKey, EKeyboardKey downKey, EKeyboardKey selectKey)
         {
             _upKey = upKey;
             _downKey = downKey;
             _selectKey = selectKey;
-            _canSelect = canSelect;
+            _canSelect = true;
         }
 
-        public UISelectionHandler(EKeyboardKey upKey, EKeyboardKey downKey) : this(upKey, downKey, EKeyboardKey.Enter, false)
+        public UISelectionHandler(EKeyboardKey upKey, EKeyboardKey downKey)
         {
+            _upKey = upKey;
+            _downKey = downKey;
         }
 
         public bool HandleKeypress(EKeyboardKey key)
@@ -72,11 +79,34 @@ namespace ComputerInterface.ViewLib
             ClampSelection();
         }
 
+        public void ConfigureSelectionIndicator(string startSelected, string EndSelected, string startNormal, string endNormal)
+        {
+            _startSelected = startSelected;
+            _endSelected = EndSelected;
+            _startNormal = startNormal;
+            _endNormal = endNormal;
+        }
+
+        public string GetIndicatedText(int idx, int current, string text)
+        {
+            if (idx == current)
+            {
+                return _startSelected + text + _endSelected;
+            }
+
+            return _startNormal + text + _endNormal;
+        }
+
+        public string GetIndicatedText(int idx, string text)
+        {
+            return GetIndicatedText(idx, CurrentSelectionIndex, text);
+        }
+
         private void ClampSelection()
         {
-            if (CurrentSelectionIndex > Max)
+            if (CurrentSelectionIndex > MaxIdx)
             {
-                CurrentSelectionIndex = Max;
+                CurrentSelectionIndex = MaxIdx;
                 return;
             }
 

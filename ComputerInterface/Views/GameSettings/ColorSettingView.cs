@@ -1,5 +1,4 @@
-﻿using System;
-using System.Text;
+﻿using System.Text;
 using ComputerInterface.ViewLib;
 using UnityEngine;
 
@@ -18,10 +17,10 @@ namespace ComputerInterface.Views.GameSettings
         public ColorSettingView()
         {
             _selectionHandler = new UISelectionHandler(EKeyboardKey.Up, EKeyboardKey.Down);
-            _selectionHandler.Max = 2;
+            _selectionHandler.MaxIdx = 2;
 
             _columnSelectionHandler = new UISelectionHandler(EKeyboardKey.Left, EKeyboardKey.Right);
-            _columnSelectionHandler.Max = 2;
+            _columnSelectionHandler.MaxIdx = 2;
         }
 
         public override void OnShow(object[] args)

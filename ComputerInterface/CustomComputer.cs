@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Runtime.CompilerServices;
-using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 using BepInEx;
 using BepInEx.Bootstrap;
@@ -11,12 +9,15 @@ using ComputerInterface.ViewLib;
 using ComputerInterface.Views;
 using TMPro;
 using UnityEngine;
+using UnityEngine.UI;
 using Zenject;
 
 namespace ComputerInterface
 {
     public class CustomComputer : MonoBehaviour, IInitializable
     {
+        private bool _initialized;
+
         private GorillaComputer _gorillaComputer;
         private ComputerViewController _computerViewController;
 
@@ -24,7 +25,6 @@ namespace ComputerInterface
 
         private ComputerViewPlaceholderFactory _viewFactory;
 
-        private bool _initialized;
 
         private MainMenuView _mainMenuView;
 
@@ -72,7 +72,7 @@ namespace ComputerInterface
             _computerViewController.OnTextChanged += SetText;
             _computerViewController.OnSwitchView += SwitchView;
 
-            ReplaceKeys();
+            await ReplaceKeys();
             _customScreenInfo = await CreateMonitor();
             _customScreenInfo.Color = _config.ScreenBackgroundColor.Value;
             BaseGameInterface.InitAll();
@@ -87,7 +87,7 @@ namespace ComputerInterface
         private void ShowInitialView(MainMenuView view, List<IComputerModEntry> computerModEntries)
         {
             _computerViewController.SetView(view, null);
-            view.ShowMods(computerModEntries);
+            view.ShowEntries(computerModEntries);
         }
 
         public void Initialize()
@@ -103,6 +103,7 @@ namespace ComputerInterface
 
         private void Update()
         {
+            // get key state for the key debugging feature
             if (CustomKeyboardKey.KeyDebuggerEnabled && _keys != null)
             {
                 foreach (var key in _keys)
@@ -110,12 +111,6 @@ namespace ComputerInterface
                     key.Fetch();
                 }
             }
-        }
-
-        public void Reposition()
-        {
-            var monitor = transform.Find("monitor");
-            monitor.gameObject.SetActive(false);
         }
 
         public void SetText(string text)
@@ -176,6 +171,13 @@ namespace ComputerInterface
 
             foreach(var button in GetComponentsInChildren<GorillaKeyboardButton>())
             {
+                if (button.characterString == "up" || button.characterString == "down")
+                {
+                    button.GetComponentInChildren<MeshRenderer>().material.color = new Color(0.1f, 0.1f, 0.1f);
+                    button.transform.localPosition -= new Vector3(0, 0.6f, 0);
+                    continue;
+                }
+
                 if (!nameToEnum.TryGetValue(button.characterString.ToLower(), out var key)) continue;
 
                 var customButton = button.gameObject.AddComponent<CustomKeyboardKey>();
@@ -202,19 +204,26 @@ namespace ComputerInterface
             var mKey = _keys.First(x => x.KeyboardKey == EKeyboardKey.M);
             var deleteKey = _keys.First(x => x.KeyboardKey == EKeyboardKey.Delete);
 
-            CreateKey(enterKey.gameObject, "Space", new Vector3(2.6f, 0, 3), EKeyboardKey.Space, "Space");
-            CreateKey(deleteKey.gameObject, "Delete", new Vector3(2.3f, 0, 0), EKeyboardKey.Delete);
-
             ColorUtility.TryParseHtmlString("#8787e0", out var backButtonColor);
-            deleteKey.GetComponent<CustomKeyboardKey>().Init(this, EKeyboardKey.Back, "Back", backButtonColor);
+
+            CreateKey(enterKey.gameObject, "Space", new Vector3(2.6f, 0, 3), EKeyboardKey.Space, "Space");
+            CreateKey(deleteKey.gameObject, "Back", new Vector3(0, 0, -29.8f), EKeyboardKey.Back, "Back", backButtonColor);
+
 
             ColorUtility.TryParseHtmlString("#abdbab", out var arrowKeyButtonColor);
 
+            var leftKey = CreateKey(mKey.gameObject, "Left", new Vector3(0, 0, 5.6f), EKeyboardKey.Left, "<", arrowKeyButtonColor);
+            var downKey = CreateKey(leftKey.gameObject, "Down", new Vector3(0, 0, 2.3f), EKeyboardKey.Down, ">", arrowKeyButtonColor);
+            CreateKey(downKey.gameObject, "Right", new Vector3(0, 0, 2.3f), EKeyboardKey.Right, ">", arrowKeyButtonColor);
+            var upKey = CreateKey(downKey.gameObject, "Up", new Vector3(-2.3f, 0, 0), EKeyboardKey.Up, ">", arrowKeyButtonColor);
 
-            var leftKey = CreateKey(mKey.gameObject, "Left", new Vector3(0, 0, 5.6f), EKeyboardKey.Left, ".", arrowKeyButtonColor);
-            var downKey = CreateKey(leftKey.gameObject, "Down", new Vector3(0, 0, 2.3f), EKeyboardKey.Down, ".", arrowKeyButtonColor);
-            CreateKey(downKey.gameObject, "Right", new Vector3(0, 0, 2.3f), EKeyboardKey.Right, ".", arrowKeyButtonColor);
-            CreateKey(downKey.gameObject, "Up", new Vector3(-2.3f, 0, 0), EKeyboardKey.Up, ".", arrowKeyButtonColor);
+            var downKeyText = downKey.GetComponentInChildren<Text>().transform;
+            downKeyText.localPosition += new Vector3(0, -0.2f, 0);
+            downKeyText.localEulerAngles += new Vector3(0, 0, -90);
+
+            var upKeyText = upKey.GetComponentInChildren<Text>().transform;
+            upKeyText.localPosition += new Vector3(-0.1f, -0.1f, 0);
+            upKeyText.localEulerAngles += new Vector3(0, 0, 90);
         }
 
         private CustomKeyboardKey CreateKey(GameObject prefab, string goName, Vector3 offset, EKeyboardKey key,
@@ -255,10 +264,9 @@ namespace ComputerInterface
 
             var monitorAsset = await _assetsLoader.GetAsset<GameObject>("monitor");
 
-
             var newMonitor = Instantiate(monitorAsset);
             newMonitor.name = "Custom Monitor";
-            newMonitor.transform.localScale = new Vector3(0.4f, 0.4f, 0.4f);
+            //newMonitor.transform.localScale = new Vector3(0.4f, 0.4f, 0.4f);
             newMonitor.transform.eulerAngles = new Vector3(0, 90, 0);
             newMonitor.transform.position = new Vector3(-69f, 12.02f, -82.8f);
 

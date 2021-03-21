@@ -71,7 +71,8 @@ namespace ComputerInterface
         public void Init(CustomComputer computer, EKeyboardKey key, string text)
         {
             Init(computer, key);
-            GetComponentInChildren<Text>().text = text;
+            var textComp = GetComponentInChildren<Text>();
+            textComp.text = text;
         }
 
         public void Init(CustomComputer computer, EKeyboardKey key, string text, Color buttonColor)
@@ -144,6 +145,10 @@ namespace ComputerInterface
 
             _keyMap.Add(EKeyboardKey.Back, Key.Escape);
             _keyMap.Add(EKeyboardKey.Delete, Key.Backspace);
+
+            _keyMap.Add(EKeyboardKey.Option1, Key.Numpad1);
+            _keyMap.Add(EKeyboardKey.Option2, Key.Numpad2);
+            _keyMap.Add(EKeyboardKey.Option3, Key.Numpad3);
 
             // add num keys
             for (int i = 1; i < 9; i++)
