@@ -78,6 +78,21 @@ namespace ComputerInterface
             return (ETurnMode) Enum.Parse(typeof(ETurnMode), turnMode);
         }
 
+        public static void SetTurnValue(int value)
+        {
+            if (!CheckForComputer(out var computer)) return;
+
+            computer.SetField("turnValue", value);
+            PlayerPrefs.SetInt("turnFactor", value);
+            PlayerPrefs.Save();
+            GorillaTagger.Instance.GetComponent<GorillaSnapTurn>().ChangeTurnMode(computer.GetField<string>("turnType"), value);
+        }
+
+        public static int GetTurnValue()
+        {
+            return PlayerPrefs.GetInt("turnFactor", 4);
+        }
+
         public static void SetPttMode(EPTTMode mode)
         {
             if (!CheckForComputer(out var computer)) return;
