@@ -1,5 +1,6 @@
 ﻿using TMPro;
 using UnityEngine;
+using UnityEngine.UI;
 
 namespace ComputerInterface
 {
@@ -9,11 +10,18 @@ namespace ComputerInterface
         public Transform Transform;
         public Renderer Renderer;
         public Material[] Materials;
+        public RawImage RawImage;
+
+        //public Color Color
+        //{
+        //    get => Materials[2].color;
+        //    set => Materials[2].color = value;
+        //}
 
         public Color Color
         {
-            get => Materials[1].color;
-            set => Materials[1].color = value;
+            get => RawImage.material.color;
+            set => RawImage.material.color = value;
         }
 
         public string Text
@@ -26,6 +34,12 @@ namespace ComputerInterface
         {
             get => TextMeshProUgui.fontSize;
             set => TextMeshProUgui.fontSize = value;
+        }
+
+        public Texture Background
+        {
+            get => RawImage.texture;
+            set => RawImage.texture = value;
         }
     }
 }

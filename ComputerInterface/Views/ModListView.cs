@@ -30,7 +30,7 @@ namespace ComputerInterface.Views
             _selectionHandler.ConfigureSelectionIndicator("<color=#ed6540>> </color>", "", "  ", "");
 
             _pageHandler = new UIElementPageHandler<BepInEx.PluginInfo>();
-            _pageHandler.EntriesPerPage = 7;
+            _pageHandler.EntriesPerPage = 10;
 
             _pageHandler.SetElements(_plugins);
         }
@@ -53,7 +53,9 @@ namespace ComputerInterface.Views
 
         private void RedrawHeader(StringBuilder str)
         {
-            str.Append("/// ").Append(_plugins.Length).Append(" Mods loaded ///").AppendLine();
+            str.BeginColor("ffffff50");
+            str.Append("/// ").Append(_plugins.Length).Append(" Mods loaded ///");
+            str.EndColor().AppendLine();
         }
 
         private void DrawMods(StringBuilder str)

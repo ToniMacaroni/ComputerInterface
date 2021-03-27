@@ -23,7 +23,7 @@ namespace ComputerInterface.Views
             _pageHandler.Footer = "<color=#ffffff50>{0}{1}        <align=\"right\"><margin-right=2em>page {2}/{3}</margin></align></color>";
             _pageHandler.NextMark = "▼";
             _pageHandler.PrevMark = "▲";
-            _pageHandler.EntriesPerPage = 5;
+            _pageHandler.EntriesPerPage = 8;
         }
 
         public void ShowEntries(List<IComputerModEntry> entries)

@@ -17,12 +17,26 @@ By default Computer Interface ships with following commands:
 - cam <fp|tp> //sets the view mirrored to your monitor to eiter first person (fp) or third person (tp) (e.g. cam fp)
 - setbg <r> <g> <b> //sets the background color of the computer screen (e.g. setbg 40 70 40)
 
+## Background Image
+To use a custom background image:
+1) go into "Gorilla Tag/BepInEx/config" and open "tonimacaroni.computerinterface.cfg" with a text editor
+2) find "ScreenBackgroundPath" and replace the path with your own image path
+
+*Use forward slashes (/) instead of backslashes in the path*  
+*Paths can be either relative to the Gorilla Tag folder or absolute*  
+*The image gets multiplied by the set background color.*  
+*If you want the image as is type "setbg 255 255 255" in the commandline in CI*
+
 ## Additional Features
 Computer Interface by iself also adds some changes.  
 These currently are:
+- room browser
+- command line
+- ability to toggle mods on and off
 - visual queue for when a button is pressed (the button moves down and changes color)
+- click sounds on button press
 - added cooldown to buttons to counter missclicks
-- custom computer background
+- custom computer background (image and color)
 
 And many more to come...
 

@@ -12,7 +12,7 @@ namespace ComputerInterface.Views
         {
             _commandHandler = commandHandler;
             _pageHandler = new UITextPageHandler(EKeyboardKey.Left, EKeyboardKey.Right);
-            _pageHandler.EntriesPerPage = 5;
+            _pageHandler.EntriesPerPage = 8;
         }
 
         public override void OnShow(object[] args)

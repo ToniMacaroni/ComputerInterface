@@ -35,7 +35,7 @@ namespace ComputerInterface.Views.GameSettings
         {
             var str = new StringBuilder();
 
-            str.AppendLines(3);
+            str.AppendLines(5);
 
             DrawOptions(str);
 

@@ -15,5 +15,7 @@ namespace ComputerInterface.Interfaces
         void OnShow(object[] args);
 
         event ComputerViewSwitchEventHandler OnViewSwitchRequest;
+
+        event ComputerViewChangeBackgroundEventHandler OnChangeBackgroundRequest;
     }
 }
