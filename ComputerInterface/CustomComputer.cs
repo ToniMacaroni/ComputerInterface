@@ -71,10 +71,12 @@ namespace ComputerInterface
             _computerViewController = new ComputerViewController();
             _computerViewController.OnTextChanged += SetText;
             _computerViewController.OnSwitchView += SwitchView;
+            _computerViewController.OnSetBackground += SetBGImage;
 
             await ReplaceKeys();
             _customScreenInfo = await CreateMonitor();
             _customScreenInfo.Color = _config.ScreenBackgroundColor.Value;
+            _customScreenInfo.Background = _config.BackgroundTexture;
             BaseGameInterface.InitAll();
 
             enabled = true;
@@ -122,6 +124,19 @@ namespace ComputerInterface
         {
             _customScreenInfo.Color = new Color(r, g, b);
             _config.ScreenBackgroundColor.Value = _customScreenInfo.Color;
+        }
+
+        public void SetBGImage(ComputerViewChangeBackgroundEventArgs args)
+        {
+            if (args == null || args.Texture == null)
+            {
+                _customScreenInfo.Background = _config.BackgroundTexture;
+                _customScreenInfo.Color = _config.ScreenBackgroundColor.Value;
+                return;
+            }
+
+            _customScreenInfo.Color = args.ImageColor ?? _config.ScreenBackgroundColor.Value;
+            _customScreenInfo.Background = args.Texture;
         }
 
         public void PressButton(CustomKeyboardKey key)
@@ -267,18 +282,19 @@ namespace ComputerInterface
             var newMonitor = Instantiate(monitorAsset);
             newMonitor.name = "Custom Monitor";
             //newMonitor.transform.localScale = new Vector3(0.4f, 0.4f, 0.4f);
-            newMonitor.transform.eulerAngles = new Vector3(0, 90, 0);
-            newMonitor.transform.position = new Vector3(-69f, 12.02f, -82.8f);
+            newMonitor.transform.eulerAngles = new Vector3(0, 0, 0);
+            newMonitor.transform.position = new Vector3(-68.65f, 11.53f, -85.05f);
 
             var info = new CustomScreenInfo();
 
             info.Transform = newMonitor.transform;
             info.TextMeshProUgui = newMonitor.GetComponentInChildren<TextMeshProUGUI>();
-            info.Renderer = newMonitor.GetComponentInChildren<MeshRenderer>();
+            info.Renderer = newMonitor.GetComponentsInChildren<MeshRenderer>().First(x=>x.name=="Main Monitor");
+            info.RawImage = newMonitor.GetComponentInChildren<RawImage>();
             info.Materials = info.Renderer.materials;
 
             info.Color = new Color(0.05f, 0.05f, 0.05f);
-            info.FontSize = 80f;
+            //info.FontSize = 80f;
 
             return info;
         }

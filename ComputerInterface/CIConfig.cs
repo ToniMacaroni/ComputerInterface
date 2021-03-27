@@ -1,4 +1,7 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using System.IO;
+using BepInEx;
 using BepInEx.Configuration;
 using Bepinject;
 using UnityEngine;
@@ -8,54 +11,77 @@ namespace ComputerInterface
     internal class CIConfig
     {
         public ConfigEntry<Color> ScreenBackgroundColor;
-        public ConfigEntry<string> DisabledMods;
+        public Texture BackgroundTexture;
 
-        private List<string> _disabledMods;
+        public ConfigEntry<string> _screenBackgroundPath;
+        private readonly ConfigEntry<string> _disabledMods;
+        private List<string> _disabledModsList;
 
         public CIConfig(BepInConfig config)
         {
             var file = config.Config;
 
             ScreenBackgroundColor = file.Bind("Colors", "ScreenBackgroundColor", new Color(0.02f, 0.02f, 0.02f), "The background color of the screen");
-            DisabledMods = file.Bind("Mod Management", "DisabledMods", "", "List of disabled mods");
+            _screenBackgroundPath = file.Bind("Textures", "ScreenBackgroundPath", "", "Path to a custom screen background");
+            _disabledMods = file.Bind("Mod Management", "DisabledMods", "", "List of disabled mods");
+
+            BackgroundTexture = GetTexture(_screenBackgroundPath.Value);
             DeserializeDisabledMods();
         }
 
         public void AddDisabledMod(string guid)
         {
-            if (!_disabledMods.Contains(guid))
+            if (!_disabledModsList.Contains(guid))
             {
-                _disabledMods.Add(guid);
+                _disabledModsList.Add(guid);
             }
             SerializeDisabledMods();
         }
 
         public void RemoveDisabledMod(string guid)
         {
-            _disabledMods.Remove(guid);
+            _disabledModsList.Remove(guid);
             SerializeDisabledMods();
         }
 
         public bool IsModDisabled(string guid)
         {
-            return _disabledMods.Contains(guid);
+            return _disabledModsList.Contains(guid);
         }
 
         private void DeserializeDisabledMods()
         {
-            _disabledMods = new List<string>();
-            var modString = DisabledMods.Value;
+            _disabledModsList = new List<string>();
+            var modString = _disabledMods.Value;
             if (modString.StartsWith(";")) modString = modString.Substring(1);
 
             foreach (var guid in modString.Split(';'))
             {
-                _disabledMods.Add(guid);
+                _disabledModsList.Add(guid);
             }
         }
 
         private void SerializeDisabledMods()
         {
-            DisabledMods.Value = string.Join(";", _disabledMods);
+            _disabledMods.Value = string.Join(";", _disabledModsList);
+        }
+
+        private Texture GetTexture(string path)
+        {
+            try
+            {
+                if (path.IsNullOrWhiteSpace()) return null;
+                var file = new FileInfo(path);
+                if (!file.Exists) return null;
+                var tex = new Texture2D(2, 2);
+                tex.LoadImage(File.ReadAllBytes(file.FullName));
+                return tex;
+            }
+            catch (Exception)
+            {
+                Debug.LogError("Couldn't load CI background");
+                return null;
+            }
         }
     }
 }

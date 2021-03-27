@@ -3,9 +3,11 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using System.Text;
+using System.Threading.Tasks;
 using ComputerInterface.Interfaces;
 using ComputerInterface.Views;
 using JetBrains.Annotations;
+using UnityEngine;
 
 namespace ComputerInterface.ViewLib
 {
@@ -14,12 +16,12 @@ namespace ComputerInterface.ViewLib
         /// <summary>
         /// How many characters fit in the x axis of the screen
         /// </summary>
-        public static int SCREEN_WIDTH = 39;
+        public static int SCREEN_WIDTH = 41;
 
         /// <summary>
         /// How many characters fit in the y axis of the screen
         /// </summary>
-        public static int SCREEN_HEIGHT = 10;
+        public static int SCREEN_HEIGHT = 12;
 
         public string PrimaryColor = "ed6540";
 
@@ -109,7 +111,29 @@ namespace ComputerInterface.ViewLib
             ShowView<MainMenuView>();
         }
 
+        public void SetBackground(Texture texture, Color? color = null)
+        {
+            var args = new ComputerViewChangeBackgroundEventArgs(texture, color);
+            OnChangeBackgroundRequest?.Invoke(args);
+        }
+
+        public void RevertBackground()
+        {
+            OnChangeBackgroundRequest?.Invoke(null);
+        }
+
+        public async Task ShowSplashForDuration(Texture texture, int ms)
+        {
+            var text = Text;
+            Text = "";
+            SetBackground(texture);
+            await Task.Delay(ms);
+            RevertBackground();
+            Text = text;
+        }
+
         public event ComputerViewSwitchEventHandler OnViewSwitchRequest;
+        public event ComputerViewChangeBackgroundEventHandler OnChangeBackgroundRequest;
 
         protected bool SetProperty<T>(ref T storage, T value, [CallerMemberName] string propertyName = null)
         {

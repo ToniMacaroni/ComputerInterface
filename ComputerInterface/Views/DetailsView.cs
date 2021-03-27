@@ -1,9 +1,11 @@
 ﻿using System;
+using System.IO;
 using System.Text;
 using BepInEx;
 using ComputerInterface.Interfaces;
 using ComputerInterface.ViewLib;
 using Photon.Pun;
+using UnityEngine;
 
 namespace ComputerInterface.Views
 {

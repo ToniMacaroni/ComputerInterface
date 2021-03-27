@@ -1,12 +1,14 @@
 ﻿using System;
 using ComputerInterface.Interfaces;
+using UnityEngine;
 
 namespace ComputerInterface.ViewLib
 {
     internal class ComputerViewController
     {
         public event Action<string> OnTextChanged;
-        public event Action<ComputerViewSwitchEventArgs> OnSwitchView; 
+        public event Action<ComputerViewSwitchEventArgs> OnSwitchView;
+        public event Action<ComputerViewChangeBackgroundEventArgs> OnSetBackground; 
 
         public IComputerView CurrentComputerView { get; private set; }
 
@@ -29,12 +31,7 @@ namespace ComputerInterface.ViewLib
 
         public void NotifyOfKeyPress(EKeyboardKey key)
         {
-            if (CurrentComputerView == null)
-            {
-                return;
-            }
-
-            CurrentComputerView.OnKeyPressed(key);
+            CurrentComputerView?.OnKeyPressed(key);
         }
 
         private void RegisterView(IComputerView view)
@@ -46,6 +43,7 @@ namespace ComputerInterface.ViewLib
 
             view.PropertyChanged += _propUpdateBinder.PropertyChanged;
             view.OnViewSwitchRequest += OnSwitchViewRequest;
+            view.OnChangeBackgroundRequest += OnChangeBackgroundRequest;
         }
 
         private void UnregisterView(IComputerView view)
@@ -57,11 +55,19 @@ namespace ComputerInterface.ViewLib
 
             view.PropertyChanged -= _propUpdateBinder.PropertyChanged;
             view.OnViewSwitchRequest -= OnSwitchViewRequest;
+            view.OnChangeBackgroundRequest -= OnChangeBackgroundRequest;
+
+            OnChangeBackgroundRequest(null);
         }
 
         private void OnSwitchViewRequest(ComputerViewSwitchEventArgs args)
         {
             OnSwitchView?.Invoke(args);
+        }
+
+        private void OnChangeBackgroundRequest(ComputerViewChangeBackgroundEventArgs args)
+        {
+            OnSetBackground?.Invoke(args);
         }
 
         private void RaiseOnTextChanged()
