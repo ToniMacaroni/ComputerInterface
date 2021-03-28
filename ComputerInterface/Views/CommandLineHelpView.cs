@@ -1,5 +1,6 @@
 ﻿using System.Text;
 using ComputerInterface.ViewLib;
+using UnityEngine;
 
 namespace ComputerInterface.Views
 {
@@ -25,19 +26,23 @@ namespace ComputerInterface.Views
             for (int i = 0; i < lines.Length; i++)
             {
                 var command = commands[i];
-                if (command == null)
-                {
-                    lines[i] = "-";
-                    continue;
-                }
 
-                lines[i] = "- " + command.Name;
+                lines[i] = "- ";
+
+                if (command == null) continue;
+
+                lines[i] += command.Name;
 
                 if (command.ArgumentTypes != null)
                 {
                     foreach (var argType in command.ArgumentTypes)
                     {
-                        if (argType == null) continue;
+                        if (argType == null)
+                        {
+                            lines[i] += " <string>";
+                            continue;
+                        }
+
                         lines[i] += " <" + argType.Name + ">";
                     }
                 }
