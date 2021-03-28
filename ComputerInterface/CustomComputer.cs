@@ -11,6 +11,7 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 using Zenject;
+using Object = UnityEngine.Object;
 
 namespace ComputerInterface
 {
@@ -190,6 +191,7 @@ namespace ComputerInterface
                 {
                     button.GetComponentInChildren<MeshRenderer>().material.color = new Color(0.1f, 0.1f, 0.1f);
                     button.transform.localPosition -= new Vector3(0, 0.6f, 0);
+                    DestroyImmediate(button.GetComponent<BoxCollider>());
                     continue;
                 }
 

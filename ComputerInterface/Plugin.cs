@@ -27,6 +27,8 @@ namespace ComputerInterface
         {
             if (Loaded) return;
 
+            //_harmony.PatchAll(Assembly.GetExecutingAssembly());
+
             Debug.Log("Computer Interface loading");
 
             Zenjector.Install<MainInstaller>().OnProject().WithConfig(Config).WithLog(Logger);
