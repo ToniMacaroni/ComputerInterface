@@ -11,7 +11,7 @@ namespace ComputerInterface.Views.GameSettings
         {
             _selectionHandler = new UISelectionHandler(EKeyboardKey.Up, EKeyboardKey.Down);
             _selectionHandler.ConfigureSelectionIndicator("", $"<color=#{PrimaryColor}> <</color>", "", "");
-            _selectionHandler.MaxIdx = 1;
+            _selectionHandler.MaxIdx = 2;
         }
 
         public override void OnShow(object[] args)
@@ -45,7 +45,8 @@ namespace ComputerInterface.Views.GameSettings
         public void DrawOptions(StringBuilder str)
         {
             str.Append(_selectionHandler.GetIndicatedText(0, "Default    ")).AppendLine();
-            str.Append(_selectionHandler.GetIndicatedText(1, "Competitive")).AppendLine();
+            str.Append(_selectionHandler.GetIndicatedText(1, "Casual     ")).AppendLine();
+            str.Append(_selectionHandler.GetIndicatedText(2, "Competitive")).AppendLine();
         }
 
         public override void OnKeyPressed(EKeyboardKey key)
