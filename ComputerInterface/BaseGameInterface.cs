@@ -344,13 +344,15 @@ namespace ComputerInterface
         public enum EQueueMode
         {
             Default,
+            Casual,
             Competitive
         }
 
         public enum EGroup
         {
             Forest,
-            Cave
+            Cave,
+            Canyon
         }
     }
 }
