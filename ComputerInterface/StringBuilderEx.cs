@@ -12,9 +12,16 @@ namespace ComputerInterface
             return str.BeginColor(color).Append(text).EndColor();
         }
 
+        /// <summary>
+        /// Writes a string with the specified color
+        /// </summary>
+        /// <param name="str">the string to print</param>
+        /// <param name="color">the hex color (doesn't have to start with '#')</param>
+        /// <returns></returns>
         public static StringBuilder BeginColor(this StringBuilder str, string color)
         {
-            return str.Append($"<color=#{color}>");
+            if (color[0] != '#') color = "#" + color;
+            return str.Append($"<color={color}>");
         }
 
         public static StringBuilder EndColor(this StringBuilder str)
