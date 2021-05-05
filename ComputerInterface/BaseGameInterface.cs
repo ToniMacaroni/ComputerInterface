@@ -146,6 +146,19 @@ namespace ComputerInterface
             PlayerPrefs.Save();
         }
 
+        public static void SetVoiceMode(bool voiceChatOn)
+        {
+            if (!CheckForComputer(out var computer)) return;
+            computer.voiceChatOn = voiceChatOn ? "TRUE": "FALSE";
+            PlayerPrefs.SetString("voiceChatOn", computer.voiceChatOn);
+            PlayerPrefs.Save();
+        }
+
+        public static bool GetVoiceMode()
+        {
+            return PlayerPrefs.GetString("voiceChatOn")=="TRUE";
+        }
+
         public static EGroup GetGroupMode()
         {
             var modeString = PlayerPrefs.GetString("groupMapJoin", "FOREST");
@@ -158,10 +171,8 @@ namespace ComputerInterface
 
             if (PhotonNetwork.InRoom && !PhotonNetwork.CurrentRoom.IsVisible)
             {
-                computer.networkController.joinWithFriends = true;
-                computer.networkController.friendIDList = new List<string>(computer.friendJoinCollider.playerIDsCurrentlyTouching);
+                PhotonNetworkController.instance.friendIDList = new List<string>(computer.friendJoinCollider.playerIDsCurrentlyTouching);
                 Debug.Log(computer.networkController.friendIDList);
-                computer.networkController.currentGameType = "";
                 foreach (string message in computer.networkController.friendIDList)
                 {
                     Debug.Log(message);
@@ -175,90 +186,34 @@ namespace ComputerInterface
                     }
                 }
                 PhotonNetwork.SendAllOutgoingCommands();
+                GorillaNetworkJoinTrigger triggeredTrigger = null;
                 if (computer.groupMapJoin == "FOREST")
                 {
-                    computer.forestMapTrigger.ComputerJoin();
+                    triggeredTrigger = computer.forestMapTrigger;
                 }
                 else if (computer.groupMapJoin == "CAVE")
                 {
-                    computer.caveMapTrigger.ComputerJoin();
+                    triggeredTrigger = computer.caveMapTrigger;
                 }
+                else if (computer.groupMapJoin == "CANYON")
+                {
+                    triggeredTrigger = computer.canyonMapTrigger;
+                }
+                PhotonNetworkController.instance.AttemptJoinPublicWithFriends(triggeredTrigger);
             }
         }
 
         public static void Disconnect()
         {
-            if (GorillaComputer.instance == null) return;
-
-            if (PhotonNetwork.InRoom)
-            {
-                GorillaComputer.instance.networkController.attemptingToConnect = false;
-                GorillaScoreboardSpawner[] componentsInChildren = PhotonNetworkController.instance.currentGorillaParent.GetComponentsInChildren<GorillaScoreboardSpawner>();
-                for (int i = 0; i < componentsInChildren.Length; i++)
-                {
-                    componentsInChildren[i].OnLeftRoom();
-                }
-                foreach (SkinnedMeshRenderer skinnedMeshRenderer in GorillaComputer.instance.networkController.offlineVRRig)
-                {
-                    if (skinnedMeshRenderer != null)
-                    {
-                        skinnedMeshRenderer.enabled = true;
-                    }
-                }
-                foreach (GorillaLevelScreen gorillaLevelScreen in GorillaComputer.instance.levelScreens)
-                {
-                    gorillaLevelScreen.UpdateText(gorillaLevelScreen.startingText, true);
-                }
-                Player.Instance.maxJumpSpeed = 6.5f;
-                Player.Instance.jumpMultiplier = 1.1f;
-                PhotonNetwork.Disconnect();
-                PhotonNetwork.ConnectUsingSettings();
-            }
-        }
-
-        public static void JoinRoom(string roomId, string gameType, bool isPrivate)
-        {
-            if (GorillaComputer.instance == null) return;
-            if (string.IsNullOrWhiteSpace(roomId)) return;
-
-            var networkController = GorillaComputer.instance.networkController;
-
-            networkController.currentGameType = gameType;
-            networkController.customRoomID = roomId;
-            networkController.isPrivate = isPrivate;
-
-            if (PhotonNetwork.InRoom && PhotonNetwork.CurrentRoom.Name != roomId)
-            {
-                GorillaScoreboardSpawner[] componentsInChildren = PhotonNetworkController.instance.currentGorillaParent.GetComponentsInChildren<GorillaScoreboardSpawner>();
-                for (int i = 0; i < componentsInChildren.Length; i++)
-                {
-                    componentsInChildren[i].OnLeftRoom();
-                }
-                networkController.attemptingToConnect = true;
-                foreach (SkinnedMeshRenderer skinnedMeshRenderer2 in networkController.offlineVRRig)
-                {
-                    if (skinnedMeshRenderer2 != null)
-                    {
-                        skinnedMeshRenderer2.enabled = true;
-                    }
-                }
-                PhotonNetwork.Disconnect();
-                Player.Instance.maxJumpSpeed = 6.5f;
-                Player.Instance.jumpMultiplier = 1.1f;
-                return;
-            }
-
-            if (!PhotonNetwork.InRoom && !networkController.attemptingToConnect)
-            {
-                networkController.attemptingToConnect = true;
-                networkController.AttemptToConnectToRoom();
-                Debug.Log("attempting to connect");
-            }
+            PhotonNetworkController.instance.AttemptDisconnect();
         }
 
         public static void JoinRoom(string roomId)
         {
-            JoinRoom(roomId, "privatetag", true);
+            if (!CheckForComputer(out var computer)) return;
+            if (string.IsNullOrWhiteSpace(roomId)) return;
+
+            computer.networkController.AttemptToJoinSpecificRoom(roomId);
         }
 
         public static string GetRoomCode()
@@ -305,6 +260,11 @@ namespace ComputerInterface
             SetGroupMode(GetGroupMode());
         }
 
+        public static void InitVoiceMode()
+        {
+            SetVoiceMode(GetVoiceMode());
+        }
+
         public static void InitAll()
         {
             InitColorState();
@@ -313,6 +273,9 @@ namespace ComputerInterface
             InitMicState();
             InitQueueState();
             InitGroupState();
+            InitVoiceMode();
+
+            //PhotonNetworkController.instance.SetField("pastFirstConnection", true);
         }
 
         private static bool CheckForComputer(out GorillaComputer computer)
