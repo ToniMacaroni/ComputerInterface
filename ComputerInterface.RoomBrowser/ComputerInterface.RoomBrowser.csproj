@@ -9,65 +9,44 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Reference Include="0Harmony">
-      <HintPath>..\Dependencies\0Harmony.dll</HintPath>
-    </Reference>
     <Reference Include="Assembly-CSharp">
-      <HintPath>..\Dependencies\Assembly-CSharp.dll</HintPath>
+      <HintPath>D:\SteamLibrary\steamapps\common\Gorilla Tag\Gorilla Tag_Data\Managed\Assembly-CSharp.dll</HintPath>
     </Reference>
     <Reference Include="BepInEx">
-      <HintPath>..\Dependencies\BepInEx.dll</HintPath>
+      <HintPath>D:\SteamLibrary\steamapps\common\Gorilla Tag\BepInEx\core\BepInEx.dll</HintPath>
     </Reference>
     <Reference Include="Bepinject">
-      <HintPath>..\Dependencies\Bepinject.dll</HintPath>
+      <HintPath>D:\SteamLibrary\steamapps\common\Gorilla Tag\BepInEx\plugins\Bepinject-Auros\Bepinject.dll</HintPath>
     </Reference>
     <Reference Include="Photon3Unity3D">
-      <HintPath>..\Dependencies\Photon3Unity3D.dll</HintPath>
+      <HintPath>D:\SteamLibrary\steamapps\common\Gorilla Tag\Gorilla Tag_Data\Managed\Photon3Unity3D.dll</HintPath>
     </Reference>
     <Reference Include="PhotonRealtime">
-      <HintPath>..\Dependencies\PhotonRealtime.dll</HintPath>
+      <HintPath>D:\SteamLibrary\steamapps\common\Gorilla Tag\Gorilla Tag_Data\Managed\PhotonRealtime.dll</HintPath>
     </Reference>
     <Reference Include="PhotonUnityNetworking">
-      <HintPath>..\Dependencies\PhotonUnityNetworking.dll</HintPath>
+      <HintPath>D:\SteamLibrary\steamapps\common\Gorilla Tag\Gorilla Tag_Data\Managed\PhotonUnityNetworking.dll</HintPath>
     </Reference>
     <Reference Include="PhotonVoice">
-      <HintPath>..\Dependencies\PhotonVoice.dll</HintPath>
+      <HintPath>D:\SteamLibrary\steamapps\common\Gorilla Tag\Gorilla Tag_Data\Managed\PhotonVoice.dll</HintPath>
     </Reference>
     <Reference Include="PhotonVoice.API">
-      <HintPath>..\Dependencies\PhotonVoice.API.dll</HintPath>
+      <HintPath>D:\SteamLibrary\steamapps\common\Gorilla Tag\Gorilla Tag_Data\Managed\PhotonVoice.API.dll</HintPath>
     </Reference>
     <Reference Include="PlayFab">
-      <HintPath>..\Dependencies\PlayFab.dll</HintPath>
-    </Reference>
-    <Reference Include="Unity.InputSystem">
-      <HintPath>..\Dependencies\Unity.InputSystem.dll</HintPath>
-    </Reference>
-    <Reference Include="Unity.XR.Interaction.Toolkit">
-      <HintPath>..\Dependencies\Unity.XR.Interaction.Toolkit.dll</HintPath>
+      <HintPath>D:\SteamLibrary\steamapps\common\Gorilla Tag\Gorilla Tag_Data\Managed\PlayFab.dll</HintPath>
     </Reference>
     <Reference Include="UnityEngine">
-      <HintPath>..\Dependencies\UnityEngine.dll</HintPath>
-    </Reference>
-    <Reference Include="UnityEngine.AssetBundleModule">
-      <HintPath>..\Dependencies\UnityEngine.AssetBundleModule.dll</HintPath>
-    </Reference>
-    <Reference Include="UnityEngine.AudioModule">
-      <HintPath>..\Dependencies\UnityEngine.AudioModule.dll</HintPath>
+      <HintPath>D:\SteamLibrary\steamapps\common\Gorilla Tag\Gorilla Tag_Data\Managed\UnityEngine.dll</HintPath>
     </Reference>
     <Reference Include="UnityEngine.CoreModule">
-      <HintPath>..\Dependencies\UnityEngine.CoreModule.dll</HintPath>
-    </Reference>
-    <Reference Include="UnityEngine.PhysicsModule">
-      <HintPath>..\Dependencies\UnityEngine.PhysicsModule.dll</HintPath>
-    </Reference>
-    <Reference Include="UnityEngine.UI">
-      <HintPath>..\Dependencies\UnityEngine.UI.dll</HintPath>
+      <HintPath>D:\SteamLibrary\steamapps\common\Gorilla Tag\Gorilla Tag_Data\Managed\UnityEngine.CoreModule.dll</HintPath>
     </Reference>
     <Reference Include="Zenject">
-      <HintPath>..\Dependencies\Zenject.dll</HintPath>
+      <HintPath>D:\SteamLibrary\steamapps\common\Gorilla Tag\BepInEx\plugins\Extenject\Zenject.dll</HintPath>
     </Reference>
     <Reference Include="Zenject-usage">
-      <HintPath>..\Dependencies\Zenject-usage.dll</HintPath>
+      <HintPath>D:\SteamLibrary\steamapps\common\Gorilla Tag\BepInEx\plugins\Extenject\Zenject-usage.dll</HintPath>
     </Reference>
   </ItemGroup>
 
