@@ -50,7 +50,8 @@ namespace ComputerInterface
             AssetsLoader assetsLoader,
             MainMenuView mainMenuView,
             ComputerViewPlaceholderFactory viewFactory,
-            List<IComputerModEntry> computerModEntries)
+            List<IComputerModEntry> computerModEntries,
+            List<IQueueInfo> queues)
         {
             if (_initialized) return;
             _initialized = true;
@@ -83,6 +84,8 @@ namespace ComputerInterface
             enabled = true;
 
             ShowInitialView(_mainMenuView, computerModEntries);
+
+            QueueManager.queues = queues;
 
             Debug.Log("Initialized Computer");
         }

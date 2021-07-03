@@ -122,21 +122,6 @@ namespace ComputerInterface
             };
         }
 
-        public static void SetQueueMode(EQueueMode mode)
-        {
-            if (!CheckForComputer(out var computer)) return;
-
-            computer.currentQueue = mode.ToString().ToUpper();
-            PlayerPrefs.SetString("currentQueue", computer.currentQueue);
-            PlayerPrefs.Save();
-        }
-
-        public static EQueueMode GetQueueMode()
-        {
-            var modeString = PlayerPrefs.GetString("currentQueue", "DEFAULT");
-            return (EQueueMode) Enum.Parse(typeof(EQueueMode), modeString, true);
-        }
-
         public static void SetGroupMode(EGroup mode)
         {
             if (!CheckForComputer(out var computer)) return;
@@ -250,11 +235,6 @@ namespace ComputerInterface
             SetPttMode(GetPttMode());
         }
 
-        public static void InitQueueState()
-        {
-            SetQueueMode(GetQueueMode());
-        }
-
         public static void InitGroupState()
         {
             SetGroupMode(GetGroupMode());
@@ -271,7 +251,6 @@ namespace ComputerInterface
             InitNameState();
             InitTurnState();
             InitMicState();
-            InitQueueState();
             InitGroupState();
             InitVoiceMode();
 
@@ -302,13 +281,6 @@ namespace ComputerInterface
             AllChat = 0,
             PushToTalk = 1,
             PushToMute = 2
-        }
-
-        public enum EQueueMode
-        {
-            Default,
-            Casual,
-            Competitive
         }
 
         public enum EGroup
