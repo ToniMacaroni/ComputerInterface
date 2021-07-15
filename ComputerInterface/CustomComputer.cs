@@ -11,7 +11,6 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 using Zenject;
-using Object = UnityEngine.Object;
 
 namespace ComputerInterface
 {
@@ -83,6 +82,8 @@ namespace ComputerInterface
             enabled = true;
 
             ShowInitialView(_mainMenuView, computerModEntries);
+
+            transform.gameObject.AddComponent<MOTDHandler>();
 
             Debug.Log("Initialized Computer");
         }
