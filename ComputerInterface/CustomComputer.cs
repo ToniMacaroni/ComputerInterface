@@ -201,7 +201,7 @@ namespace ComputerInterface
                 var customButton = button.gameObject.AddComponent<CustomKeyboardKey>();
                 customButton.pressTime = button.pressTime;
                 customButton.functionKey = button.functionKey;
-                customButton.sliderValues = button.sliderValues;
+                // customButton.sliderValues = button.sliderValues; // Lemming removed unused variable!
 
                 DestroyImmediate(button);
 
