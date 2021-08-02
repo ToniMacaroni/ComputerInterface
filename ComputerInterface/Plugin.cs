@@ -1,7 +1,7 @@
-﻿using System.Reflection;
-using BepInEx;
+﻿using BepInEx;
 using Bepinject;
 using HarmonyLib;
+using System.Reflection;
 using UnityEngine;
 
 namespace ComputerInterface
@@ -27,7 +27,7 @@ namespace ComputerInterface
         {
             if (Loaded) return;
 
-            //_harmony.PatchAll(Assembly.GetExecutingAssembly());
+            _harmony.PatchAll(Assembly.GetExecutingAssembly());
 
             Debug.Log("Computer Interface loading");
 
