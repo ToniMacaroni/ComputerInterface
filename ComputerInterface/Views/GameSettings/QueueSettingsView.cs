@@ -1,5 +1,7 @@
 ﻿using System.Text;
 using ComputerInterface.ViewLib;
+using ComputerInterface.Interfaces;
+using UnityEngine;
 
 namespace ComputerInterface.Views.GameSettings
 {
@@ -7,11 +9,13 @@ namespace ComputerInterface.Views.GameSettings
     {
         private readonly UISelectionHandler _selectionHandler;
 
+        private readonly IQueueInfo[] defaultQueues = { new DefaultQueue(), new CompetitiveQueue(), new CasualQueue() };
+
         public QueueSettingsView()
         {
             _selectionHandler = new UISelectionHandler(EKeyboardKey.Up, EKeyboardKey.Down);
             _selectionHandler.ConfigureSelectionIndicator("", $"<color=#{PrimaryColor}> <</color>", "", "");
-            _selectionHandler.MaxIdx = 2;
+            _selectionHandler.MaxIdx = defaultQueues.Length - 1;
         }
 
         public override void OnShow(object[] args)
@@ -23,12 +27,12 @@ namespace ComputerInterface.Views.GameSettings
 
         public void UpdateState()
         {
-            _selectionHandler.CurrentSelectionIndex = (int)BaseGameInterface.GetQueueMode();
+            _selectionHandler.CurrentSelectionIndex = 0;
         }
 
         public void SetMode()
         {
-            BaseGameInterface.SetQueueMode((BaseGameInterface.EQueueMode)_selectionHandler.CurrentSelectionIndex);
+            QueueManager.SetQueue(defaultQueues[_selectionHandler.CurrentSelectionIndex]);
         }
 
         public void Redraw()
@@ -44,9 +48,12 @@ namespace ComputerInterface.Views.GameSettings
 
         public void DrawOptions(StringBuilder str)
         {
-            str.Append(_selectionHandler.GetIndicatedText(0, "Default    ")).AppendLine();
-            str.Append(_selectionHandler.GetIndicatedText(1, "Casual     ")).AppendLine();
-            str.Append(_selectionHandler.GetIndicatedText(2, "Competitive")).AppendLine();
+            int i = 0;
+            foreach(IQueueInfo queue in defaultQueues)
+            {
+                str.AppendLine(_selectionHandler.GetIndicatedText(i, queue.DisplayName));
+                i++;
+            }
         }
 
         public override void OnKeyPressed(EKeyboardKey key)
