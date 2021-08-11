@@ -49,7 +49,8 @@ namespace ComputerInterface
             AssetsLoader assetsLoader,
             MainMenuView mainMenuView,
             ComputerViewPlaceholderFactory viewFactory,
-            List<IComputerModEntry> computerModEntries)
+            List<IComputerModEntry> computerModEntries,
+            List<IQueueInfo> queues)
         {
             if (_initialized) return;
             _initialized = true;
@@ -83,6 +84,7 @@ namespace ComputerInterface
 
             ShowInitialView(_mainMenuView, computerModEntries);
 
+            QueueManager.queues = queues;
             transform.gameObject.AddComponent<MOTDHandler>();
 
             Debug.Log("Initialized Computer");

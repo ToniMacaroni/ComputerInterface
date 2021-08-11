@@ -23,9 +23,14 @@ namespace ComputerInterface
             Container.Bind<IComputerModEntry>().To<CommandLineEntry>().AsSingle();
             Container.Bind<IComputerModEntry>().To<DetailsEntry>().AsSingle();
             Container.Bind<IComputerModEntry>().To<ModListEntry>().AsSingle();
+            Container.Bind<IComputerModEntry>().To<CustomQueuesEntry>().AsSingle();
             Container.Bind<CommandHandler>().AsSingle();
             Container.BindInterfacesAndSelfTo<AssetsLoader>().AsSingle();
             Container.Bind<CIConfig>().AsSingle();
+            Container.Bind<IQueueInfo>().To<DefaultQueue>().AsSingle();
+            Container.Bind<IQueueInfo>().To<CompetitiveQueue>().AsSingle();
+            Container.Bind<IQueueInfo>().To<CasualQueue>().AsSingle();
+            Container.Bind<IQueueInfo>().To<ModdedQueue>().AsSingle();
         }
 
         private GameObject ComputerGetter(InjectContext ctx)
