@@ -51,6 +51,14 @@ namespace ComputerInterface
             GorillaComputer.instance.savedName = name;
             PlayerPrefs.SetString("playerName", name);
             PlayerPrefs.Save();
+            
+            /* Player's name is not updating on change */
+            if (PhotonNetwork.InRoom)
+            {
+                GetColor(out var r, out var g, out var b);
+                GorillaTagger.Instance.myVRRig.photonView.RPC("InitializeNoobMaterial", RpcTarget.All, (object)r, (object)g, (object)b);
+            }
+            /* Player's name is not updating on change */
         }
 
         public static string GetName()
