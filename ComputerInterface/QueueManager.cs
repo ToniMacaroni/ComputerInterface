@@ -11,6 +11,11 @@ namespace ComputerInterface
     {
         public static List<IQueueInfo> queues;
 
+        public static void Init()
+        {
+            SetQueue(GetQueue());
+        }
+
         public static IQueueInfo GetQueue()
         {
             return queues.Find(x => x.QueueName == PlayerPrefs.GetString("currentQueue"));
