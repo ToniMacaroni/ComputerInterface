@@ -20,7 +20,7 @@ namespace ComputerInterface.Views
             _pageHandler = new UIElementPageHandler<IQueueInfo>(EKeyboardKey.Left, EKeyboardKey.Right);
             _pageHandler.EntriesPerPage = 1;
             _pageHandler.Footer = "<color=#ffffff50><align=\"center\"><       ></align></color>";
-            _pageHandler.SetElements(QueueManager.queues.ToArray());
+            _pageHandler.SetElements(QueueManager.Queues.ToArray());
         }
 
         public override void OnShow(object[] args)
@@ -32,12 +32,12 @@ namespace ComputerInterface.Views
 
         public void UpdateState()
         {
-            _pageHandler.CurrentPage = QueueManager.queues.IndexOf(QueueManager.GetQueue());
+            _pageHandler.CurrentPage = QueueManager.Queues.IndexOf(QueueManager.GetQueue());
         }
 
         public void SetMode()
         {
-            QueueManager.SetQueue(QueueManager.queues[_pageHandler.CurrentPage]);
+            QueueManager.SetQueue(QueueManager.Queues[_pageHandler.CurrentPage]);
         }
 
         public void Redraw()

@@ -1,5 +1,6 @@
 ﻿using System;
 using ComputerInterface.Interfaces;
+using ComputerInterface.Queues;
 using ComputerInterface.ViewLib;
 using ComputerInterface.Views;
 using UnityEngine;

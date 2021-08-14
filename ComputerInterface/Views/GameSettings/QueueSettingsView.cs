@@ -1,6 +1,7 @@
 ﻿using System.Text;
 using ComputerInterface.ViewLib;
 using ComputerInterface.Interfaces;
+using ComputerInterface.Queues;
 using UnityEngine;
 
 namespace ComputerInterface.Views.GameSettings
