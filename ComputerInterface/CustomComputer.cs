@@ -85,7 +85,7 @@ namespace ComputerInterface
             ShowInitialView(_mainMenuView, computerModEntries);
 
             QueueManager.queues = queues;
-            transform.gameObject.AddComponent<MOTDHandler>();
+            transform.gameObject.AddComponent<MasterServerHandler>();
 
             Debug.Log("Initialized Computer");
         }
