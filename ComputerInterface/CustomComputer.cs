@@ -196,10 +196,15 @@ namespace ComputerInterface
                     button.GetComponentInChildren<MeshRenderer>().material.color = new Color(0.1f, 0.1f, 0.1f);
                     button.transform.localPosition -= new Vector3(0, 0.6f, 0);
                     DestroyImmediate(button.GetComponent<BoxCollider>());
+                    DestroyImmediate(button.transform.parent.parent.Find("Text/" + button.name + "text").GetComponent<Text>());
                     continue;
                 }
 
                 if (!nameToEnum.TryGetValue(button.characterString.ToLower(), out var key)) continue;
+
+                // The actual text for the keys was moved in the heirachy, move it back so that it moves with keys
+                var buttonText = button.transform.parent.parent.Find("Text/" + button.name.Replace(" ",""));
+                if (buttonText != null) buttonText.parent = button.transform;
 
                 var customButton = button.gameObject.AddComponent<CustomKeyboardKey>();
                 customButton.pressTime = button.pressTime;
