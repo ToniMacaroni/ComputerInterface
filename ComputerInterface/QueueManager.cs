@@ -24,7 +24,25 @@ namespace ComputerInterface
                 return new DefaultQueue();
             }
 
-            return Queues.Find(x => x.QueueName == PlayerPrefs.GetString("currentQueue"));
+            string currentQueue = PlayerPrefs.GetString("currentQueue");
+
+            IQueueInfo foundQueue = null;
+
+            foreach(var q in Queues) {
+                if (q.QueueName == currentQueue) {
+                    foundQueue = q;
+                }
+            }
+
+            // if none of the queues in the list match, add the current queue to the list
+            if(foundQueue == null) {
+                foundQueue = new UnknownQueue(currentQueue);
+                Queues.Add(foundQueue);
+            }
+
+            return foundQueue;
+
+            // return Queues.Find(x => x.QueueName == PlayerPrefs.GetString("currentQueue"));
         }
 
         public static void SetQueue(IQueueInfo queue)
