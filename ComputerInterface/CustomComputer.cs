@@ -7,6 +7,7 @@ using BepInEx.Bootstrap;
 using ComputerInterface.Interfaces;
 using ComputerInterface.ViewLib;
 using ComputerInterface.Views;
+using GorillaNetworking;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;

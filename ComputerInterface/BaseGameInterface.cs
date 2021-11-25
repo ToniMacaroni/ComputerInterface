@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using BepInEx;
 using GorillaLocomotion;
+using GorillaNetworking;
 using HarmonyLib;
 using Photon.Pun;
 using UnityEngine;
@@ -253,6 +254,15 @@ namespace ComputerInterface
             SetVoiceMode(GetVoiceMode());
         }
 
+        public static void InitGameMode()
+		{
+            if (!CheckForComputer(out var computer)) return;
+
+            string currentGameMode = PlayerPrefs.GetString("currentGameMode", "INFECTION");
+            computer.currentGameMode = currentGameMode;
+            computer.OnModeSelectButtonPress(currentGameMode);
+        }
+
         public static void InitAll()
         {
             InitColorState();
@@ -261,6 +271,7 @@ namespace ComputerInterface
             InitMicState();
             InitGroupState();
             InitVoiceMode();
+            InitGameMode();
 
             //PhotonNetworkController.instance.SetField("pastFirstConnection", true);
         }
@@ -297,5 +308,11 @@ namespace ComputerInterface
             Cave,
             Canyon
         }
+
+        public enum EGameMode
+		{
+            INFECTION,
+            CASUAL
+		}
     }
 }

@@ -10,7 +10,7 @@ namespace ComputerInterface.Views.GameSettings
     {
         private readonly UISelectionHandler _selectionHandler;
 
-        private readonly IQueueInfo[] defaultQueues = { new DefaultQueue(), new CompetitiveQueue(), new CasualQueue() };
+        private readonly IQueueInfo[] defaultQueues = { new DefaultQueue(), new CompetitiveQueue() };
 
         public QueueSettingsView()
         {
