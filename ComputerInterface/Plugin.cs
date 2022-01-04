@@ -7,7 +7,7 @@ using UnityEngine;
 namespace ComputerInterface
 {
     [BepInDependency("dev.auros.bepinex.bepinject")]
-    [BepInPlugin(PluginInfo.ID, PluginInfo.NAME, PluginInfo.VERSION)]
+    [BepInPlugin(PluginInfo.Id, PluginInfo.Name, PluginInfo.Version)]
     public class Plugin : BaseUnityPlugin
     {
         /// <summary>
@@ -19,7 +19,7 @@ namespace ComputerInterface
 
         private void Awake()
         {
-            _harmony = new Harmony(PluginInfo.ID);
+            _harmony = new Harmony(PluginInfo.Id);
             Load();
         }
 

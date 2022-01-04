@@ -83,7 +83,7 @@ namespace ComputerInterface.Views
             str.AppendClr("Computer Interface", "ed6540")
                 .EndColor()
                 .Append(" v")
-                .Append(PluginInfo.VERSION).AppendLine();
+                .Append(PluginInfo.Version).AppendLine();
 
             str.Append("by ").AppendClr("Toni Macaroni", "9be68a").AppendLine();
 
