@@ -7,7 +7,7 @@ namespace ComputerInterface.Views
     internal class ModView : ComputerView
     {
         private readonly CIConfig _config;
-        private BepInEx.PluginInfo _plugin;
+        private ModListView.ModListItem _plugin;
 
         private readonly UISelectionHandler _selectionHandler;
 
@@ -24,7 +24,7 @@ namespace ComputerInterface.Views
             base.OnShow(args);
             if (args == null || args.Length==0) return;
 
-            _plugin = (BepInEx.PluginInfo) args[0];
+            _plugin = (ModListView.ModListItem) args[0];
             Redraw();
         }
 
@@ -41,8 +41,8 @@ namespace ComputerInterface.Views
 
         private void RedrawHeader(StringBuilder str)
         {
-            str.Append("/// ").Append(_plugin.Metadata.Name).Append(" ").Append(_plugin.Metadata.Version).Append(" ///").AppendLine();
-            str.Append("/// ").Append(_plugin.Instance.enabled ? "<color=#00ff00>Enabled</color>" : "<color=#ff0000>Disabled</color>").AppendLine();
+            str.Append("/// ").Append(_plugin.PluginInfo.Metadata.Name).Append(" ").Append(_plugin.PluginInfo.Metadata.Version).Append(" ///").AppendLine();
+            str.Append("/// ").Append(_plugin.PluginInfo.Instance.enabled ? "<color=#00ff00>Enabled</color>" : "<color=#ff0000>Disabled</color>").AppendLine();
         }
 
         private void RedrawSelection(StringBuilder str)
@@ -55,7 +55,7 @@ namespace ComputerInterface.Views
 
         private void DrawNotice(StringBuilder str)
         {
-            if (!DoesModImplementFeature())
+            if (!_plugin.Supported)
             {
                 str.BeginCenter().AppendClr("Mod doesn't implement this feature", "ffffff50").EndAlign();
             }
@@ -71,26 +71,19 @@ namespace ComputerInterface.Views
             if (idx == 0)
             {
                 // Enable was pressed
-                _plugin.Instance.enabled = true;
-                _config.RemoveDisabledMod(_plugin.Metadata.GUID);
+                _plugin.PluginInfo.Instance.enabled = true;
+                _config.RemoveDisabledMod(_plugin.PluginInfo.Metadata.GUID);
                 return;
             }
 
             if (idx == 1)
             {
                 // Disable was pressed
-                _plugin.Instance.enabled = false;
-                _config.AddDisabledMod(_plugin.Metadata.GUID);
+                _plugin.PluginInfo.Instance.enabled = false;
+                _config.AddDisabledMod(_plugin.PluginInfo.Metadata.GUID);
             }
 
             Redraw();
-        }
-
-        private bool DoesModImplementFeature()
-        {
-            var onEnable = AccessTools.Method(_plugin.Instance.GetType(), "OnEnable");
-            var onDisable = AccessTools.Method(_plugin.Instance.GetType(), "OnDisable");
-            return onEnable != null && onDisable != null;
         }
 
         public override void OnKeyPressed(EKeyboardKey key)

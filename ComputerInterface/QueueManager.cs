@@ -5,6 +5,7 @@ using ComputerInterface.Interfaces;
 using ComputerInterface.Queues;
 using Zenject;
 using UnityEngine;
+using GorillaNetworking;
 
 namespace ComputerInterface
 {
@@ -24,8 +25,22 @@ namespace ComputerInterface
                 return new DefaultQueue();
             }
 
-            return Queues.Find(x => x.QueueName == PlayerPrefs.GetString("currentQueue"));
+            var queueString = GetQueueString();
+            return Queues.Find(x => x.QueueName == queueString);
         }
+        
+        static string GetQueueString()
+		{
+            string currentQueue = PlayerPrefs.GetString("currentQueue", "DEFAULT");
+            if (currentQueue != "DEFAULT" && currentQueue != "COMPETITIVE")
+            {
+                PlayerPrefs.SetString("currentQueue", "DEFAULT");
+                PlayerPrefs.Save();
+                currentQueue = "DEFAULT";
+            }
+
+            return currentQueue;
+		}
 
         public static void SetQueue(IQueueInfo queue)
         {

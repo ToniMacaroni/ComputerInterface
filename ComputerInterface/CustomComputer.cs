@@ -7,6 +7,7 @@ using BepInEx.Bootstrap;
 using ComputerInterface.Interfaces;
 using ComputerInterface.ViewLib;
 using ComputerInterface.Views;
+using GorillaNetworking;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -305,8 +306,8 @@ namespace ComputerInterface
             var newMonitor = Instantiate(monitorAsset);
             newMonitor.name = "Custom Monitor";
             //newMonitor.transform.localScale = new Vector3(0.4f, 0.4f, 0.4f);
-            newMonitor.transform.eulerAngles = new Vector3(0, 0, 0);
-            newMonitor.transform.position = new Vector3(-68.65f, 11.53f, -85.05f);
+            newMonitor.transform.eulerAngles = new Vector3(0, 342, 0);
+            newMonitor.transform.position = new Vector3(-67.95f, 11.53f, -85.36f);
 
             var info = new CustomScreenInfo();
 
