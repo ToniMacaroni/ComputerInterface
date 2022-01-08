@@ -150,7 +150,7 @@ namespace ComputerInterface
 
         public static bool GetVoiceMode()
         {
-            return PlayerPrefs.GetString("voiceChatOn")=="TRUE";
+            return PlayerPrefs.GetString("voiceChatOn", "TRUE")=="TRUE";
         }
 
         public static EGroup GetGroupMode()
