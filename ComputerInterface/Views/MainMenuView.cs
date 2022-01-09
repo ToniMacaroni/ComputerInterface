@@ -130,7 +130,7 @@ namespace ComputerInterface.Views
 
         public void ShowModView(int idx)
         {
-            ShowView(_modEntries[idx].EntryViewType);
+            ShowView(_shownEntries[idx].EntryViewType);
         }
     }
 }

@@ -150,7 +150,7 @@ namespace ComputerInterface
 
         public static bool GetVoiceMode()
         {
-            return PlayerPrefs.GetString("voiceChatOn")=="TRUE";
+            return PlayerPrefs.GetString("voiceChatOn", "TRUE")=="TRUE";
         }
 
         public static EGroup GetGroupMode()
@@ -192,6 +192,9 @@ namespace ComputerInterface
                 else if (computer.groupMapJoin == "CANYON")
                 {
                     triggeredTrigger = computer.canyonMapTrigger;
+                } else if (computer.groupMapJoin == "CITY")
+                {
+                    triggeredTrigger = computer.cityMapTrigger;  
                 }
                 PhotonNetworkController.instance.AttemptJoinPublicWithFriends(triggeredTrigger);
             }
@@ -306,13 +309,15 @@ namespace ComputerInterface
         {
             Forest,
             Cave,
-            Canyon
+            Canyon,
+            City
         }
 
         public enum EGameMode
 		{
             INFECTION,
-            CASUAL
+            CASUAL,
+            HUNT
 		}
     }
 }
