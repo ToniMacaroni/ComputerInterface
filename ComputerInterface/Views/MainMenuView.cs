@@ -58,11 +58,22 @@ namespace ComputerInterface.Views
         public void FilterEntries()
         {
             _shownEntries.Clear();
+            List<IComputerModEntry> customEntries = new List<IComputerModEntry>();
             foreach (var entry in _modEntries)
             {
                 if (!_pluginInfoMap.TryGetValue(entry, out var info)) continue;
-                if(info.Instance.enabled) _shownEntries.Add(entry);
+                if (info.Instance.enabled)
+                {
+                    if (info.Instance.GetType().Assembly == GetType().Assembly)
+					{
+						_shownEntries.Add(entry);
+					} else
+					{
+						customEntries.Add(entry);
+					}
+                }
             }
+            _shownEntries.AddRange(customEntries);
             _selectionHandler.MaxIdx = _shownEntries.Count - 1;
             _pageHandler.SetElements(_shownEntries.ToArray());
         }

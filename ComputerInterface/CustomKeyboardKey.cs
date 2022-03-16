@@ -19,6 +19,7 @@ namespace ComputerInterface
         private static Dictionary<EKeyboardKey, Key> _keyMap;
 
         public EKeyboardKey KeyboardKey { get; private set; }
+        public Text KeyboardText { get; private set; }
 
         public float pressTime;
 
@@ -49,10 +50,11 @@ namespace ComputerInterface
             _keyHandler?.Fetch();
         }
 
-        public void Init(CustomComputer computer, EKeyboardKey key)
+        public void Init(CustomComputer computer, EKeyboardKey key, Text keyboardText = null)
         {
             _computer = computer;
             KeyboardKey = key;
+            KeyboardText = keyboardText;
 
             if (_keyHandler != null)
             {
@@ -68,16 +70,18 @@ namespace ComputerInterface
             enabled = true;
         }
 
-        public void Init(CustomComputer computer, EKeyboardKey key, string text)
+        public void Init(CustomComputer computer, EKeyboardKey key, Text keyboardText, string text)
         {
-            Init(computer, key);
-            var textComp = GetComponentInChildren<Text>();
-            textComp.text = text;
+            Init(computer, key, keyboardText);
+            if (keyboardText != null)
+			{
+				keyboardText.text = text;
+			}
         }
 
-        public void Init(CustomComputer computer, EKeyboardKey key, string text, Color buttonColor)
+        public void Init(CustomComputer computer, EKeyboardKey key, Text keyboardText, string text, Color buttonColor)
         {
-            Init(computer, key, text);
+            Init(computer, key, keyboardText, text);
             _material.color = buttonColor;
             _originalColor = buttonColor;
         }
