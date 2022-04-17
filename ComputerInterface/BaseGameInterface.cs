@@ -257,13 +257,14 @@ namespace ComputerInterface
             SetVoiceMode(GetVoiceMode());
         }
 
-        public static void InitGameMode()
+        public static string InitGameMode(string gamemode = "")
 		{
-            if (!CheckForComputer(out var computer)) return;
+            if (!CheckForComputer(out var computer)) return "";
 
-            string currentGameMode = PlayerPrefs.GetString("currentGameMode", "INFECTION");
-            computer.currentGameMode = currentGameMode;
-            computer.OnModeSelectButtonPress(currentGameMode);
+			string currentGameMode = gamemode.IsNullOrWhiteSpace() ? currentGameMode = PlayerPrefs.GetString("currentGameMode", "INFECTION") : gamemode;
+			computer.currentGameMode = currentGameMode;
+			computer.OnModeSelectButtonPress(currentGameMode);
+			return currentGameMode;
         }
 
         public static void InitAll()
@@ -274,8 +275,16 @@ namespace ComputerInterface
             InitMicState();
             InitGroupState();
             InitVoiceMode();
-            InitGameMode();
+            // The computer will reset custom gamemodes when start is called
+            var gamemode = InitGameMode();
 
+			if (CheckForComputer(out var computer))
+			{
+                computer.InvokeMethod("Start");
+			}
+
+            InitGameMode(gamemode);
+			
             //PhotonNetworkController.instance.SetField("pastFirstConnection", true);
         }
 

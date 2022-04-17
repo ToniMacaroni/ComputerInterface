@@ -26,12 +26,24 @@ namespace ComputerInterface.ViewLib
             RegisterView(computerView);
 
             CurrentComputerView = computerView;
-            CurrentComputerView.OnShow(args);
+            try
+			{
+				CurrentComputerView.OnShow(args);
+			} catch (Exception e)
+			{
+				Debug.LogError($"Error while showing view {computerView.GetType().Name}: {e.Message}");
+			}
         }
 
         public void NotifyOfKeyPress(EKeyboardKey key)
         {
-            CurrentComputerView?.OnKeyPressed(key);
+            try
+			{
+				CurrentComputerView?.OnKeyPressed(key);
+			} catch (Exception e)
+			{
+				Debug.LogError($"Error in OnKeyPressed for key {key} in view {CurrentComputerView.GetType().Name}: {e.Message}");
+			}
         }
 
         private void RegisterView(IComputerView view)
