@@ -59,6 +59,7 @@ namespace ComputerInterface.Views.GameSettings
             str.Append(_selectionHandler.GetIndicatedText(0, "Forest")).AppendLine();
             str.Append(_selectionHandler.GetIndicatedText(1, "Cave  ")).AppendLine();
             str.Append(_selectionHandler.GetIndicatedText(2, "Canyon")).AppendLine();
+            str.Append(_selectionHandler.GetIndicatedText(3, "City")).AppendLine();
         }
 
         public override void OnKeyPressed(EKeyboardKey key)

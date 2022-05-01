@@ -1,4 +1,5 @@
-﻿using HarmonyLib;
+﻿using GorillaNetworking;
+using HarmonyLib;
 using Photon.Pun;
 
 /* A Haunted Army#2861 */

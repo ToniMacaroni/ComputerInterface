@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using BepInEx;
 using BepInEx.Bootstrap;
 using ExitGames.Client.Photon;
+using GorillaNetworking;
 using Photon.Pun;
 using Photon.Realtime;
 using PlayFab;

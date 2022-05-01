@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using BepInEx;
 using GorillaLocomotion;
+using GorillaNetworking;
 using HarmonyLib;
 using Photon.Pun;
 using UnityEngine;
@@ -149,7 +150,7 @@ namespace ComputerInterface
 
         public static bool GetVoiceMode()
         {
-            return PlayerPrefs.GetString("voiceChatOn")=="TRUE";
+            return PlayerPrefs.GetString("voiceChatOn", "TRUE")=="TRUE";
         }
 
         public static EGroup GetGroupMode()
@@ -191,6 +192,9 @@ namespace ComputerInterface
                 else if (computer.groupMapJoin == "CANYON")
                 {
                     triggeredTrigger = computer.canyonMapTrigger;
+                } else if (computer.groupMapJoin == "CITY")
+                {
+                    triggeredTrigger = computer.cityMapTrigger;  
                 }
                 PhotonNetworkController.instance.AttemptJoinPublicWithFriends(triggeredTrigger);
             }
@@ -253,6 +257,16 @@ namespace ComputerInterface
             SetVoiceMode(GetVoiceMode());
         }
 
+        public static string InitGameMode(string gamemode = "")
+		{
+            if (!CheckForComputer(out var computer)) return "";
+
+			string currentGameMode = gamemode.IsNullOrWhiteSpace() ? currentGameMode = PlayerPrefs.GetString("currentGameMode", "INFECTION") : gamemode;
+			computer.currentGameMode = currentGameMode;
+			computer.OnModeSelectButtonPress(currentGameMode);
+			return currentGameMode;
+        }
+
         public static void InitAll()
         {
             InitColorState();
@@ -261,7 +275,16 @@ namespace ComputerInterface
             InitMicState();
             InitGroupState();
             InitVoiceMode();
+            // The computer will reset custom gamemodes when start is called
+            var gamemode = InitGameMode();
 
+			if (CheckForComputer(out var computer))
+			{
+                computer.InvokeMethod("Start");
+			}
+
+            InitGameMode(gamemode);
+			
             //PhotonNetworkController.instance.SetField("pastFirstConnection", true);
         }
 
@@ -295,7 +318,15 @@ namespace ComputerInterface
         {
             Forest,
             Cave,
-            Canyon
+            Canyon,
+            City
         }
+
+        public enum EGameMode
+		{
+            INFECTION,
+            CASUAL,
+            HUNT
+		}
     }
 }

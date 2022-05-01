@@ -3,6 +3,7 @@ using ComputerInterface.Interfaces;
 using ComputerInterface.Queues;
 using ComputerInterface.ViewLib;
 using ComputerInterface.Views;
+using GorillaNetworking;
 using UnityEngine;
 using Zenject;
 using Object = UnityEngine.Object;
@@ -30,8 +31,7 @@ namespace ComputerInterface
             Container.Bind<CIConfig>().AsSingle();
             Container.Bind<IQueueInfo>().To<DefaultQueue>().AsSingle();
             Container.Bind<IQueueInfo>().To<CompetitiveQueue>().AsSingle();
-            Container.Bind<IQueueInfo>().To<CasualQueue>().AsSingle();
-            Container.Bind<IQueueInfo>().To<ModdedQueue>().AsSingle();
+            Container.Bind<IQueueInfo>().To<MinigamesQueue>().AsSingle();
         }
 
         private GameObject ComputerGetter(InjectContext ctx)
