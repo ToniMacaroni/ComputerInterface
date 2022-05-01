@@ -16,7 +16,7 @@ namespace ComputerInterface
         {
             JsonObject functionResult = (JsonObject)result.FunctionResult;
             object obj;
-            GorillaComputer.instance.motdText.text = !functionResult.TryGetValue("MOTD", out obj) || !PhotonNetworkController.instance.gameVersion.Contains("live") ? (!functionResult.TryGetValue("MOTDBeta", out obj) || !PhotonNetworkController.instance.gameVersion.Contains("beta") ? "UNABLE TO LOAD MOTD" : (string)obj) : (string)obj;
+            GorillaComputer.instance.motdText.text = !functionResult.TryGetValue("MOTD", out obj) || !PhotonNetworkController.Instance.gameVersion.Contains("live") ? (!functionResult.TryGetValue("MOTDBeta", out obj) || !PhotonNetworkController.Instance.gameVersion.Contains("beta") ? "UNABLE TO LOAD MOTD" : (string)obj) : (string)obj;
         }
         private static void OnErrorShared(PlayFabError error)
         {
