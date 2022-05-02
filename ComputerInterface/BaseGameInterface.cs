@@ -275,16 +275,18 @@ namespace ComputerInterface
             InitMicState();
             InitGroupState();
             InitVoiceMode();
-            // The computer will reset custom gamemodes when start is called
-            var gamemode = InitGameMode();
 
+            // The computer will reset custom gamemodes when start is called
+            // var gamemode = InitGameMode();
+
+            
 			if (CheckForComputer(out var computer))
 			{
                 computer.InvokeMethod("Awake");
 			}
 
-            InitGameMode(gamemode);
-			
+            // InitGameMode(gamemode);
+            
             //PhotonNetworkController.instance.SetField("pastFirstConnection", true);
         }
 
