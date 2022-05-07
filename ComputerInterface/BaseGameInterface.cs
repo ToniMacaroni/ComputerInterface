@@ -165,7 +165,7 @@ namespace ComputerInterface
 
             if (PhotonNetwork.InRoom && !PhotonNetwork.CurrentRoom.IsVisible)
             {
-                PhotonNetworkController.instance.friendIDList = new List<string>(computer.friendJoinCollider.playerIDsCurrentlyTouching);
+                PhotonNetworkController.Instance.friendIDList = new List<string>(computer.friendJoinCollider.playerIDsCurrentlyTouching);
                 Debug.Log(computer.networkController.friendIDList);
                 foreach (string message in computer.networkController.friendIDList)
                 {
@@ -196,13 +196,13 @@ namespace ComputerInterface
                 {
                     triggeredTrigger = computer.cityMapTrigger;  
                 }
-                PhotonNetworkController.instance.AttemptJoinPublicWithFriends(triggeredTrigger);
+                PhotonNetworkController.Instance.AttemptJoinPublicWithFriends(triggeredTrigger);
             }
         }
 
         public static void Disconnect()
         {
-            PhotonNetworkController.instance.AttemptDisconnect();
+            PhotonNetworkController.Instance.AttemptDisconnect();
         }
 
         public static void JoinRoom(string roomId)
@@ -275,16 +275,18 @@ namespace ComputerInterface
             InitMicState();
             InitGroupState();
             InitVoiceMode();
-            // The computer will reset custom gamemodes when start is called
-            var gamemode = InitGameMode();
 
+            // The computer will reset custom gamemodes when start is called
+            // var gamemode = InitGameMode();
+
+            
 			if (CheckForComputer(out var computer))
 			{
-                computer.InvokeMethod("Start");
+                computer.InvokeMethod("Awake");
 			}
 
-            InitGameMode(gamemode);
-			
+            // InitGameMode(gamemode);
+            
             //PhotonNetworkController.instance.SetField("pastFirstConnection", true);
         }
 
