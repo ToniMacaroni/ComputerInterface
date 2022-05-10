@@ -284,7 +284,6 @@ namespace ComputerInterface
         {
             if (button.GetComponent<Text>() is Text text)
             {
-                Debug.Log("text found");
                 return text;
             }
 
