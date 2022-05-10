@@ -284,12 +284,18 @@ namespace ComputerInterface
         {
             if (button.GetComponent<Text>() is Text text)
             {
+                Debug.Log("text found");
                 return text;
             }
-            
+
             if (name.IsNullOrWhiteSpace())
             {
                 name = button.name.Replace(" ", "");
+            }
+            
+            if (name.Contains("enter"))
+            {
+                name = "enter";
             }
 
             Transform t = button.transform.parent?.parent?.Find("Text/" + name);
@@ -306,6 +312,7 @@ namespace ComputerInterface
                     ?.parent
                     .Find("UI/Text/" + name);
             }
+
             return t.GetComponent<Text>();
         }
 
