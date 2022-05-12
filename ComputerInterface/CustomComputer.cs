@@ -101,7 +101,6 @@ namespace ComputerInterface
 
             QueueManager.Queues = queues;
             QueueManager.Init();
-            transform.gameObject.AddComponent<MasterServerHandler>();
 
             Debug.Log("Initialized Computer");
         }
