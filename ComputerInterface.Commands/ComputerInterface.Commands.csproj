@@ -17,22 +17,22 @@
 
 	<ItemGroup>
 		<Reference Include="BepInEx">
-			<HintPath>D:\SteamLibrary\steamapps\common\Gorilla Tag\BepInEx\core\BepInEx.dll</HintPath>
+			<HintPath>$(BepInExAssemblyPath)\BepInEx.dll</HintPath>
 		</Reference>
 		<Reference Include="Bepinject">
-			<HintPath>D:\SteamLibrary\steamapps\common\Gorilla Tag\BepInEx\plugins\Bepinject-Auros\Bepinject.dll</HintPath>
+			<HintPath>$(PluginsPath)\Bepinject-Auros\Bepinject.dll</HintPath>
 		</Reference>
 		<Reference Include="UnityEngine">
-			<HintPath>D:\SteamLibrary\steamapps\common\Gorilla Tag\Gorilla Tag_Data\Managed\UnityEngine.dll</HintPath>
+			<HintPath>$(GameAssemblyPath)\UnityEngine.dll</HintPath>
 		</Reference>
 		<Reference Include="UnityEngine.CoreModule">
-			<HintPath>D:\SteamLibrary\steamapps\common\Gorilla Tag\Gorilla Tag_Data\Managed\UnityEngine.CoreModule.dll</HintPath>
+			<HintPath>$(GameAssemblyPath)\UnityEngine.CoreModule.dll</HintPath>
 		</Reference>
 		<Reference Include="Zenject">
-			<HintPath>D:\SteamLibrary\steamapps\common\Gorilla Tag\BepInEx\plugins\Extenject\Zenject.dll</HintPath>
+			<HintPath>$(PluginsPath)\Extenject\Zenject.dll</HintPath>
 		</Reference>
 		<Reference Include="Zenject-usage">
-			<HintPath>D:\SteamLibrary\steamapps\common\Gorilla Tag\BepInEx\plugins\Extenject\Zenject-usage.dll</HintPath>
+			<HintPath>$(PluginsPath)\Extenject\Zenject-usage.dll</HintPath>
 		</Reference>
 	</ItemGroup>
 
