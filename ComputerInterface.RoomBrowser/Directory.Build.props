@@ -8,9 +8,9 @@
 		<ZipDir>$(SolutionDir)ReleaseZip</ZipDir>
 	</PropertyGroup>
 	<PropertyGroup Condition="'$(CI)'=='TRUE'">
-		<GameAssemblyPath>.\Libs</GameAssemblyPath>
-		<BepInExAssemblyPath>.\Libs</BepInExAssemblyPath>
-		<PluginsPath>.\Libs</PluginsPath>
+		<GameAssemblyPath>..\ComputerInterface\Libs</GameAssemblyPath>
+		<BepInExAssemblyPath>..\ComputerInterface\Libs</BepInExAssemblyPath>
+		<PluginsPath>..\ComputerInterface\Libs</PluginsPath>
 		<WarningLevel>0</WarningLevel>
 	</PropertyGroup>
 </Project>
