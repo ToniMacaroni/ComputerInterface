@@ -87,6 +87,37 @@ namespace ComputerInterface
             return (ETurnMode) Enum.Parse(typeof(ETurnMode), turnMode);
         }
 
+        public static void SetInstrumentVolume(int value)
+        {
+            PlayerPrefs.SetFloat("instrumentVolume", (float)value / 50f);
+            PlayerPrefs.Save();
+        }
+
+        public static float GetInstrumentVolume()
+        {
+            float instVolume = PlayerPrefs.GetFloat("instrumentVolume", 0.1f);
+            return (instVolume);
+        }
+
+        public static void SetItemMode(EItemMode itemMode)
+        {
+            if (GorillaComputer.instance == null) return;
+
+            var itemModeString = itemMode.ToString();
+            PlayerPrefs.SetString("disableParticles", itemModeString);
+            PlayerPrefs.Save();
+            bool disableParticles;
+            if (itemModeString == "TRUE") {disableParticles = true;} else { disableParticles = false;}
+            GorillaTagger.Instance.ShowCosmeticParticles(!disableParticles);
+        }
+
+        public static EItemMode GetItemMode()
+        {
+            var itemMode = PlayerPrefs.GetString("disableParticles");
+            if (itemMode.IsNullOrWhiteSpace()) return EItemMode.TRUE;
+            return (EItemMode)Enum.Parse(typeof(EItemMode), itemMode);
+        }
+
         public static void SetTurnValue(int value)
         {
             if (!CheckForComputer(out var computer)) return;
@@ -130,6 +161,8 @@ namespace ComputerInterface
                 _ => throw new ArgumentOutOfRangeException()
             };
         }
+
+
 
         public static void SetGroupMode(EGroup mode)
         {
@@ -257,6 +290,11 @@ namespace ComputerInterface
             SetVoiceMode(GetVoiceMode());
         }
 
+        public static void InitItemMode()
+        {
+            SetVoiceMode(GetVoiceMode());
+        }
+
         public static string InitGameMode(string gamemode = "")
 		{
             if (!CheckForComputer(out var computer)) return "";
@@ -275,12 +313,13 @@ namespace ComputerInterface
             InitMicState();
             InitGroupState();
             InitVoiceMode();
+            InitItemMode();
 
             // The computer will reset custom gamemodes when start is called
             // var gamemode = InitGameMode();
 
-            
-			if (CheckForComputer(out var computer))
+
+            if (CheckForComputer(out var computer))
 			{
                 computer.InvokeMethod("Awake");
 			}
@@ -307,6 +346,12 @@ namespace ComputerInterface
             SNAP,
             SMOOTH,
             NONE
+        }
+
+        public enum EItemMode
+        {
+            FALSE,
+            TRUE
         }
 
         public enum EPTTMode
