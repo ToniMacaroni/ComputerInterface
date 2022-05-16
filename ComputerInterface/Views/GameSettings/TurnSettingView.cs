@@ -13,7 +13,7 @@ namespace ComputerInterface.Views.GameSettings
         private TurnSettingView()
         {
             _selectionHandler = new UISelectionHandler(EKeyboardKey.Up, EKeyboardKey.Down);
-            _selectionHandler.MaxIdx = 1;
+            _selectionHandler.MaxIdx = 2;
         }
 
         public override void OnShow(object[] args)
