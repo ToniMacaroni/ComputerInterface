@@ -34,10 +34,13 @@ namespace ComputerInterface
         private List<CustomKeyboardKey> _keys;
         private GameObject _keyboard;
         private AudioSource _keyboardAudio;
+        private AudioSource _keyboardAudio2;
 
         private AssetsLoader _assetsLoader;
 
         private CIConfig _config;
+
+        private bool[] _keyboardAudiosTaken = new bool[] { false, false };
             
         void Awake()
         {
@@ -170,6 +173,7 @@ namespace ComputerInterface
         public void PressButton(CustomKeyboardKey key)
         {
             _keyboardAudio.Play();
+            _keyboardAudio2.Play();
             _computerViewController.NotifyOfKeyPress(key.KeyboardKey);
         }
 
@@ -245,9 +249,20 @@ namespace ComputerInterface
             _keyboard = _keys[0].transform.parent.parent.parent.gameObject;
 
             var clickSound = await _assetsLoader.GetAsset<AudioClip>("ClickSound");
-            _keyboardAudio = _keyboard.AddComponent<AudioSource>();
-            _keyboardAudio.loop = false;
-            _keyboardAudio.clip = clickSound;
+            if (_keyboardAudiosTaken[0] == false)
+            {
+                _keyboardAudio = _keyboard.AddComponent<AudioSource>();
+                _keyboardAudio.loop = false;
+                _keyboardAudio.clip = clickSound;
+                _keyboardAudiosTaken[0] = true;
+            }
+            else
+            {
+                _keyboardAudio2 = _keyboard.AddComponent<AudioSource>();
+                _keyboardAudio2.loop = false;
+                _keyboardAudio2.clip = clickSound;
+                _keyboardAudiosTaken[1] = true;
+            }
 
             if (_keyboard.GetComponent<MeshRenderer>() is MeshRenderer renderer) {
                 renderer.material.color = new Color(0.3f, 0.3f, 0.3f);
