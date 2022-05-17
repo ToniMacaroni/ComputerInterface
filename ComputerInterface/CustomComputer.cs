@@ -33,14 +33,13 @@ namespace ComputerInterface
 
         private List<CustomKeyboardKey> _keys;
         private GameObject _keyboard;
-        private AudioSource _keyboardAudio;
-        private AudioSource _keyboardAudio2;
 
         private AssetsLoader _assetsLoader;
 
         private CIConfig _config;
 
-        private bool[] _keyboardAudiosTaken = new bool[] { false, false };
+        //private bool[] _keyboardAudiosTaken = new bool[] { false, false };
+        private AudioSource[] _keyboardAudio = new AudioSource[] { null, null };
             
         void Awake()
         {
@@ -172,8 +171,11 @@ namespace ComputerInterface
 
         public void PressButton(CustomKeyboardKey key)
         {
-            _keyboardAudio.Play();
-            _keyboardAudio2.Play();
+            if (_keyboardAudio[0] && _keyboardAudio[1])
+            {
+                _keyboardAudio[0].Play();
+                _keyboardAudio[1].Play();
+            }
             _computerViewController.NotifyOfKeyPress(key.KeyboardKey);
         }
 
@@ -249,19 +251,19 @@ namespace ComputerInterface
             _keyboard = _keys[0].transform.parent.parent.parent.gameObject;
 
             var clickSound = await _assetsLoader.GetAsset<AudioClip>("ClickSound");
-            if (_keyboardAudiosTaken[0] == false)
+            if (_keyboardAudio[0] == null)
             {
-                _keyboardAudio = _keyboard.AddComponent<AudioSource>();
-                _keyboardAudio.loop = false;
-                _keyboardAudio.clip = clickSound;
-                _keyboardAudiosTaken[0] = true;
+                _keyboardAudio[0] = _keyboard.AddComponent<AudioSource>();
+                _keyboardAudio[0].playOnAwake = false;
+                _keyboardAudio[0].loop = false;
+                _keyboardAudio[0].clip = clickSound;
             }
             else
             {
-                _keyboardAudio2 = _keyboard.AddComponent<AudioSource>();
-                _keyboardAudio2.loop = false;
-                _keyboardAudio2.clip = clickSound;
-                _keyboardAudiosTaken[1] = true;
+                _keyboardAudio[1] = _keyboard.AddComponent<AudioSource>();
+                _keyboardAudio[1].playOnAwake = false;
+                _keyboardAudio[1].loop = false;
+                _keyboardAudio[1].clip = clickSound;
             }
 
             if (_keyboard.GetComponent<MeshRenderer>() is MeshRenderer renderer) {
