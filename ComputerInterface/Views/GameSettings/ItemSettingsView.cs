@@ -34,6 +34,8 @@ namespace ComputerInterface.Views.GameSettings
 
             _insVolumeFloat = BaseGameInterface.GetInstrumentVolume(); // How in the world does this code work lol
 
+
+
             str.BeginCenter().Repeat("=", SCREEN_WIDTH).AppendLine();
             str.Append("Item Mode").AppendLine();
             str.AppendClr("1 - 9 to set instrument volume", "ffffff50").AppendLine();
@@ -41,7 +43,7 @@ namespace ComputerInterface.Views.GameSettings
 
             str.Append("Enabled".PadRight(6)).Append(GetSelector(0)).AppendLine();
             str.Append("Disabled".PadRight(6)).Append(GetSelector(1)).AppendLines(2);
-            str.Append("Instrument Volume: ".PadRight(6)).Append(_insVolumeFloat);
+            str.Append("Instrument Volume: ".PadRight(6)).Append(Mathf.CeilToInt(_insVolumeFloat * 50f));
 
             Text = str.ToString();
         }

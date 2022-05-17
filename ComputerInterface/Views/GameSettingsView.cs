@@ -29,7 +29,7 @@ namespace ComputerInterface.Views
                 new Tuple<string, Type>("Mic Mode", typeof(MicSettingsView)),
                 new Tuple<string, Type>("Voice Mode", typeof(VoiceSettingsView)),
                 new Tuple<string, Type>("Item Mode", typeof(ItemSettingsView)),
-                //new Tuple<string, Type>("Queue", typeof(QueueSettingsView)),
+                new Tuple<string, Type>("Credits", typeof(CreditsView)),
                 new Tuple<string, Type>("Group", typeof(GroupView))
             };
 
