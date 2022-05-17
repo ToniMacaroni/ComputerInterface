@@ -38,7 +38,6 @@ namespace ComputerInterface
 
         private CIConfig _config;
 
-        //private bool[] _keyboardAudiosTaken = new bool[] { false, false };
         private AudioSource[] _keyboardAudio = new AudioSource[] { null, null };
             
         void Awake()
@@ -276,8 +275,8 @@ namespace ComputerInterface
 
             ColorUtility.TryParseHtmlString("#8787e0", out var backButtonColor);
 
-            CreateKey(enterKey.gameObject, "Space", new Vector3(2.6f, 0, 3), EKeyboardKey.Space, "Space");
-            CreateKey(deleteKey.gameObject, "Back", new Vector3(0, 0, -29.8f), EKeyboardKey.Back, "Back", backButtonColor);
+            CreateKey(enterKey.gameObject, "Space", new Vector3(2.6f, 0, 3), EKeyboardKey.Space, "SPACE");
+            CreateKey(deleteKey.gameObject, "Back", new Vector3(0, 0, -29.8f), EKeyboardKey.Back, "BACK", backButtonColor);
 
             ColorUtility.TryParseHtmlString("#abdbab", out var arrowKeyButtonColor);
 
