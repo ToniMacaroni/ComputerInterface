@@ -10,10 +10,6 @@ namespace ComputerInterface.Views.GameSettings
 
         private float _insVolumeFloat = 0.10f;
 
-        // 0 = 0.00
-        // 9 = 0.18
-        // 5 = 0.10
-
         private ItemSettingsView()
         {
             _selectionHandler = new UISelectionHandler(EKeyboardKey.Up, EKeyboardKey.Down);

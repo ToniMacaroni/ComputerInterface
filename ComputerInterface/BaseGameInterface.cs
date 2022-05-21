@@ -162,8 +162,6 @@ namespace ComputerInterface
             };
         }
 
-
-
         public static void SetGroupMode(EGroup mode)
         {
             if (!CheckForComputer(out var computer)) return;
