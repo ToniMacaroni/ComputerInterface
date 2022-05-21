@@ -290,7 +290,7 @@ namespace ComputerInterface
 
         public static void InitItemMode()
         {
-            SetVoiceMode(GetVoiceMode());
+            SetItemMode(GetItemMode());
         }
 
         public static string InitGameMode(string gamemode = "")
