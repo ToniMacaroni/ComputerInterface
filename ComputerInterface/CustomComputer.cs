@@ -38,7 +38,7 @@ namespace ComputerInterface
 
         private CIConfig _config;
 
-        private AudioSource[] _keyboardAudio = new AudioSource[] { null, null };
+        private List<AudioSource> _keyboardAudios = new List<AudioSource>();
             
         void Awake()
         {
@@ -170,11 +170,10 @@ namespace ComputerInterface
 
         public void PressButton(CustomKeyboardKey key)
         {
-            if (_keyboardAudio[0] && _keyboardAudio[1])
-            {
-                _keyboardAudio[0].Play();
-                _keyboardAudio[1].Play();
-            }
+            foreach (var audio in _keyboardAudios)
+			{
+                audio.Play();
+			}
             _computerViewController.NotifyOfKeyPress(key.KeyboardKey);
         }
 
@@ -250,20 +249,13 @@ namespace ComputerInterface
             _keyboard = _keys[0].transform.parent.parent.parent.gameObject;
 
             var clickSound = await _assetsLoader.GetAsset<AudioClip>("ClickSound");
-            if (_keyboardAudio[0] == null)
-            {
-                _keyboardAudio[0] = _keyboard.AddComponent<AudioSource>();
-                _keyboardAudio[0].playOnAwake = false;
-                _keyboardAudio[0].loop = false;
-                _keyboardAudio[0].clip = clickSound;
-            }
-            else
-            {
-                _keyboardAudio[1] = _keyboard.AddComponent<AudioSource>();
-                _keyboardAudio[1].playOnAwake = false;
-                _keyboardAudio[1].loop = false;
-                _keyboardAudio[1].clip = clickSound;
-            }
+
+			var audioSource = _keyboard.AddComponent<AudioSource>();
+            audioSource.playOnAwake = false;
+            audioSource.loop = false;
+			audioSource.clip = clickSound;
+
+            _keyboardAudios.Add(audioSource);
 
             if (_keyboard.GetComponent<MeshRenderer>() is MeshRenderer renderer) {
                 renderer.material.color = new Color(0.3f, 0.3f, 0.3f);
