@@ -6,13 +6,6 @@ namespace ComputerInterface.Views.GameSettings
 {
     public class CreditsView : ComputerView
     {
-        private readonly UISelectionHandler _selectionHandler;
-
-        private CreditsView()
-        {
-            _selectionHandler = new UISelectionHandler(EKeyboardKey.Up, EKeyboardKey.Down);
-        }
-
         public override void OnShow(object[] args)
         {
             base.OnShow(args);
@@ -23,9 +16,18 @@ namespace ComputerInterface.Views.GameSettings
         {
             var str = new StringBuilder();
 
-            str.AppendLines(1);
+            str.Repeat("=", SCREEN_WIDTH).AppendLine();
 
-            str.Append("Credits\n\nGame by Kerestell\n\n\"Monke Need To Swing\"\nComposed by Stunshine\nProduced by Audiopfeil & Owlobe\n\n\"Cave Wave\" & \"Campfire\"\nComposed by Stunshine\nSound design by David Anderson Kirk");
+            str.AppendLine("Credits").AppendLine()
+                .AppendLine("Game by Kerestell").AppendLine();
+
+            str.AppendLine("\"Monke Need To Swing\"")
+                .AppendLine("Composed by Stunshine")
+                .AppendLine("Produced by Audiopfeil & Owlobe").AppendLine();
+
+            str.AppendLine("\"Cave Wave\" & \"Campfire\"")
+                .AppendLine("Composed by Stunshine")
+				.AppendLine("Sound design by David Anderson Kirk");
 
             Text = str.ToString();
         }
@@ -38,11 +40,6 @@ namespace ComputerInterface.Views.GameSettings
                     ShowView<GameSettingsView>();
                     break;
             }
-        }
-
-        private string GetSelector(int idx)
-        {
-            return idx == _selectionHandler.CurrentSelectionIndex ? "<color=#ed6540> <</color>" : "  ";
         }
     }
 }
