@@ -13,42 +13,48 @@ namespace ComputerInterface.Views.GameSettings
         private ItemSettingsView()
         {
             _selectionHandler = new UISelectionHandler(EKeyboardKey.Up, EKeyboardKey.Down);
+            _selectionHandler.ConfigureSelectionIndicator("", $"<color=#{PrimaryColor}> <</color>", "", "");
             _selectionHandler.MaxIdx = 1;
         }
 
         public override void OnShow(object[] args)
         {
             base.OnShow(args);
-            _selectionHandler.CurrentSelectionIndex = (int)BaseGameInterface.GetItemMode();
-            _insVolumeFloat = BaseGameInterface.GetInstrumentVolume();
+            UpdateState();
             Redraw();
         }
+
+		void UpdateState()
+		{
+			_selectionHandler.CurrentSelectionIndex = BaseGameInterface.GetItemMode() ? 0 : 1;
+            _insVolumeFloat = BaseGameInterface.GetInstrumentVolume();
+		}
 
         private void Redraw()
         {
             var str = new StringBuilder();
-
-            _insVolumeFloat = BaseGameInterface.GetInstrumentVolume(); // How in the world does this code work lol
-
-
 
             str.BeginCenter().Repeat("=", SCREEN_WIDTH).AppendLine();
             str.Append("Item Mode").AppendLine();
             str.AppendClr("1 - 9 to set instrument volume", "ffffff50").AppendLine();
             str.Repeat("=", SCREEN_WIDTH).EndAlign().AppendLines(2);
 
-            str.Append("Enabled".PadRight(6)).Append(GetSelector(0)).AppendLine();
-            str.Append("Disabled".PadRight(6)).Append(GetSelector(1)).AppendLines(2);
-            str.Append("Instrument Volume: ".PadRight(6)).Append(Mathf.CeilToInt(_insVolumeFloat * 50f));
+            str.Append("Instrument Volume: ").Append(Mathf.CeilToInt(_insVolumeFloat * 50f));
+            str.AppendLines(2);
 
-            Text = str.ToString();
+            str.AppendClr("Hide item particles?", "ffffff60").AppendLine();
+            str.Append(_selectionHandler.GetIndicatedText(0, "Yes  ")).AppendLine();
+            str.Append(_selectionHandler.GetIndicatedText(1, "No   ")).AppendLine();
+
+            SetText(str);
         }
 
         public override void OnKeyPressed(EKeyboardKey key)
         {
             if (_selectionHandler.HandleKeypress(key))
             {
-                BaseGameInterface.SetItemMode((BaseGameInterface.EItemMode)_selectionHandler.CurrentSelectionIndex);
+				BaseGameInterface.SetItemMode(_selectionHandler.CurrentSelectionIndex == 0);
+                UpdateState();
                 Redraw();
                 return;
             }
@@ -56,6 +62,7 @@ namespace ComputerInterface.Views.GameSettings
             if (key.TryParseNumber(out var num))
             {
                 BaseGameInterface.SetInstrumentVolume(num);
+                UpdateState();
                 Redraw();
                 return;
             }
@@ -66,11 +73,6 @@ namespace ComputerInterface.Views.GameSettings
                     ShowView<GameSettingsView>();
                     break;
             }
-        }
-
-        private string GetSelector(int idx)
-        {
-            return idx == _selectionHandler.CurrentSelectionIndex ? "<color=#ed6540> <</color>" : "  ";
         }
     }
 }

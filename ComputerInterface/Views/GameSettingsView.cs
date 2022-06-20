@@ -47,7 +47,7 @@ namespace ComputerInterface.Views
         private void Redraw()
         {
             var str = new StringBuilder();
-            str.AppendLines(3);
+            str.AppendLines(2);
             for (var i = 0; i < _gameSettingsViews.Count; i++)
             {
                 var pair = _gameSettingsViews[i];

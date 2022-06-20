@@ -99,23 +99,18 @@ namespace ComputerInterface
             return (instVolume);
         }
 
-        public static void SetItemMode(EItemMode itemMode)
-        {
-            if (GorillaComputer.instance == null) return;
-
-            var itemModeString = itemMode.ToString();
-            PlayerPrefs.SetString("disableParticles", itemModeString);
+        public static void SetItemMode(bool disableParticles)
+		{
+			PlayerPrefs.SetString("disableParticles", disableParticles ? "TRUE" : "FALSE");
             PlayerPrefs.Save();
-            bool disableParticles;
-            if (itemModeString == "TRUE") {disableParticles = true;} else { disableParticles = false;}
             GorillaTagger.Instance.ShowCosmeticParticles(!disableParticles);
         }
 
-        public static EItemMode GetItemMode()
+        public static bool GetItemMode()
         {
-            var itemMode = PlayerPrefs.GetString("disableParticles");
-            if (itemMode.IsNullOrWhiteSpace()) return EItemMode.TRUE;
-            return (EItemMode)Enum.Parse(typeof(EItemMode), itemMode);
+			string itemMode = PlayerPrefs.GetString("disableParticles");
+            if (itemMode.IsNullOrWhiteSpace()) return false;
+            return itemMode == "TRUE";
         }
 
         public static void SetTurnValue(int value)
@@ -344,12 +339,6 @@ namespace ComputerInterface
             SNAP,
             SMOOTH,
             NONE
-        }
-
-        public enum EItemMode
-        {
-            FALSE,
-            TRUE
         }
 
         public enum EPTTMode

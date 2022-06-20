@@ -172,7 +172,10 @@ namespace ComputerInterface
         {
             foreach (var audio in _keyboardAudios)
 			{
-                audio.Play();
+                if (audio.isActiveAndEnabled)
+				{
+					audio.Play();
+				}
 			}
             _computerViewController.NotifyOfKeyPress(key.KeyboardKey);
         }

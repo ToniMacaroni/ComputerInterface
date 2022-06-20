@@ -35,10 +35,12 @@ namespace ComputerInterface.Views.GameSettings
         {
             var str = new StringBuilder();
 
-            str.AppendLine();
-            str.BeginCenter().AppendClr("Do you want to hear other players?", "ffffff60").EndAlign();
+            str.BeginCenter().Repeat("=", SCREEN_WIDTH).AppendLine();
+            str.Append("Voice Chat").AppendLine();
+            str.AppendClr("Back to save", "ffffff50").AppendLine();
+            str.Repeat("=", SCREEN_WIDTH).EndAlign().AppendLines(2);
 
-            str.AppendLines(4);
+            str.AppendClr("Hear other players?", "ffffff60").AppendLine();
 
             DrawOptions(str);
 
