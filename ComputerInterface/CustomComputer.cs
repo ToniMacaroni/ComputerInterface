@@ -33,11 +33,12 @@ namespace ComputerInterface
 
         private List<CustomKeyboardKey> _keys;
         private GameObject _keyboard;
-        private AudioSource _keyboardAudio;
 
         private AssetsLoader _assetsLoader;
 
         private CIConfig _config;
+
+        private List<AudioSource> _keyboardAudios = new List<AudioSource>();
             
         void Awake()
         {
@@ -169,7 +170,13 @@ namespace ComputerInterface
 
         public void PressButton(CustomKeyboardKey key)
         {
-            _keyboardAudio.Play();
+            foreach (var audio in _keyboardAudios)
+			{
+                if (audio.isActiveAndEnabled)
+				{
+					audio.Play();
+				}
+			}
             _computerViewController.NotifyOfKeyPress(key.KeyboardKey);
         }
 
@@ -245,9 +252,13 @@ namespace ComputerInterface
             _keyboard = _keys[0].transform.parent.parent.parent.gameObject;
 
             var clickSound = await _assetsLoader.GetAsset<AudioClip>("ClickSound");
-            _keyboardAudio = _keyboard.AddComponent<AudioSource>();
-            _keyboardAudio.loop = false;
-            _keyboardAudio.clip = clickSound;
+
+			var audioSource = _keyboard.AddComponent<AudioSource>();
+            audioSource.playOnAwake = false;
+            audioSource.loop = false;
+			audioSource.clip = clickSound;
+
+            _keyboardAudios.Add(audioSource);
 
             if (_keyboard.GetComponent<MeshRenderer>() is MeshRenderer renderer) {
                 renderer.material.color = new Color(0.3f, 0.3f, 0.3f);
@@ -259,8 +270,8 @@ namespace ComputerInterface
 
             ColorUtility.TryParseHtmlString("#8787e0", out var backButtonColor);
 
-            CreateKey(enterKey.gameObject, "Space", new Vector3(2.6f, 0, 3), EKeyboardKey.Space, "Space");
-            CreateKey(deleteKey.gameObject, "Back", new Vector3(0, 0, -29.8f), EKeyboardKey.Back, "Back", backButtonColor);
+            CreateKey(enterKey.gameObject, "Space", new Vector3(2.6f, 0, 3), EKeyboardKey.Space, "SPACE");
+            CreateKey(deleteKey.gameObject, "Back", new Vector3(0, 0, -29.8f), EKeyboardKey.Back, "BACK", backButtonColor);
 
             ColorUtility.TryParseHtmlString("#abdbab", out var arrowKeyButtonColor);
 

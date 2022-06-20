@@ -87,6 +87,32 @@ namespace ComputerInterface
             return (ETurnMode) Enum.Parse(typeof(ETurnMode), turnMode);
         }
 
+        public static void SetInstrumentVolume(int value)
+        {
+            PlayerPrefs.SetFloat("instrumentVolume", (float)value / 50f);
+            PlayerPrefs.Save();
+        }
+
+        public static float GetInstrumentVolume()
+        {
+            float instVolume = PlayerPrefs.GetFloat("instrumentVolume", 0.1f);
+            return (instVolume);
+        }
+
+        public static void SetItemMode(bool disableParticles)
+		{
+			PlayerPrefs.SetString("disableParticles", disableParticles ? "TRUE" : "FALSE");
+            PlayerPrefs.Save();
+            GorillaTagger.Instance.ShowCosmeticParticles(!disableParticles);
+        }
+
+        public static bool GetItemMode()
+        {
+			string itemMode = PlayerPrefs.GetString("disableParticles");
+            if (itemMode.IsNullOrWhiteSpace()) return false;
+            return itemMode == "TRUE";
+        }
+
         public static void SetTurnValue(int value)
         {
             if (!CheckForComputer(out var computer)) return;
@@ -257,6 +283,11 @@ namespace ComputerInterface
             SetVoiceMode(GetVoiceMode());
         }
 
+        public static void InitItemMode()
+        {
+            SetItemMode(GetItemMode());
+        }
+
         public static string InitGameMode(string gamemode = "")
 		{
             if (!CheckForComputer(out var computer)) return "";
@@ -275,12 +306,13 @@ namespace ComputerInterface
             InitMicState();
             InitGroupState();
             InitVoiceMode();
+            InitItemMode();
 
             // The computer will reset custom gamemodes when start is called
             // var gamemode = InitGameMode();
 
-            
-			if (CheckForComputer(out var computer))
+
+            if (CheckForComputer(out var computer))
 			{
                 computer.InvokeMethod("Awake");
 			}

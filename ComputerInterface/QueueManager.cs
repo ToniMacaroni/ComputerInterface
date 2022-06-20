@@ -32,7 +32,7 @@ namespace ComputerInterface
         static string GetQueueString()
 		{
             string currentQueue = PlayerPrefs.GetString("currentQueue", "DEFAULT");
-            if (currentQueue != "DEFAULT" && currentQueue != "COMPETITIVE")
+            if (currentQueue != "DEFAULT" && currentQueue != "COMPETITIVE" && currentQueue != "MINIGAMES")
             {
                 PlayerPrefs.SetString("currentQueue", "DEFAULT");
                 PlayerPrefs.Save();
