@@ -10,7 +10,8 @@ namespace ComputerInterface.Patches
     {
         internal static bool Prefix(GorillaComputer __instance)
         {
-            __instance.OnModeSelectButtonPress(PlayerPrefs.GetString("currentGameMode", "INFECTION"));
+            __instance.leftHanded = PlayerPrefs.GetInt("leftHanded", 0) == 1;
+            __instance.OnModeSelectButtonPress(PlayerPrefs.GetString("currentGameMode", "INFECTION"), __instance.leftHanded);
             return false;
         }
     }
