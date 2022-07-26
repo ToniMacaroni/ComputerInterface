@@ -47,6 +47,8 @@ namespace ComputerInterface
         {
             if (GorillaComputer.instance == null) return;
 
+            if (!GorillaComputer.instance.CheckAutoBanListForName(name)) return;
+
             PhotonNetwork.LocalPlayer.NickName = name; 
             GorillaComputer.instance.offlineVRRigNametagText.text = name;
             GorillaComputer.instance.savedName = name;
