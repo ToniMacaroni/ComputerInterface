@@ -294,7 +294,7 @@ namespace ComputerInterface
 
 			string currentGameMode = gamemode.IsNullOrWhiteSpace() ? currentGameMode = PlayerPrefs.GetString("currentGameMode", "INFECTION") : gamemode;
 			computer.currentGameMode = currentGameMode;
-			computer.OnModeSelectButtonPress(currentGameMode);
+			computer.OnModeSelectButtonPress(currentGameMode, computer.leftHanded);
 			return currentGameMode;
         }
 
