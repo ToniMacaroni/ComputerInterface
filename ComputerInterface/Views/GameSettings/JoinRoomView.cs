@@ -125,7 +125,7 @@ namespace ComputerInterface.Views.GameSettings
         {
             if (_textInputHandler.HandleKey(key))
             {
-                //Redraw();
+                Redraw();
                 return;
             }
 
@@ -141,7 +141,7 @@ namespace ComputerInterface.Views.GameSettings
                         BaseGameInterface.JoinRoom(_joinedRoom);
                         GorillaComputer.instance.roomFull = false;
                         GorillaComputer.instance.roomNotAllowed = false;
-                        //Redraw();
+                        Redraw();
                     }
                     break;
                 case EKeyboardKey.Option1:
