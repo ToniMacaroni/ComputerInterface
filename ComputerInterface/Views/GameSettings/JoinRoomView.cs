@@ -91,7 +91,7 @@ namespace ComputerInterface.Views.GameSettings
                     case PhotonNetworkController.ConnectionState.InPrivateRoom:
                     case PhotonNetworkController.ConnectionState.InPublicRoom:
                         if (PhotonNetwork.InRoom)
-                            str.AppendClr($"In room {_joinedRoom}", "ffffff50").EndAlign().AppendLine();
+                            str.AppendClr($"In room {PhotonNetwork.CurrentRoom.Name}", "ffffff50").EndAlign().AppendLine();
                         else
                             str.AppendClr($"Error", "ffffff50").EndAlign().AppendLine();
                         break;
