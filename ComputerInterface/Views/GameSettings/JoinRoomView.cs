@@ -26,7 +26,8 @@ namespace ComputerInterface.Views.GameSettings
             GameObject callbacks = new GameObject();
             callbacks.name = "RoomCallbacks";
             GameObject.Instantiate(callbacks);
-            callbacks.AddComponent<JoinRoomViewCallbacks>();
+            JoinRoomViewCallbacks calllbacksComponent = callbacks.AddComponent<JoinRoomViewCallbacks>();
+            calllbacksComponent.view = this;
         }
 
         public override void OnShow(object[] args)
@@ -90,7 +91,9 @@ namespace ComputerInterface.Views.GameSettings
                     case PhotonNetworkController.ConnectionState.InPrivateRoom:
                     case PhotonNetworkController.ConnectionState.InPublicRoom:
                         if (PhotonNetwork.InRoom)
-                            str.AppendClr($"In room {PhotonNetwork.CurrentRoom}", "ffffff50").EndAlign().AppendLine();
+                            str.AppendClr($"In room {_joinedRoom}", "ffffff50").EndAlign().AppendLine();
+                        else
+                            str.AppendClr($"Error", "ffffff50").EndAlign().AppendLine();
                         break;
                     default:
                         Console.WriteLine("Invalid connection state");
