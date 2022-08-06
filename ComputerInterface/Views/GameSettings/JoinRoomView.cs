@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Text;
 
 using BepInEx;
@@ -139,6 +139,8 @@ namespace ComputerInterface.Views.GameSettings
                     {
                         _joinedRoom = _textInputHandler.Text.ToUpper();
                         BaseGameInterface.JoinRoom(_joinedRoom);
+                        GorillaComputer.instance.roomFull = false;
+                        GorillaComputer.instance.roomNotAllowed = false;
                         //Redraw();
                     }
                     break;
