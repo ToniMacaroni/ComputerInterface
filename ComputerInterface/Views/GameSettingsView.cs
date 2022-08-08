@@ -5,10 +5,6 @@ using ComputerInterface.Interfaces;
 using ComputerInterface.ViewLib;
 using ComputerInterface.Views.GameSettings;
 
-using Photon.Pun;
-
-using UnityEngine;
-
 namespace ComputerInterface.Views
 {
     public class GameSettingsEntry : IComputerModEntry
@@ -21,8 +17,6 @@ namespace ComputerInterface.Views
     {
         private readonly UISelectionHandler _selectionHandler;
         private readonly List<Tuple<string, Type>> _gameSettingsViews;
-
-        private GameSettingsUpdate updater;
 
         private GameSettingsView()
         {
@@ -42,14 +36,6 @@ namespace ComputerInterface.Views
             _selectionHandler = new UISelectionHandler(EKeyboardKey.Up, EKeyboardKey.Down, EKeyboardKey.Enter);
             _selectionHandler.OnSelected += ItemSelected;
             _selectionHandler.MaxIdx = _gameSettingsViews.Count - 1;
-
-            if(updater == null)
-            {
-                GameObject obj = new GameObject();
-                obj.name = "PlayerCountCallbacks";
-                updater = obj.AddComponent<GameSettingsUpdate>();
-                updater.view = this;
-            }
         }
 
         public override void OnShow(object[] args)
@@ -58,7 +44,7 @@ namespace ComputerInterface.Views
             Redraw();
         }
 
-        public void Redraw()
+        private void Redraw()
         {
             var str = new StringBuilder();
             str.AppendLines(2);
@@ -67,10 +53,6 @@ namespace ComputerInterface.Views
                 var pair = _gameSettingsViews[i];
                 str.Repeat(" ", 8).Append(GetSelector(i)).Append(pair.Item1).AppendLine();
             }
-
-            str.AppendLines(2);
-            if(PhotonNetwork.IsConnected)
-                str.AppendClr($"Players online: {PhotonNetwork.CountOfPlayers}", "ffffff50").EndAlign().AppendLine();
 
             Text = str.ToString();
         }
@@ -99,21 +81,6 @@ namespace ComputerInterface.Views
         private void ItemSelected(int idx)
         {
             ShowView(_gameSettingsViews[_selectionHandler.CurrentSelectionIndex].Item2);
-        }
-    }
-
-    class GameSettingsUpdate : MonoBehaviour
-    {
-        public GameSettingsView view;
-        private int last;
-
-        private void Update()
-        {
-            if(PhotonNetwork.CountOfPlayers != last)
-            {
-                view.Redraw();
-                last = PhotonNetwork.CountOfPlayers;
-            }
         }
     }
 }
