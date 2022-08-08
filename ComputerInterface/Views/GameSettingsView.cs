@@ -68,7 +68,7 @@ namespace ComputerInterface.Views
                 str.Repeat(" ", 8).Append(GetSelector(i)).Append(pair.Item1).AppendLine();
             }
 
-            str.AppendLines(1);
+            str.AppendLines(2);
             if(PhotonNetwork.IsConnected)
                 str.AppendClr($"Players online: {PhotonNetwork.CountOfPlayers}", "ffffff50").EndAlign().AppendLine();
 
