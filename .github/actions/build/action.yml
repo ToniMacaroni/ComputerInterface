@@ -1,0 +1,37 @@
+# Composite action for building mod
+
+name: Build
+description: Builds mod
+
+runs:
+  using: "composite"
+  steps:
+  - name: Get working directory
+    id: wd
+    uses: Gorilla-Tag-Modding-Group/gorilla-tag-build-tools/actions/working-dir@main
+
+  - uses: Gorilla-Tag-Modding-Group/gorilla-tag-build-tools/actions/setup@main
+    with:
+      working-dir: ${{ steps.wd.outputs.dir }}
+
+  - uses: Gorilla-Tag-Modding-Group/gorilla-tag-build-tools/actions/deps/ToniMacaroni/ComputerInterface@main
+    with:
+      output-dir: ${{ steps.wd.outputs.dir }}\Libs
+  - uses: Gorilla-Tag-Modding-Group/gorilla-tag-build-tools/actions/deps/Auros/Bepinject@main
+    with:
+      output-dir: ${{ steps.wd.outputs.dir }}\Libs
+
+  # Build the mod
+  # MakeRelease is at root, so this needs to be done manually
+  - name: Setup dotnet
+    uses: actions/setup-dotnet@v1
+  - name: Build project
+    env: 
+      CI: TRUE
+    shell: pwsh
+    run: .\MakeRelease.ps1
+  - name: Prepare build for upload
+    shell: pwsh
+    run: |
+      $dir = ((ls . -filter *.csproj -recurse | sort).BaseName) | select -last 1
+      mv $dir-v.zip Build.zip

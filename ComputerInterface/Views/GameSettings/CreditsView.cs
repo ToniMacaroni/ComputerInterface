@@ -48,6 +48,18 @@ namespace ComputerInterface.Views.GameSettings
             }
 
 
+            str.Repeat("=", SCREEN_WIDTH).AppendLine();
+
+            str.AppendLine("Credits").AppendLine()
+                .AppendLine("Game by Kerestell").AppendLine();
+
+            str.AppendLine("\"Monke Need To Swing\"")
+                .AppendLine("Composed by Stunshine")
+                .AppendLine("Produced by Audiopfeil & Owlobe").AppendLine();
+
+            str.AppendLine("\"Cave Wave\" & \"Campfire\"")
+                .AppendLine("Composed by Stunshine")
+				.AppendLine("Sound design by David Anderson Kirk");
 
             Text = str.ToString();
         }
