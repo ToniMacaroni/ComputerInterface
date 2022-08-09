@@ -20,11 +20,13 @@ namespace ComputerInterface
             PlayerPrefs.SetFloat("blueValue", b);
             GorillaTagger.Instance.UpdateColor(r, g, b);
             PlayerPrefs.Save();
-            if (PhotonNetwork.InRoom)
+
+            if (PhotonNetwork.InRoom && CheckForComputer(out var computer))
             {
-                GorillaTagger.Instance.myVRRig.photonView.RPC("InitializeNoobMaterial", RpcTarget.All, r, g, b);
+                GorillaTagger.Instance.myVRRig.photonView.RPC("InitializeNoobMaterial", RpcTarget.All, r, g, b, computer.leftHanded);
             }
         }
+
         public static void SetColor(Color color)
         {
             SetColor(color.r, color.g, color.b);
@@ -56,17 +58,20 @@ namespace ComputerInterface
             PlayerPrefs.Save();
             
             /* Player's name is not updating on change */
-            if (PhotonNetwork.InRoom)
+            if (PhotonNetwork.InRoom && CheckForComputer(out var computer))
             {
                 GetColor(out var r, out var g, out var b);
-                GorillaTagger.Instance.myVRRig.photonView.RPC("InitializeNoobMaterial", RpcTarget.All, (object)r, (object)g, (object)b);
+                GorillaTagger.Instance.myVRRig.photonView.RPC("InitializeNoobMaterial", RpcTarget.All, (object)r, (object)g, (object)b, computer.leftHanded);
             }
             /* Player's name is not updating on change */
         }
 
         public static string GetName()
         {
-            return PhotonNetwork.LocalPlayer.NickName;
+            if (GorillaComputer.instance == null) 
+                return PhotonNetwork.LocalPlayer.NickName;
+
+            return GorillaComputer.instance.savedName;
         }
 
         public static void SetTurnMode(ETurnMode turnMode)
