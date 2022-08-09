@@ -1,9 +1,11 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using BepInEx.Bootstrap;
 using ComputerInterface.Interfaces;
 using ComputerInterface.ViewLib;
+
+using Photon.Pun;
 
 namespace ComputerInterface.Views
 {
@@ -24,13 +26,23 @@ namespace ComputerInterface.Views
             _selectionHandler.ConfigureSelectionIndicator("<color=#ed6540>></color> ", "", "  ", "");
 
             _pageHandler = new UIElementPageHandler<IComputerModEntry>(EKeyboardKey.Left, EKeyboardKey.Right);
-            _pageHandler.Footer = "<color=#ffffff50>{0}{1}        <align=\"right\"><margin-right=2em>page {2}/{3}</margin></align></color>";
+            RedrawFooter();
             _pageHandler.NextMark = "▼";
             _pageHandler.PrevMark = "▲";
             _pageHandler.EntriesPerPage = 8;
 
             _shownEntries = new List<IComputerModEntry>();
             _pluginInfoMap = new Dictionary<IComputerModEntry, BepInEx.PluginInfo>();
+
+            ComputerInterfaceCallbacks.updateCallback += RedrawFooter;
+        }
+
+        public void RedrawFooter()
+        {
+            if (PhotonNetwork.IsConnected)
+                _pageHandler.Footer = $"Players online: {PhotonNetwork.CountOfPlayers}<color=#ffffff50>{0}{1}        <align=\"right\"><margin-right=2em>page {2}/{3}</margin></align></color>";
+            else
+                _pageHandler.Footer = "<color=#ffffff50>{0}{1}        <align=\"right\"><margin-right=2em>page {2}/{3}</margin></align></color>";
         }
 
         public void ShowEntries(List<IComputerModEntry> entries)
