@@ -43,6 +43,8 @@ namespace ComputerInterface.Views
                 _pageHandler.Footer = $"Players online: {PhotonNetwork.CountOfPlayers}<color=#ffffff50>{0}{1}        <align=\"right\"><margin-right=2em>page {2}/{3}</margin></align></color>";
             else
                 _pageHandler.Footer = "<color=#ffffff50>{0}{1}        <align=\"right\"><margin-right=2em>page {2}/{3}</margin></align></color>";
+
+            Redraw();
         }
 
         public void ShowEntries(List<IComputerModEntry> entries)
