@@ -1,4 +1,4 @@
-﻿using BepInEx;
+using BepInEx;
 using Bepinject;
 using HarmonyLib;
 using System.Reflection;
@@ -33,6 +33,10 @@ namespace ComputerInterface
             Debug.Log("Computer Interface loading");
 
             Zenjector.Install<MainInstaller>().OnProject().WithConfig(Config).WithLog(Logger);
+
+            GameObject callbacks = new GameObject();
+            callbacks.name = "ComputerInterfaceCallbacks";
+            callbacks.AddComponent<ComputerInterfaceCallbacks>();
 
             Loaded = true;
         }
