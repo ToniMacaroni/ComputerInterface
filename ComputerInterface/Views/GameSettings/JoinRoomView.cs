@@ -23,11 +23,7 @@ namespace ComputerInterface.Views.GameSettings
         {
             _textInputHandler = new UITextInputHandler();
 
-            GameObject callbacks = new GameObject();
-            callbacks.name = "RoomCallbacks";
-            GameObject.Instantiate(callbacks);
-            JoinRoomViewCallbacks calllbacksComponent = callbacks.AddComponent<JoinRoomViewCallbacks>();
-            calllbacksComponent.view = this;
+            ComputerInterfaceCallbacks.networkCallback += Redraw;
         }
 
         public override void OnShow(object[] args)
