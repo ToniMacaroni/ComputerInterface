@@ -18,6 +18,8 @@ namespace ComputerInterface.Views
         private readonly UIElementPageHandler<IComputerModEntry> _pageHandler;
         private readonly UISelectionHandler _selectionHandler;
 
+        private bool isCallbacking;
+
         public MainMenuView()
         {
             _selectionHandler =
@@ -26,7 +28,7 @@ namespace ComputerInterface.Views
             _selectionHandler.ConfigureSelectionIndicator("<color=#ed6540>></color> ", "", "  ", "");
 
             _pageHandler = new UIElementPageHandler<IComputerModEntry>(EKeyboardKey.Left, EKeyboardKey.Right);
-            RedrawFooter();
+            DrawFooter();
             _pageHandler.NextMark = "▼";
             _pageHandler.PrevMark = "▲";
             _pageHandler.EntriesPerPage = 8;
@@ -34,17 +36,22 @@ namespace ComputerInterface.Views
             _shownEntries = new List<IComputerModEntry>();
             _pluginInfoMap = new Dictionary<IComputerModEntry, BepInEx.PluginInfo>();
 
-            ComputerInterfaceCallbacks.updateCallback += RedrawFooter;
+            if (!isCallbacking)
+            {
+                UnityEngine.GameObject callbacks = new UnityEngine.GameObject();
+                callbacks.name = "ComputerInterfaceCallbacks";
+                callbacks.AddComponent<ComputerInterfaceCallbacks>();
+                ComputerInterfaceCallbacks.updateCallback += DrawFooter;
+                isCallbacking = true;
+            }
         }
 
-        public void RedrawFooter()
+        public void DrawFooter()
         {
             if (PhotonNetwork.IsConnected)
-                _pageHandler.Footer = $"Players online: {PhotonNetwork.CountOfPlayers}<color=#ffffff50>{0}{1}        <align=\"right\"><margin-right=2em>page {2}/{3}</margin></align></color>";
+                _pageHandler.Footer = $"Players online: {PhotonNetwork.CountOfPlayers}{"<color=#ffffff50>{0}{1}        <align=\"right\"><margin-right=2em>page {2}/{3}</margin></align></color>"}";
             else
                 _pageHandler.Footer = "<color=#ffffff50>{0}{1}        <align=\"right\"><margin-right=2em>page {2}/{3}</margin></align></color>";
-
-            Redraw();
         }
 
         public void ShowEntries(List<IComputerModEntry> entries)
