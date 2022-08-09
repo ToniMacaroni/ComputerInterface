@@ -49,7 +49,7 @@ namespace ComputerInterface.Views
         public void DrawFooter()
         {
             if (PhotonNetwork.IsConnected)
-                _pageHandler.Footer = $"Players online: {PhotonNetwork.CountOfPlayers}{"<color=#ffffff50>{0}{1}        <align=\"right\"><margin-right=2em>page {2}/{3}</margin></align></color>"}";
+                _pageHandler.Footer = $"<color=#ffffff50>Players online: {PhotonNetwork.CountOfPlayers}{"{0}{1}        <align=\"right\"><margin-right=2em>page {2}/{3}</margin></align></color>"}";
             else
                 _pageHandler.Footer = "<color=#ffffff50>{0}{1}        <align=\"right\"><margin-right=2em>page {2}/{3}</margin></align></color>";
         }
