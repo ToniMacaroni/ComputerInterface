@@ -1,11 +1,9 @@
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using BepInEx.Bootstrap;
 using ComputerInterface.Interfaces;
 using ComputerInterface.ViewLib;
-
-using Photon.Pun;
 
 namespace ComputerInterface.Views
 {
@@ -18,8 +16,6 @@ namespace ComputerInterface.Views
         private readonly UIElementPageHandler<IComputerModEntry> _pageHandler;
         private readonly UISelectionHandler _selectionHandler;
 
-        private bool isCallbacking;
-
         public MainMenuView()
         {
             _selectionHandler =
@@ -28,30 +24,13 @@ namespace ComputerInterface.Views
             _selectionHandler.ConfigureSelectionIndicator("<color=#ed6540>></color> ", "", "  ", "");
 
             _pageHandler = new UIElementPageHandler<IComputerModEntry>(EKeyboardKey.Left, EKeyboardKey.Right);
-            DrawFooter();
+            _pageHandler.Footer = "<color=#ffffff50>{0}{1}        <align=\"right\"><margin-right=2em>page {2}/{3}</margin></align></color>";
             _pageHandler.NextMark = "▼";
             _pageHandler.PrevMark = "▲";
             _pageHandler.EntriesPerPage = 8;
 
             _shownEntries = new List<IComputerModEntry>();
             _pluginInfoMap = new Dictionary<IComputerModEntry, BepInEx.PluginInfo>();
-
-            if (!isCallbacking)
-            {
-                UnityEngine.GameObject callbacks = new UnityEngine.GameObject();
-                callbacks.name = "ComputerInterfaceCallbacks";
-                callbacks.AddComponent<ComputerInterfaceCallbacks>();
-                ComputerInterfaceCallbacks.updateCallback += DrawFooter;
-                isCallbacking = true;
-            }
-        }
-
-        public void DrawFooter()
-        {
-            if (PhotonNetwork.IsConnected)
-                _pageHandler.Footer = $"<color=#ffffff50>Players online: {PhotonNetwork.CountOfPlayers}{"{0}{1}        <align=\"right\"><margin-right=2em>page {2}/{3}</margin></align></color>"}";
-            else
-                _pageHandler.Footer = "<color=#ffffff50>{0}{1}        <align=\"right\"><margin-right=2em>page {2}/{3}</margin></align></color>";
         }
 
         public void ShowEntries(List<IComputerModEntry> entries)
