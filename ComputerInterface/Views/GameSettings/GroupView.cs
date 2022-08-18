@@ -1,4 +1,4 @@
-﻿using System.Text;
+using System.Text;
 using ComputerInterface.ViewLib;
 
 namespace ComputerInterface.Views.GameSettings
@@ -60,6 +60,7 @@ namespace ComputerInterface.Views.GameSettings
             str.Append(_selectionHandler.GetIndicatedText(1, "Cave")).AppendLine();
             str.Append(_selectionHandler.GetIndicatedText(2, "Canyon")).AppendLine();
             str.Append(_selectionHandler.GetIndicatedText(3, "City")).AppendLine();
+            str.Append(_selectionHandler.GetIndicatedText(4, "Mountain")).AppendLine();
         }
 
         public override void OnKeyPressed(EKeyboardKey key)
