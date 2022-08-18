@@ -57,7 +57,7 @@ namespace ComputerInterface.Views.GameSettings
 
         private string GetLine(char cha)
         {
-            string str = $"<color={ColorUtility.ToHtmlStringRGB(_color)}>";
+            string str = $"<color=#{ColorUtility.ToHtmlStringRGB(_color)}>";
             for (int i = 0; i < SCREEN_WIDTH; i++)
                 str += cha;
 
