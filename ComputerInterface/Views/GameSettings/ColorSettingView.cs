@@ -35,10 +35,10 @@ namespace ComputerInterface.Views.GameSettings
         private void Redraw()
         {
             var str = new StringBuilder();
-            str.Append(GetLine('=')).AppendLine();
+            str.BeginColor(_color.ToString()).Append(GetLine('=')).EndColor().AppendLine();
             str.BeginCenter().Append("Change Color").AppendLine();
             str.Append("Values are from 0 - 255").EndAlign().AppendLine();
-            str.Append(GetLine('=')).AppendLine();
+            str.BeginColor(_color.ToString()).Append(GetLine('=')).EndColor().AppendLine();
 
             str.Append("R: ");
             DrawValue(str, _rString, 0);
@@ -53,17 +53,6 @@ namespace ComputerInterface.Views.GameSettings
             str.AppendLine();
 
             Text = str.ToString();
-        }
-
-        private string GetLine(char cha)
-        {
-            string str = $"<color=#{ColorUtility.ToHtmlStringRGB(_color)}>";
-            for (int i = 0; i < SCREEN_WIDTH; i++)
-                str += cha;
-
-            str += "</color>";
-
-            return str;
         }
 
         private void DrawValue(StringBuilder str, string val, int lineNum)
