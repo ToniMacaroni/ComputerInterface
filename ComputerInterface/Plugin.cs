@@ -34,10 +34,6 @@ namespace ComputerInterface
 
             Zenjector.Install<MainInstaller>().OnProject().WithConfig(Config).WithLog(Logger);
 
-            GameObject callbacks = new GameObject();
-            callbacks.name = "ComputerInterfaceCallbacks";
-            callbacks.AddComponent<ComputerInterfaceCallbacks>();
-
             Loaded = true;
         }
     }
