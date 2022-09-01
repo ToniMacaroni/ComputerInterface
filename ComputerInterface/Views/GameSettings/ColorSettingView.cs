@@ -1,4 +1,4 @@
-﻿using System.Text;
+using System.Text;
 using ComputerInterface.ViewLib;
 using UnityEngine;
 
@@ -35,10 +35,10 @@ namespace ComputerInterface.Views.GameSettings
         private void Redraw()
         {
             var str = new StringBuilder();
-            str.Repeat("=", SCREEN_WIDTH).AppendLine();
+            str.BeginColor(_color).Repeat("=", SCREEN_WIDTH).EndColor().AppendLine();
             str.BeginCenter().Append("Change Color").AppendLine();
             str.Append("Values are from 0 - 255").EndAlign().AppendLine();
-            str.Repeat("=", SCREEN_WIDTH).AppendLine().AppendLine();
+            str.BeginColor(_color).Repeat("=", SCREEN_WIDTH).EndColor().AppendLine();
 
             str.Append("R: ");
             DrawValue(str, _rString, 0);
