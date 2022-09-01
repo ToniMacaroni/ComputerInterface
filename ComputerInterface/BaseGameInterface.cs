@@ -20,10 +20,7 @@ namespace ComputerInterface
             PlayerPrefs.SetFloat("blueValue", b);
             GorillaTagger.Instance.UpdateColor(r, g, b);
             PlayerPrefs.Save();
-            if (PhotonNetwork.InRoom)
-            {
-                InitializeNoobMaterial(r, g, b);
-            }
+            InitializeNoobMaterial(r, g, b);
         }
         public static void SetColor(Color color) => SetColor(color.r, color.g, color.b);
 
@@ -52,28 +49,18 @@ namespace ComputerInterface
             PlayerPrefs.SetString("playerName", name);
             PlayerPrefs.Save();
 
-            /* Player's name is not updating on change */
-            if (PhotonNetwork.InRoom)
-            {
-                GetColor(out var r, out var g, out var b);
-                InitializeNoobMaterial(r, g, b);
-            }
-            /* Player's name is not updating on change */
+            GetColor(out var r, out var g, out var b);
+            InitializeNoobMaterial(r, g, b);
         }
 
-        public static void InitializeNoobMaterial(Color colour) => _InitializeNoobMaterial(colour);
+        public static void InitializeNoobMaterial(float r, float g, float b) => InitializeNoobMaterial(new Color(r, g, b));
 
-        public static void InitializeNoobMaterial(float r, float g, float b) => _InitializeNoobMaterial(new Color(r, g, b));
-
-        private static void _InitializeNoobMaterial(Color colour)
+        public static void InitializeNoobMaterial(Color color)
         {
-            // Why the hell does this game check if you're left handed or not
             if (PhotonNetwork.InRoom)
-                GorillaTagger.Instance.myVRRig.photonView.RPC("InitializeNoobMaterial", RpcTarget.All, colour.r, colour.g, colour.b, PlayerPrefs.GetInt("leftHanded", 0) == 1);
-            else
-                Console.WriteLine("Tried sending InitializeNoobMaterial but I'm not in a room!!");
-
-            //GorillaComputer.instance.check
+            {
+                GorillaTagger.Instance.myVRRig.photonView.RPC("InitializeNoobMaterial", RpcTarget.All, color.r, color.g, color.b, PlayerPrefs.GetInt("leftHanded", 0) == 1);
+            }
         }
 
         public static string GetName()
