@@ -59,7 +59,8 @@ namespace ComputerInterface
         {
             if (PhotonNetwork.InRoom)
             {
-                GorillaTagger.Instance.myVRRig.photonView.RPC("InitializeNoobMaterial", RpcTarget.All, color.r, color.g, color.b, PlayerPrefs.GetInt("leftHanded", 0) == 1);
+                bool leftHanded = GorillaComputer.instance != null ? GorillaComputer.instance.leftHanded : true;
+                GorillaTagger.Instance.myVRRig.photonView.RPC("InitializeNoobMaterial", RpcTarget.All, color.r, color.g, color.b, leftHanded);
             }
         }
 
