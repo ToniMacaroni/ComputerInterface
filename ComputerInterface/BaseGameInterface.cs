@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Xml.Linq;
 using BepInEx;
 using GorillaLocomotion;
 using GorillaNetworking;
@@ -18,8 +19,9 @@ namespace ComputerInterface
             PlayerPrefs.SetFloat("redValue", r);
             PlayerPrefs.SetFloat("greenValue", g);
             PlayerPrefs.SetFloat("blueValue", b);
-            GorillaTagger.Instance.UpdateColor(r, g, b);
             PlayerPrefs.Save();
+
+            GorillaTagger.Instance.UpdateColor(r, g, b);
             InitializeNoobMaterial(r, g, b);
         }
         public static void SetColor(Color color) => SetColor(color.r, color.g, color.b);
@@ -58,15 +60,15 @@ namespace ComputerInterface
         public static void InitializeNoobMaterial(Color color)
         {
             if (PhotonNetwork.InRoom)
-            {
-                bool leftHanded = GorillaComputer.instance != null ? GorillaComputer.instance.leftHanded : true;
-                GorillaTagger.Instance.myVRRig.photonView.RPC("InitializeNoobMaterial", RpcTarget.All, color.r, color.g, color.b, leftHanded);
-            }
+                GorillaTagger.Instance.myVRRig.photonView.RPC("InitializeNoobMaterial", RpcTarget.All, color.r, color.g, color.b, GorillaComputer.instance == null || GorillaComputer.instance.leftHanded);
         }
 
         public static string GetName()
         {
-            return PhotonNetwork.LocalPlayer.NickName;
+            if (GorillaComputer.instance.savedName.IsNullOrWhiteSpace())
+                return PhotonNetwork.LocalPlayer.NickName;
+            else
+                return GorillaComputer.instance.savedName;
         }
 
         public static void SetTurnMode(ETurnMode turnMode)
