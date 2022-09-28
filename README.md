@@ -148,3 +148,6 @@ internal class MyModCommandManager : IInitializable
 
 I just created a dummy class called MyModCommandManager.  
 But of course you can do this in any type as long as you request the CommandHandler.
+
+## Disclaimers
+This product is not affiliated with Gorilla Tag or Another Axiom LLC and is not endorsed or otherwise sponsored by Another Axiom LLC. Portions of the materials contained herein are property of Another Axiom LLC. ©2021 Another Axiom LLC.
