@@ -60,7 +60,7 @@ namespace ComputerInterface
         public static void InitializeNoobMaterial(Color color)
         {
             if (PhotonNetwork.InRoom)
-                GorillaTagger.Instance.myVRRig.photonView.RPC("InitializeNoobMaterial", RpcTarget.All, color.r, color.g, color.b, GorillaComputer.instance == null || GorillaComputer.instance.leftHanded);
+                GorillaTagger.Instance.myVRRig.photonView.RPC("InitializeNoobMaterial", RpcTarget.All, color.r, color.g, color.b, GorillaComputer.instance?.leftHanded ?? true);
         }
 
         public static string GetName()
