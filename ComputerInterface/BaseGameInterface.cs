@@ -65,10 +65,7 @@ namespace ComputerInterface
 
         public static string GetName()
         {
-            if (GorillaComputer.instance.savedName.IsNullOrWhiteSpace())
-                return PhotonNetwork.LocalPlayer.NickName;
-            else
-                return GorillaComputer.instance.savedName;
+            return !GorillaComputer.instance.savedName.IsNullOrWhiteSpace() ? GorillaComputer.instance.savedName : GorillaComputer.instance.savedName;
         }
 
         public static void SetTurnMode(ETurnMode turnMode)
