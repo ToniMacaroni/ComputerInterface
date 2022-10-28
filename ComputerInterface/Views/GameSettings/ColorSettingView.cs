@@ -38,7 +38,7 @@ namespace ComputerInterface.Views.GameSettings
             str.BeginColor(_color ?? Color.white).Repeat("=", SCREEN_WIDTH).EndColor().AppendLine();
             str.BeginCenter().Append("Change Color").AppendLine();
             str.Append("Values are from 0 - 255").EndAlign().AppendLine();
-            str.BeginColor("ffffff").Repeat("=", SCREEN_WIDTH).EndColor().AppendLines(2);
+            str.BeginColor(_color ?? Color.white).Repeat("=", SCREEN_WIDTH).EndColor().AppendLines(2);
 
             str.Append("R: ");
             DrawValue(str, _rString, 0);
