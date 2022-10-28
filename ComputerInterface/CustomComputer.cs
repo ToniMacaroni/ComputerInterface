@@ -33,6 +33,7 @@ namespace ComputerInterface
 
         private List<CustomKeyboardKey> _keys;
         private GameObject _keyboard;
+        private MeshFilter meshFilter;
 
         private AssetsLoader _assetsLoader;
 
@@ -219,7 +220,15 @@ namespace ComputerInterface
                 nameToEnum.Add(key, (EKeyboardKey)Enum.Parse(typeof(EKeyboardKey), enumString));
             }
 
-            foreach(var button in computer.GetComponentsInChildren<GorillaKeyboardButton>())
+            if (meshFilter == null)
+            {
+                GameObject cube = GameObject.CreatePrimitive(PrimitiveType.Cube);
+                meshFilter = cube.GetComponent<MeshFilter>();
+                cube.SetActive(false);
+                DontDestroyOnLoad(cube);
+            }
+
+            foreach (var button in computer.GetComponentsInChildren<GorillaKeyboardButton>())
             {
 
                 if (button.characterString == "up" || button.characterString == "down")
@@ -242,6 +251,7 @@ namespace ComputerInterface
                     customButton.pressTime = button.pressTime;
                     customButton.functionKey = button.functionKey;
 
+                    button.GetComponent<MeshFilter>().mesh = meshFilter.mesh;
                     DestroyImmediate(button);
 
                     customButton.Init(this, key, buttonText);
@@ -328,10 +338,6 @@ namespace ComputerInterface
         private CustomKeyboardKey CreateKey(GameObject prefab, string goName, Vector3 offset, EKeyboardKey key,
             string label = null, Color? color = null)
         {
-            GameObject cube = GameObject.CreatePrimitive(PrimitiveType.Cube);
-            cube.SetActive(false);
-            MeshFilter meshFilter = cube.GetComponent<MeshFilter>();
-
             var newKey = Instantiate(prefab.gameObject, prefab.transform.parent);
             newKey.name = goName;
             newKey.transform.localPosition += offset;
@@ -359,8 +365,6 @@ namespace ComputerInterface
                 }
             }
             _keys.Add(customKeyboardKey);
-
-            Destroy(cube);
 
             return customKeyboardKey;
         }
