@@ -35,7 +35,7 @@ namespace ComputerInterface.Views.GameSettings
         private void Redraw()
         {
             var str = new StringBuilder();
-            str.BeginColor("ffffff").Repeat("=", SCREEN_WIDTH).EndColor().AppendLine();
+            str.BeginColor(_color ?? Color.white).Repeat("=", SCREEN_WIDTH).EndColor().AppendLine();
             str.BeginCenter().Append("Change Color").AppendLine();
             str.Append("Values are from 0 - 255").EndAlign().AppendLine();
             str.BeginColor("ffffff").Repeat("=", SCREEN_WIDTH).EndColor().AppendLines(2);
