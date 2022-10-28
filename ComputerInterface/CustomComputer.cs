@@ -225,7 +225,6 @@ namespace ComputerInterface
                 GameObject cube = GameObject.CreatePrimitive(PrimitiveType.Cube);
                 meshFilter = cube.GetComponent<MeshFilter>();
                 cube.SetActive(false);
-                DontDestroyOnLoad(cube);
             }
 
             foreach (var button in computer.GetComponentsInChildren<GorillaKeyboardButton>())
