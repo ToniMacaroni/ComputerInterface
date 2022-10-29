@@ -26,7 +26,7 @@ namespace ComputerInterface.Views.GameSettings
 
 		void UpdateState()
 		{
-			_selectionHandler.CurrentSelectionIndex = BaseGameInterface.GetItemMode() ? 0 : 1;
+			_selectionHandler.CurrentSelectionIndex = BaseGameInterface.GetItemMode() ? 1 : 0;
             _insVolumeFloat = BaseGameInterface.GetInstrumentVolume();
 		}
 
@@ -35,16 +35,16 @@ namespace ComputerInterface.Views.GameSettings
             var str = new StringBuilder();
 
             str.BeginCenter().Repeat("=", SCREEN_WIDTH).AppendLine();
-            str.Append("Item Mode").AppendLine();
-            str.AppendClr("1 - 9 to set instrument volume", "ffffff50").AppendLine();
+            str.Append("Visual Mode").AppendLine();
+            str.AppendClr("0 - 9 to set instrument volume", "ffffff50").AppendLine();
             str.Repeat("=", SCREEN_WIDTH).EndAlign().AppendLines(2);
 
             str.Append("Instrument Volume: ").Append(Mathf.CeilToInt(_insVolumeFloat * 50f));
             str.AppendLines(2);
 
-            str.AppendClr("Hide item particles?", "ffffff60").AppendLine();
-            str.Append(_selectionHandler.GetIndicatedText(0, "Yes  ")).AppendLine();
-            str.Append(_selectionHandler.GetIndicatedText(1, "No   ")).AppendLine();
+            str.AppendClr("Item Particles", "ffffff60").AppendLine();
+            str.Append(_selectionHandler.GetIndicatedText(0, "Enabled ")).AppendLine();
+            str.Append(_selectionHandler.GetIndicatedText(1, "Disabled")).AppendLine();
 
             SetText(str);
         }
@@ -53,7 +53,7 @@ namespace ComputerInterface.Views.GameSettings
         {
             if (_selectionHandler.HandleKeypress(key))
             {
-				BaseGameInterface.SetItemMode(_selectionHandler.CurrentSelectionIndex == 0);
+				BaseGameInterface.SetItemMode(_selectionHandler.CurrentSelectionIndex == 1);
                 UpdateState();
                 Redraw();
                 return;

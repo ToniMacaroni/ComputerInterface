@@ -14,7 +14,6 @@ namespace ComputerInterface.Views.GameSettings
         public override void OnJoinRoomFailed(short returnCode, string message) => view.Redraw();
         public override void OnJoinRandomFailed(short returnCode, string message) => view.Redraw();
         public override void OnCreateRoomFailed(short returnCode, string message) => view.Redraw();
-        // public override void OnSchoolFailed(short returnCode, string message) => view.Redraw();
         public override void OnConnected() => view.Redraw();
         public override void OnConnectedToMaster() => view.Redraw();
     }

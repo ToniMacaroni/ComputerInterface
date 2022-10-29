@@ -17,6 +17,7 @@ namespace ComputerInterface.Views.GameSettings
         public override void OnShow(object[] args)
         {
             base.OnShow(args);
+
             UpdateState();
             Redraw();
         }
@@ -56,11 +57,10 @@ namespace ComputerInterface.Views.GameSettings
 
         public void DrawOptions(StringBuilder str)
         {
-            str.Append(_selectionHandler.GetIndicatedText(0, "Forest")).AppendLine();
-            str.Append(_selectionHandler.GetIndicatedText(1, "Cave")).AppendLine();
-            str.Append(_selectionHandler.GetIndicatedText(2, "Canyon")).AppendLine();
-            str.Append(_selectionHandler.GetIndicatedText(3, "City")).AppendLine();
-            str.Append(_selectionHandler.GetIndicatedText(4, "Mountain")).AppendLine();
+            str.Append(_selectionHandler.GetIndicatedText(0, "Forest  ")).AppendLine();
+            str.Append(_selectionHandler.GetIndicatedText(1, "Cave    ")).AppendLine();
+            str.Append(_selectionHandler.GetIndicatedText(2, "Canyon  ")).AppendLine();
+            str.Append(_selectionHandler.GetIndicatedText(3, "City    ")).AppendLine();
         }
 
         public override void OnKeyPressed(EKeyboardKey key)

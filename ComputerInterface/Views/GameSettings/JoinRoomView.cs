@@ -138,9 +138,9 @@ namespace ComputerInterface.Views.GameSettings
                     if (!_textInputHandler.Text.IsNullOrWhiteSpace())
                     {
                         _joinedRoom = _textInputHandler.Text.ToUpper();
-                        BaseGameInterface.JoinRoom(_joinedRoom);
                         GorillaComputer.instance.roomFull = false;
                         GorillaComputer.instance.roomNotAllowed = false;
+                        BaseGameInterface.JoinRoom(_joinedRoom);
                         Redraw();
                     }
                     break;

@@ -2,6 +2,8 @@ using System;
 using System.Collections.Generic;
 using System.Xml.Linq;
 using BepInEx;
+using ComputerInterface.ViewLib;
+using ComputerInterface.Views;
 using GorillaLocomotion;
 using GorillaNetworking;
 using HarmonyLib;
@@ -65,7 +67,7 @@ namespace ComputerInterface
 
         public static string GetName()
         {
-            return !GorillaComputer.instance.savedName.IsNullOrWhiteSpace() ? GorillaComputer.instance.savedName : GorillaComputer.instance.savedName;
+            return !GorillaComputer.instance.savedName.IsNullOrWhiteSpace() ? PhotonNetwork.LocalPlayer.NickName : GorillaComputer.instance.savedName;
         }
 
         public static void SetTurnMode(ETurnMode turnMode)
@@ -90,7 +92,7 @@ namespace ComputerInterface
 
         public static void SetInstrumentVolume(int value)
         {
-            PlayerPrefs.SetFloat("instrumentVolume", (float)value / 50f);
+            PlayerPrefs.SetFloat("instrumentVolume", value / 50f);
             PlayerPrefs.Save();
         }
 
@@ -102,6 +104,9 @@ namespace ComputerInterface
 
         public static void SetItemMode(bool disableParticles)
         {
+            if (!CheckForComputer(out var computer)) return;
+
+            computer.disableParticles = disableParticles;
             PlayerPrefs.SetString("disableParticles", disableParticles ? "TRUE" : "FALSE");
             PlayerPrefs.Save();
             GorillaTagger.Instance.ShowCosmeticParticles(!disableParticles);
@@ -189,6 +194,7 @@ namespace ComputerInterface
         public static void JoinAsGroup()
         {
             if (!CheckForComputer(out var computer)) return;
+            if (Mathf.Min(computer.allowedMapsToJoin.Length - 1, computer.groupMapJoinIndex) >= computer.allowedMapsToJoin.Length) return;
 
             if (PhotonNetwork.InRoom && !PhotonNetwork.CurrentRoom.IsVisible)
             {
@@ -203,11 +209,11 @@ namespace ComputerInterface
                     if (computer.friendJoinCollider.playerIDsCurrentlyTouching.Contains(player.UserId) && player != PhotonNetwork.LocalPlayer)
                     {
                         Debug.Log("sending player! " + player.UserId);
-                        GorillaTagManager.instance.photonView.RPC("JoinPubWithFreinds", player, Array.Empty<object>());
+                        GorillaGameManager.instance.photonView.RPC("JoinPubWithFreinds", player, Array.Empty<object>());
                     }
                 }
                 PhotonNetwork.SendAllOutgoingCommands();
-                GorillaNetworkJoinTrigger triggeredTrigger = null;
+                GorillaNetworkJoinTrigger triggeredTrigger = computer.forestMapTrigger;
                 switch (computer.groupMapJoin)
                 {
                     case "FOREST":
@@ -226,10 +232,10 @@ namespace ComputerInterface
                         triggeredTrigger = computer.mountainMapTrigger;
                         break;
                     default:
-                        triggeredTrigger = computer.forestMapTrigger;
                         Console.WriteLine("The group map to join does not exist");
                         break;
                 }
+                
                 PhotonNetworkController.Instance.AttemptJoinPublicWithFriends(triggeredTrigger);
             }
         }
