@@ -15,6 +15,8 @@ namespace ComputerInterface.Views.GameSettings
 {
     public class JoinRoomView : ComputerView
     {
+        private const int MAX_ROOM_LENGTH = 10;
+
         private readonly UITextInputHandler _textInputHandler;
 
         private string _joinedRoom;
@@ -138,6 +140,10 @@ namespace ComputerInterface.Views.GameSettings
                     if (!_textInputHandler.Text.IsNullOrWhiteSpace())
                     {
                         _joinedRoom = _textInputHandler.Text.ToUpper();
+                        if (_joinedRoom.Length > MAX_ROOM_LENGTH)
+                        {
+                            _joinedRoom = _joinedRoom.Substring(0,MAX_ROOM_LENGTH);
+                        }
                         BaseGameInterface.JoinRoom(_joinedRoom);
                         GorillaComputer.instance.roomFull = false;
                         GorillaComputer.instance.roomNotAllowed = false;
