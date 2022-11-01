@@ -11,7 +11,7 @@ namespace ComputerInterface.Views.GameSettings
         {
             _selectionHandler = new UISelectionHandler(EKeyboardKey.Up, EKeyboardKey.Down);
             _selectionHandler.ConfigureSelectionIndicator("", $"<color=#{PrimaryColor}> <</color>", "", "");
-            _selectionHandler.MaxIdx = 3;
+            _selectionHandler.MaxIdx = 4;
         }
 
         public override void OnShow(object[] args)
@@ -57,10 +57,11 @@ namespace ComputerInterface.Views.GameSettings
 
         public void DrawOptions(StringBuilder str)
         {
-            str.Append(_selectionHandler.GetIndicatedText(0, "Forest  ")).AppendLine();
-            str.Append(_selectionHandler.GetIndicatedText(1, "Cave    ")).AppendLine();
-            str.Append(_selectionHandler.GetIndicatedText(2, "Canyon  ")).AppendLine();
-            str.Append(_selectionHandler.GetIndicatedText(3, "City    ")).AppendLine();
+            str.Append(_selectionHandler.GetIndicatedText(0, "Forest")).AppendLine();
+            str.Append(_selectionHandler.GetIndicatedText(1, "Cave")).AppendLine();
+            str.Append(_selectionHandler.GetIndicatedText(2, "Canyon")).AppendLine();
+            str.Append(_selectionHandler.GetIndicatedText(3, "City")).AppendLine();
+            str.Append(_selectionHandler.GetIndicatedText(4, "Mountain")).AppendLine();
         }
 
         public override void OnKeyPressed(EKeyboardKey key)

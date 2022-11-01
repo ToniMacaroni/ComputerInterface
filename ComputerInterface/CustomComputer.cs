@@ -33,7 +33,21 @@ namespace ComputerInterface
 
         private List<CustomKeyboardKey> _keys;
         private GameObject _keyboard;
-        private MeshFilter meshFilter;
+        private MeshFilter _meshFilter = null;
+        private MeshFilter MeshFilter
+        {
+            get
+            {
+                if (_meshFilter == null)
+                {
+                    GameObject cube = GameObject.CreatePrimitive(PrimitiveType.Cube);
+                    _meshFilter = cube.GetComponent<MeshFilter>();
+                    cube.SetActive(false);
+                }
+
+                return _meshFilter;
+            }
+        }
 
         private AssetsLoader _assetsLoader;
 
@@ -220,13 +234,6 @@ namespace ComputerInterface
                 nameToEnum.Add(key, (EKeyboardKey)Enum.Parse(typeof(EKeyboardKey), enumString));
             }
 
-            if (meshFilter == null)
-            {
-                GameObject cube = GameObject.CreatePrimitive(PrimitiveType.Cube);
-                meshFilter = cube.GetComponent<MeshFilter>();
-                cube.SetActive(false);
-            }
-
             foreach (var button in computer.GetComponentsInChildren<GorillaKeyboardButton>())
             {
 
@@ -250,7 +257,7 @@ namespace ComputerInterface
                     customButton.pressTime = button.pressTime;
                     customButton.functionKey = button.functionKey;
 
-                    button.GetComponent<MeshFilter>().mesh = meshFilter.mesh;
+                    button.GetComponent<MeshFilter>().mesh = MeshFilter.mesh;
                     DestroyImmediate(button);
 
                     customButton.Init(this, key, buttonText);
@@ -340,7 +347,7 @@ namespace ComputerInterface
             var newKey = Instantiate(prefab.gameObject, prefab.transform.parent);
             newKey.name = goName;
             newKey.transform.localPosition += offset;
-            newKey.GetComponent<MeshFilter>().mesh = meshFilter.mesh;
+            newKey.GetComponent<MeshFilter>().mesh = MeshFilter.mesh;
 
             Text keyText = FindText(prefab, prefab.name);
             Text newKeyText = Instantiate(keyText.gameObject, keyText.gameObject.transform.parent).GetComponent<Text>();
