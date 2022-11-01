@@ -53,14 +53,10 @@ namespace ComputerInterface.Views.GameSettings
 
         public override void OnKeyPressed(EKeyboardKey key)
         {
-            if (key.TryParseNumber(out var num))
+            if (key.TryParseNumber(out var num) && num >= 1 && num <= 3)
             {
-                if (num >= 1 && num <= 3)
-                {
-                    page = num;
-                    Redraw();
-                    return;
-                }
+                page = num;
+                Redraw();
                 return;
             }
 
