@@ -4,6 +4,6 @@
     {
         public const string Name = "Computer Interface";
         public const string Id = "tonimacaroni.computerinterface";
-        public const string Version = "1.5.3";
+        public const string Version = "1.5.4";
     }
 }
