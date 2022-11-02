@@ -18,6 +18,7 @@ namespace ComputerInterface.Views.GameSettings
             base.OnShow(args);
 
             _selectionHandler.MaxIdx = BaseGameInterface.GetGroupJoinMaps().Length - 1;
+            _selectionHandler.CurrentSelectionIndex = 0;
             Redraw();
         }
 
