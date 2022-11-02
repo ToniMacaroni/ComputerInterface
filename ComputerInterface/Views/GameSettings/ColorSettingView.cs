@@ -27,6 +27,7 @@ namespace ComputerInterface.Views.GameSettings
         {
             base.OnShow(args);
 
+            _color = BaseGameInterface.GetColor();
             SetColor(BaseGameInterface.GetColor());
 
             Redraw();
@@ -38,7 +39,7 @@ namespace ComputerInterface.Views.GameSettings
             str.BeginColor(_color).Repeat("=", SCREEN_WIDTH).EndColor().AppendLine();
             str.BeginCenter().Append("Change Color").AppendLine();
             str.Append("Values are from 0 - 255").EndAlign().AppendLine();
-            str.BeginColor(_color).Repeat("=", SCREEN_WIDTH).EndColor().AppendLine();
+            str.BeginColor(_color).Repeat("=", SCREEN_WIDTH).EndColor().AppendLines(2);
 
             str.Append("R: ");
             DrawValue(str, _rString, 0);
@@ -59,9 +60,9 @@ namespace ComputerInterface.Views.GameSettings
         {
             for (int i = 0; i < 3; i++)
             {
-                if (_columnSelectionHandler.CurrentSelectionIndex == i && lineNum==_selectionHandler.CurrentSelectionIndex)
+                if (_columnSelectionHandler.CurrentSelectionIndex == i && lineNum == _selectionHandler.CurrentSelectionIndex)
                 {
-                    str.BeginColor("ed6540").Append(val[i]).EndColor();
+                    str.BeginColor(PrimaryColor).Append(val[i]).EndColor();
                     continue;
                 }
 
@@ -87,7 +88,7 @@ namespace ComputerInterface.Views.GameSettings
             _gString = g.ToString().PadLeft(3, '0');
             _bString = b.ToString().PadLeft(3, '0');
 
-            _color = new Color(r/255f, g/255f, b/255f);
+            _color = new Color(r / 255f, g / 255f, b / 255f);
             BaseGameInterface.SetColor(_color);
         }
 

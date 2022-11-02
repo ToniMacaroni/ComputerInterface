@@ -113,6 +113,11 @@ namespace ComputerInterface.Views.GameSettings
         {
             if (_textInputHandler.HandleKey(key))
             {
+                if (_textInputHandler.Text.Length > BaseGameInterface.MAX_ROOM_LENGTH)
+                {
+                    _textInputHandler.Text = _textInputHandler.Text.Substring(0, BaseGameInterface.MAX_ROOM_LENGTH);
+                }
+
                 Redraw();
                 return;
             }
@@ -126,9 +131,9 @@ namespace ComputerInterface.Views.GameSettings
                     if (!_textInputHandler.Text.IsNullOrWhiteSpace())
                     {
                         _joinedRoom = _textInputHandler.Text.ToUpper();
-                        BaseGameInterface.JoinRoom(_joinedRoom);
                         GorillaComputer.instance.roomFull = false;
                         GorillaComputer.instance.roomNotAllowed = false;
+                        BaseGameInterface.JoinRoom(_joinedRoom);
                         Redraw();
                     }
                     break;

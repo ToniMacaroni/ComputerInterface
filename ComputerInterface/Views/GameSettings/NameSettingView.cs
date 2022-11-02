@@ -1,4 +1,5 @@
 ﻿using System.Text;
+using System.Xml.Linq;
 using BepInEx;
 using ComputerInterface.ViewLib;
 
@@ -38,6 +39,10 @@ namespace ComputerInterface.Views.GameSettings
         {
             if (_textInputHandler.HandleKey(key))
             {
+                if (_textInputHandler.Text.Length > BaseGameInterface.MAX_NAME_LENGTH)
+                {
+                    _textInputHandler.Text = _textInputHandler.Text.Substring(0, BaseGameInterface.MAX_NAME_LENGTH);
+                }
                 Redraw();
                 return;
             }

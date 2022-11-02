@@ -91,7 +91,7 @@ namespace ComputerInterface.Views
         public void DrawHeader(StringBuilder str)
         {
             str.BeginCenter().MakeBar('-', SCREEN_WIDTH, 0, "ffffff10");
-            str.AppendClr("Computer Interface", "ed6540")
+            str.AppendClr("Computer Interface", PrimaryColor)
                 .EndColor()
                 .Append(" v")
                 .Append(PluginInfo.Version).AppendLine();

@@ -21,7 +21,7 @@ namespace ComputerInterface.RoomBrowser
             _pageHandler.EntriesPerPage = 5;
 
             _selectionHandler = new UISelectionHandler(EKeyboardKey.Up, EKeyboardKey.Down, EKeyboardKey.Enter);
-            _selectionHandler.ConfigureSelectionIndicator("<color=#ed6540>> </color>", "", "  ", "");
+            _selectionHandler.ConfigureSelectionIndicator($"<color=#{PrimaryColor}>> </color>", "", "  ", "");
             _selectionHandler.OnSelected += OnRoomSelect;
         }
 
