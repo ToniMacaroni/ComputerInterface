@@ -13,6 +13,9 @@ namespace ComputerInterface
     // TODO: Refactor to PlayerModel instance
     public static class BaseGameInterface
     {
+        private const int MAX_ROOM_LENGTH = 10;
+        private const int MAX_NAME_LENGTH = 12;
+
         public static void SetColor(float r, float g, float b)
         {
             PlayerPrefs.SetFloat("redValue", r);
@@ -42,6 +45,11 @@ namespace ComputerInterface
             if (GorillaComputer.instance == null) return;
 
             if (!GorillaComputer.instance.CheckAutoBanListForName(name)) return;
+
+            if (name.Length > MAX_NAME_LENGTH)
+            {
+                name = name.Substring(0, MAX_NAME_LENGTH);
+            }
 
             PhotonNetwork.LocalPlayer.NickName = name;
             GorillaComputer.instance.offlineVRRigNametagText.text = name;
@@ -244,6 +252,11 @@ namespace ComputerInterface
             if (!CheckForComputer(out var computer)) return;
             if (string.IsNullOrWhiteSpace(roomId)) return;
             if (!GorillaComputer.instance.CheckAutoBanListForName(roomId)) return;
+
+            if (roomId.Length > MAX_ROOM_LENGTH)
+            {
+                roomId = roomId.Substring(0,MAX_ROOM_LENGTH);
+            }
 
             computer.networkController.AttemptToJoinSpecificRoom(roomId);
         }
