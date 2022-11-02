@@ -1,6 +1,9 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
+using System.Xml.Linq;
 using BepInEx;
+using ComputerInterface.ViewLib;
+using ComputerInterface.Views;
 using GorillaLocomotion;
 using GorillaNetworking;
 using HarmonyLib;
@@ -18,17 +21,12 @@ namespace ComputerInterface
             PlayerPrefs.SetFloat("redValue", r);
             PlayerPrefs.SetFloat("greenValue", g);
             PlayerPrefs.SetFloat("blueValue", b);
-            GorillaTagger.Instance.UpdateColor(r, g, b);
             PlayerPrefs.Save();
-            if (PhotonNetwork.InRoom)
-            {
-                GorillaTagger.Instance.myVRRig.photonView.RPC("InitializeNoobMaterial", RpcTarget.All, r, g, b);
-            }
+
+            GorillaTagger.Instance.UpdateColor(r, g, b);
+            InitializeNoobMaterial(r, g, b);
         }
-        public static void SetColor(Color color)
-        {
-            SetColor(color.r, color.g, color.b);
-        }
+        public static void SetColor(Color color) => SetColor(color.r, color.g, color.b);
 
         public static void GetColor(out float r, out float g, out float b)
         {
@@ -49,24 +47,27 @@ namespace ComputerInterface
 
             if (!GorillaComputer.instance.CheckAutoBanListForName(name)) return;
 
-            PhotonNetwork.LocalPlayer.NickName = name; 
+            PhotonNetwork.LocalPlayer.NickName = name;
             GorillaComputer.instance.offlineVRRigNametagText.text = name;
             GorillaComputer.instance.savedName = name;
             PlayerPrefs.SetString("playerName", name);
             PlayerPrefs.Save();
-            
-            /* Player's name is not updating on change */
+
+            GetColor(out var r, out var g, out var b);
+            InitializeNoobMaterial(r, g, b);
+        }
+
+        public static void InitializeNoobMaterial(float r, float g, float b) => InitializeNoobMaterial(new Color(r, g, b));
+
+        public static void InitializeNoobMaterial(Color color)
+        {
             if (PhotonNetwork.InRoom)
-            {
-                GetColor(out var r, out var g, out var b);
-                GorillaTagger.Instance.myVRRig.photonView.RPC("InitializeNoobMaterial", RpcTarget.All, (object)r, (object)g, (object)b);
-            }
-            /* Player's name is not updating on change */
+                GorillaTagger.Instance.myVRRig.photonView.RPC("InitializeNoobMaterial", RpcTarget.All, color.r, color.g, color.b, GorillaComputer.instance?.leftHanded ?? true);
         }
 
         public static string GetName()
         {
-            return PhotonNetwork.LocalPlayer.NickName;
+            return !GorillaComputer.instance.savedName.IsNullOrWhiteSpace() ? PhotonNetwork.LocalPlayer.NickName : GorillaComputer.instance.savedName;
         }
 
         public static void SetTurnMode(ETurnMode turnMode)
@@ -86,12 +87,12 @@ namespace ComputerInterface
         {
             var turnMode = PlayerPrefs.GetString("stickTurning");
             if (turnMode.IsNullOrWhiteSpace()) return ETurnMode.NONE;
-            return (ETurnMode) Enum.Parse(typeof(ETurnMode), turnMode);
+            return (ETurnMode)Enum.Parse(typeof(ETurnMode), turnMode);
         }
 
         public static void SetInstrumentVolume(int value)
         {
-            PlayerPrefs.SetFloat("instrumentVolume", (float)value / 50f);
+            PlayerPrefs.SetFloat("instrumentVolume", value / 50f);
             PlayerPrefs.Save();
         }
 
@@ -102,15 +103,18 @@ namespace ComputerInterface
         }
 
         public static void SetItemMode(bool disableParticles)
-		{
-			PlayerPrefs.SetString("disableParticles", disableParticles ? "TRUE" : "FALSE");
+        {
+            if (!CheckForComputer(out var computer)) return;
+
+            computer.disableParticles = disableParticles;
+            PlayerPrefs.SetString("disableParticles", disableParticles ? "TRUE" : "FALSE");
             PlayerPrefs.Save();
             GorillaTagger.Instance.ShowCosmeticParticles(!disableParticles);
         }
 
         public static bool GetItemMode()
         {
-			string itemMode = PlayerPrefs.GetString("disableParticles");
+            string itemMode = PlayerPrefs.GetString("disableParticles");
             if (itemMode.IsNullOrWhiteSpace()) return false;
             return itemMode == "TRUE";
         }
@@ -159,73 +163,40 @@ namespace ComputerInterface
             };
         }
 
-        public static void SetGroupMode(EGroup mode)
-        {
-            if (!CheckForComputer(out var computer)) return;
-
-            computer.groupMapJoin = mode.ToString().ToUpper();
-            PlayerPrefs.SetString("groupMapJoin", computer.groupMapJoin);
-            PlayerPrefs.Save();
-        }
-
         public static void SetVoiceMode(bool voiceChatOn)
         {
             if (!CheckForComputer(out var computer)) return;
-            computer.voiceChatOn = voiceChatOn ? "TRUE": "FALSE";
+            computer.voiceChatOn = voiceChatOn ? "TRUE" : "FALSE";
             PlayerPrefs.SetString("voiceChatOn", computer.voiceChatOn);
             PlayerPrefs.Save();
         }
 
         public static bool GetVoiceMode()
         {
-            return PlayerPrefs.GetString("voiceChatOn", "TRUE")=="TRUE";
+            return PlayerPrefs.GetString("voiceChatOn", "TRUE") == "TRUE";
         }
 
-        public static EGroup GetGroupMode()
+        public static string[] GetGroupJoinMaps()
         {
-            var modeString = PlayerPrefs.GetString("groupMapJoin", "FOREST");
-            return (EGroup)Enum.Parse(typeof(EGroup), modeString, true);
+            if (!CheckForComputer(out var computer)) return Array.Empty<string>();
+            return computer.allowedMapsToJoin;
         }
 
-        public static void JoinAsGroup()
+        public static void JoinGroupMap(int map)
         {
             if (!CheckForComputer(out var computer)) return;
 
-            if (PhotonNetwork.InRoom && !PhotonNetwork.CurrentRoom.IsVisible)
-            {
-                PhotonNetworkController.Instance.friendIDList = new List<string>(computer.friendJoinCollider.playerIDsCurrentlyTouching);
-                Debug.Log(computer.networkController.friendIDList);
-                foreach (string message in computer.networkController.friendIDList)
-                {
-                    Debug.Log(message);
-                }
-                foreach (Photon.Realtime.Player player in PhotonNetwork.PlayerList)
-                {
-                    if (computer.friendJoinCollider.playerIDsCurrentlyTouching.Contains(player.UserId) && player != PhotonNetwork.LocalPlayer)
-                    {
-                        Debug.Log("sending player! " + player.UserId);
-                        GorillaTagManager.instance.photonView.RPC("JoinPubWithFreinds", player, Array.Empty<object>());
-                    }
-                }
-                PhotonNetwork.SendAllOutgoingCommands();
-                GorillaNetworkJoinTrigger triggeredTrigger = null;
-                if (computer.groupMapJoin == "FOREST")
-                {
-                    triggeredTrigger = computer.forestMapTrigger;
-                }
-                else if (computer.groupMapJoin == "CAVE")
-                {
-                    triggeredTrigger = computer.caveMapTrigger;
-                }
-                else if (computer.groupMapJoin == "CANYON")
-                {
-                    triggeredTrigger = computer.canyonMapTrigger;
-                } else if (computer.groupMapJoin == "CITY")
-                {
-                    triggeredTrigger = computer.cityMapTrigger;  
-                }
-                PhotonNetworkController.Instance.AttemptJoinPublicWithFriends(triggeredTrigger);
-            }
+            var allowedMapsToJoin = GetGroupJoinMaps();
+
+            map = Mathf.Min(allowedMapsToJoin.Length - 1, map);
+
+            computer.groupMapJoin = allowedMapsToJoin[map].ToUpper();
+            computer.groupMapJoinIndex = map;
+            PlayerPrefs.SetString("groupMapJoin", computer.groupMapJoin);
+            PlayerPrefs.SetInt("groupMapJoinIndex", computer.groupMapJoinIndex);
+            PlayerPrefs.Save();
+
+            computer.OnGroupJoinButtonPress(map, computer.friendJoinCollider);
         }
 
         public static void Disconnect()
@@ -237,6 +208,7 @@ namespace ComputerInterface
         {
             if (!CheckForComputer(out var computer)) return;
             if (string.IsNullOrWhiteSpace(roomId)) return;
+            if (!GorillaComputer.instance.CheckAutoBanListForName(roomId)) return;
 
             computer.networkController.AttemptToJoinSpecificRoom(roomId);
         }
@@ -275,11 +247,6 @@ namespace ComputerInterface
             SetPttMode(GetPttMode());
         }
 
-        public static void InitGroupState()
-        {
-            SetGroupMode(GetGroupMode());
-        }
-
         public static void InitVoiceMode()
         {
             SetVoiceMode(GetVoiceMode());
@@ -291,13 +258,13 @@ namespace ComputerInterface
         }
 
         public static string InitGameMode(string gamemode = "")
-		{
+        {
             if (!CheckForComputer(out var computer)) return "";
 
-			string currentGameMode = gamemode.IsNullOrWhiteSpace() ? currentGameMode = PlayerPrefs.GetString("currentGameMode", "INFECTION") : gamemode;
-			computer.currentGameMode = currentGameMode;
-			computer.OnModeSelectButtonPress(currentGameMode, computer.leftHanded);
-			return currentGameMode;
+            string currentGameMode = gamemode.IsNullOrWhiteSpace() ? currentGameMode = PlayerPrefs.GetString("currentGameMode", "INFECTION") : gamemode;
+            computer.currentGameMode = currentGameMode;
+            computer.OnModeSelectButtonPress(currentGameMode, computer.leftHanded);
+            return currentGameMode;
         }
 
         public static void InitAll()
@@ -306,7 +273,6 @@ namespace ComputerInterface
             InitNameState();
             InitTurnState();
             InitMicState();
-            InitGroupState();
             InitVoiceMode();
             InitItemMode();
 
@@ -315,12 +281,12 @@ namespace ComputerInterface
 
 
             if (CheckForComputer(out var computer))
-			{
+            {
                 computer.InvokeMethod("Awake");
-			}
+            }
 
             // InitGameMode(gamemode);
-            
+
             //PhotonNetworkController.instance.SetField("pastFirstConnection", true);
         }
 
@@ -350,19 +316,11 @@ namespace ComputerInterface
             PushToMute = 2
         }
 
-        public enum EGroup
-        {
-            Forest,
-            Cave,
-            Canyon,
-            City
-        }
-
         public enum EGameMode
-		{
+        {
             INFECTION,
             CASUAL,
             HUNT
-		}
+        }
     }
 }

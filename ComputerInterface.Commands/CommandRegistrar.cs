@@ -37,6 +37,12 @@ namespace ComputerInterface.Commands
             _commandHandler.AddCommand(new Command("setname", new Type[] { null }, args =>
             {
                 var newName = ((string)args[0]).ToUpper();
+
+                if (newName.Length >= 13)
+                {
+                    return "Name too long";
+                }
+
                 BaseGameInterface.SetName(newName);
                 return $"Name set to {newName}";
             }));
@@ -58,6 +64,11 @@ namespace ComputerInterface.Commands
                 if (roomId.IsNullOrWhiteSpace())
                 {
                     return "Invalid room";
+                }
+
+                if (roomId.Length >= 11)
+                {
+                    return "Room too long";
                 }
 
                 roomId = roomId.ToUpper();

@@ -24,6 +24,11 @@ namespace ComputerInterface
             return str.Append($"<color={color}>");
         }
 
+        public static StringBuilder BeginColor(this StringBuilder str, UnityEngine.Color color)
+        {
+            return str.BeginColor(UnityEngine.ColorUtility.ToHtmlStringRGB(color));
+        }
+
         public static StringBuilder EndColor(this StringBuilder str)
         {
             return str.Append("</color>");

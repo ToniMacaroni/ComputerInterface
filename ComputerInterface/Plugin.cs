@@ -1,4 +1,4 @@
-﻿using BepInEx;
+using BepInEx;
 using Bepinject;
 using HarmonyLib;
 using System.Reflection;

@@ -1,4 +1,4 @@
-﻿using System.Text;
+using System.Text;
 using ComputerInterface.ViewLib;
 
 namespace ComputerInterface.Views.GameSettings
@@ -10,30 +10,21 @@ namespace ComputerInterface.Views.GameSettings
         public GroupView()
         {
             _selectionHandler = new UISelectionHandler(EKeyboardKey.Up, EKeyboardKey.Down);
-            _selectionHandler.ConfigureSelectionIndicator("", $"<color=#{PrimaryColor}> <</color>", "", "");
-            _selectionHandler.MaxIdx = 3;
+            _selectionHandler.ConfigureSelectionIndicator($"<color=#{PrimaryColor}>></color> ", "", "  ", "");
         }
 
         public override void OnShow(object[] args)
         {
             base.OnShow(args);
-            UpdateState();
+
+            _selectionHandler.MaxIdx = BaseGameInterface.GetGroupJoinMaps().Length - 1;
+            _selectionHandler.CurrentSelectionIndex = 0;
             Redraw();
-        }
-
-        public void UpdateState()
-        {
-            _selectionHandler.CurrentSelectionIndex = (int)BaseGameInterface.GetGroupMode();
-        }
-
-        public void SetMode()
-        {
-            BaseGameInterface.SetGroupMode((BaseGameInterface.EGroup)_selectionHandler.CurrentSelectionIndex);
         }
 
         public void Join()
         {
-            BaseGameInterface.JoinAsGroup();
+            BaseGameInterface.JoinGroupMap(_selectionHandler.CurrentSelectionIndex);
         }
 
         public void Redraw()
@@ -56,17 +47,18 @@ namespace ComputerInterface.Views.GameSettings
 
         public void DrawOptions(StringBuilder str)
         {
-            str.Append(_selectionHandler.GetIndicatedText(0, "Forest")).AppendLine();
-            str.Append(_selectionHandler.GetIndicatedText(1, "Cave")).AppendLine();
-            str.Append(_selectionHandler.GetIndicatedText(2, "Canyon")).AppendLine();
-            str.Append(_selectionHandler.GetIndicatedText(3, "City")).AppendLine();
+            var maps = BaseGameInterface.GetGroupJoinMaps();
+            for (int i = 0; i < maps.Length; i++)
+            {
+                var formattedName = System.Globalization.CultureInfo.CurrentCulture.TextInfo.ToTitleCase(maps[i]);
+                str.Append(_selectionHandler.GetIndicatedText(i, formattedName)).AppendLine();
+            }
         }
 
         public override void OnKeyPressed(EKeyboardKey key)
         {
             if (_selectionHandler.HandleKeypress(key))
             {
-                SetMode();
                 Redraw();
                 return;
             }
