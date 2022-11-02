@@ -75,7 +75,7 @@ namespace ComputerInterface.Views
 
         private string GetSelector(int idx)
         {
-            return idx == _selectionHandler.CurrentSelectionIndex ? "<color=#ed6540>> </color>" : "  ";
+            return idx == _selectionHandler.CurrentSelectionIndex ? $"<color=#{PrimaryColor}>> </color>" : "  ";
         }
 
         private void ItemSelected(int idx)

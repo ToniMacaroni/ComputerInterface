@@ -62,7 +62,7 @@ namespace ComputerInterface.Views.GameSettings
             {
                 if (_columnSelectionHandler.CurrentSelectionIndex == i && lineNum == _selectionHandler.CurrentSelectionIndex)
                 {
-                    str.BeginColor("ed6540").Append(val[i]).EndColor();
+                    str.BeginColor(PrimaryColor).Append(val[i]).EndColor();
                     continue;
                 }
 
