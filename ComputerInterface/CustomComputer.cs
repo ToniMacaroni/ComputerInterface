@@ -33,6 +33,21 @@ namespace ComputerInterface
 
         private List<CustomKeyboardKey> _keys;
         private GameObject _keyboard;
+        private MeshFilter _meshFilter = null;
+        private MeshFilter MeshFilter
+        {
+            get
+            {
+                if (_meshFilter == null)
+                {
+                    GameObject cube = GameObject.CreatePrimitive(PrimitiveType.Cube);
+                    _meshFilter = cube.GetComponent<MeshFilter>();
+                    cube.SetActive(false);
+                }
+
+                return _meshFilter;
+            }
+        }
 
         private AssetsLoader _assetsLoader;
 
@@ -219,7 +234,7 @@ namespace ComputerInterface
                 nameToEnum.Add(key, (EKeyboardKey)Enum.Parse(typeof(EKeyboardKey), enumString));
             }
 
-            foreach(var button in computer.GetComponentsInChildren<GorillaKeyboardButton>())
+            foreach (var button in computer.GetComponentsInChildren<GorillaKeyboardButton>())
             {
 
                 if (button.characterString == "up" || button.characterString == "down")
@@ -242,6 +257,7 @@ namespace ComputerInterface
                     customButton.pressTime = button.pressTime;
                     customButton.functionKey = button.functionKey;
 
+                    button.GetComponent<MeshFilter>().mesh = MeshFilter.mesh;
                     DestroyImmediate(button);
 
                     customButton.Init(this, key, buttonText);
@@ -328,14 +344,10 @@ namespace ComputerInterface
         private CustomKeyboardKey CreateKey(GameObject prefab, string goName, Vector3 offset, EKeyboardKey key,
             string label = null, Color? color = null)
         {
-            GameObject cube = GameObject.CreatePrimitive(PrimitiveType.Cube);
-            cube.SetActive(false);
-            MeshFilter meshFilter = cube.GetComponent<MeshFilter>();
-
             var newKey = Instantiate(prefab.gameObject, prefab.transform.parent);
             newKey.name = goName;
             newKey.transform.localPosition += offset;
-            newKey.GetComponent<MeshFilter>().mesh = meshFilter.mesh;
+            newKey.GetComponent<MeshFilter>().mesh = MeshFilter.mesh;
 
             Text keyText = FindText(prefab, prefab.name);
             Text newKeyText = Instantiate(keyText.gameObject, keyText.gameObject.transform.parent).GetComponent<Text>();
@@ -359,8 +371,6 @@ namespace ComputerInterface
                 }
             }
             _keys.Add(customKeyboardKey);
-
-            Destroy(cube);
 
             return customKeyboardKey;
         }
@@ -415,7 +425,7 @@ namespace ComputerInterface
 			// Monitor was baked into the scene, so we need to do all this jank to get rid of it
             if (forceRemoval)
 			{
-				var combinedScene = GameObject.Find("Level/forest/Uncover ForestCombined/CombinedMesh-GameObject (1)-mesh/GameObject (1)-mesh-mesh");
+				var combinedScene = GameObject.Find("Level/forest/Uncover ForestCombined").GetComponentInChildren<MeshRenderer>().gameObject;
 				Mesh combinedSceneMesh = combinedScene.GetComponent<MeshFilter>().mesh;
 
 				var bounds = monitor.GetComponent<Renderer>().bounds;

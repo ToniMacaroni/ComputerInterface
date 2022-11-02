@@ -1,6 +1,9 @@
 using System;
 using System.Collections.Generic;
+using System.Xml.Linq;
 using BepInEx;
+using ComputerInterface.ViewLib;
+using ComputerInterface.Views;
 using GorillaLocomotion;
 using GorillaNetworking;
 using HarmonyLib;
@@ -13,16 +16,17 @@ namespace ComputerInterface
     // TODO: Refactor to PlayerModel instance
     public static class BaseGameInterface
     {
-        private const int MAX_ROOM_LENGTH = 10;
-        private const int MAX_NAME_LENGTH = 12;
+        public const int MAX_ROOM_LENGTH = 10;
+        public const int MAX_NAME_LENGTH = 12;
 
         public static void SetColor(float r, float g, float b)
         {
             PlayerPrefs.SetFloat("redValue", r);
             PlayerPrefs.SetFloat("greenValue", g);
             PlayerPrefs.SetFloat("blueValue", b);
-            GorillaTagger.Instance.UpdateColor(r, g, b);
             PlayerPrefs.Save();
+
+            GorillaTagger.Instance.UpdateColor(r, g, b);
             InitializeNoobMaterial(r, g, b);
         }
         public static void SetColor(Color color) => SetColor(color.r, color.g, color.b);
@@ -66,14 +70,12 @@ namespace ComputerInterface
         public static void InitializeNoobMaterial(Color color)
         {
             if (PhotonNetwork.InRoom)
-            {
-                GorillaTagger.Instance.myVRRig.photonView.RPC("InitializeNoobMaterial", RpcTarget.All, color.r, color.g, color.b, PlayerPrefs.GetInt("leftHanded", 0) == 1);
-            }
+                GorillaTagger.Instance.myVRRig.photonView.RPC("InitializeNoobMaterial", RpcTarget.All, color.r, color.g, color.b, GorillaComputer.instance?.leftHanded ?? true);
         }
 
         public static string GetName()
         {
-            return PhotonNetwork.LocalPlayer.NickName;
+            return !GorillaComputer.instance.savedName.IsNullOrWhiteSpace() ? PhotonNetwork.LocalPlayer.NickName : GorillaComputer.instance.savedName;
         }
 
         public static void SetTurnMode(ETurnMode turnMode)
@@ -98,7 +100,7 @@ namespace ComputerInterface
 
         public static void SetInstrumentVolume(int value)
         {
-            PlayerPrefs.SetFloat("instrumentVolume", (float)value / 50f);
+            PlayerPrefs.SetFloat("instrumentVolume", value / 50f);
             PlayerPrefs.Save();
         }
 
@@ -110,6 +112,9 @@ namespace ComputerInterface
 
         public static void SetItemMode(bool disableParticles)
         {
+            if (!CheckForComputer(out var computer)) return;
+
+            computer.disableParticles = disableParticles;
             PlayerPrefs.SetString("disableParticles", disableParticles ? "TRUE" : "FALSE");
             PlayerPrefs.Save();
             GorillaTagger.Instance.ShowCosmeticParticles(!disableParticles);
@@ -166,15 +171,6 @@ namespace ComputerInterface
             };
         }
 
-        public static void SetGroupMode(EGroup mode)
-        {
-            if (!CheckForComputer(out var computer)) return;
-
-            computer.groupMapJoin = mode.ToString().ToUpper();
-            PlayerPrefs.SetString("groupMapJoin", computer.groupMapJoin);
-            PlayerPrefs.Save();
-        }
-
         public static void SetVoiceMode(bool voiceChatOn)
         {
             if (!CheckForComputer(out var computer)) return;
@@ -188,58 +184,27 @@ namespace ComputerInterface
             return PlayerPrefs.GetString("voiceChatOn", "TRUE") == "TRUE";
         }
 
-        public static EGroup GetGroupMode()
+        public static string[] GetGroupJoinMaps()
         {
-            var modeString = PlayerPrefs.GetString("groupMapJoin", "FOREST");
-            return (EGroup)Enum.Parse(typeof(EGroup), modeString, true);
+            if (!CheckForComputer(out var computer)) return Array.Empty<string>();
+            return computer.allowedMapsToJoin;
         }
 
-        public static void JoinAsGroup()
+        public static void JoinGroupMap(int map)
         {
             if (!CheckForComputer(out var computer)) return;
 
-            if (PhotonNetwork.InRoom && !PhotonNetwork.CurrentRoom.IsVisible)
-            {
-                PhotonNetworkController.Instance.friendIDList = new List<string>(computer.friendJoinCollider.playerIDsCurrentlyTouching);
-                Debug.Log(computer.networkController.friendIDList);
-                foreach (string message in computer.networkController.friendIDList)
-                {
-                    Debug.Log(message);
-                }
-                foreach (Photon.Realtime.Player player in PhotonNetwork.PlayerList)
-                {
-                    if (computer.friendJoinCollider.playerIDsCurrentlyTouching.Contains(player.UserId) && player != PhotonNetwork.LocalPlayer)
-                    {
-                        Debug.Log("sending player! " + player.UserId);
-                        GorillaTagManager.instance.photonView.RPC("JoinPubWithFreinds", player, Array.Empty<object>());
-                    }
-                }
-                PhotonNetwork.SendAllOutgoingCommands();
-                GorillaNetworkJoinTrigger triggeredTrigger = null;
-                switch (computer.groupMapJoin)
-                {
-                    case "FOREST":
-                        triggeredTrigger = computer.forestMapTrigger;
-                        break;
-                    case "CAVE":
-                        triggeredTrigger = computer.caveMapTrigger;
-                        break;
-                    case "CANYON":
-                        triggeredTrigger = computer.canyonMapTrigger;
-                        break;
-                    case "CITY":
-                        triggeredTrigger = computer.cityMapTrigger;
-                        break;
-                    case "MOUNTAIN":
-                        triggeredTrigger = computer.mountainMapTrigger;
-                        break;
-                    default:
-                        triggeredTrigger = computer.forestMapTrigger;
-                        Console.WriteLine("The group map to join does not exist");
-                        break;
-                }
-                PhotonNetworkController.Instance.AttemptJoinPublicWithFriends(triggeredTrigger);
-            }
+            var allowedMapsToJoin = GetGroupJoinMaps();
+
+            map = Mathf.Min(allowedMapsToJoin.Length - 1, map);
+
+            computer.groupMapJoin = allowedMapsToJoin[map].ToUpper();
+            computer.groupMapJoinIndex = map;
+            PlayerPrefs.SetString("groupMapJoin", computer.groupMapJoin);
+            PlayerPrefs.SetInt("groupMapJoinIndex", computer.groupMapJoinIndex);
+            PlayerPrefs.Save();
+
+            computer.OnGroupJoinButtonPress(map, computer.friendJoinCollider);
         }
 
         public static void Disconnect()
@@ -295,11 +260,6 @@ namespace ComputerInterface
             SetPttMode(GetPttMode());
         }
 
-        public static void InitGroupState()
-        {
-            SetGroupMode(GetGroupMode());
-        }
-
         public static void InitVoiceMode()
         {
             SetVoiceMode(GetVoiceMode());
@@ -326,7 +286,6 @@ namespace ComputerInterface
             InitNameState();
             InitTurnState();
             InitMicState();
-            InitGroupState();
             InitVoiceMode();
             InitItemMode();
 
@@ -368,14 +327,6 @@ namespace ComputerInterface
             AllChat = 0,
             PushToTalk = 1,
             PushToMute = 2
-        }
-
-        public enum EGroup
-        {
-            Forest,
-            Cave,
-            Canyon,
-            City
         }
 
         public enum EGameMode

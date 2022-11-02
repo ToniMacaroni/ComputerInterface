@@ -78,7 +78,7 @@ namespace ComputerInterface.Views
                 new UISelectionHandler(EKeyboardKey.Up, EKeyboardKey.Down, EKeyboardKey.Enter);
             _selectionHandler.MaxIdx = _plugins.Length - 1;
             _selectionHandler.OnSelected += SelectMod;
-            _selectionHandler.ConfigureSelectionIndicator("<color=#ed6540>> </color>", "", "  ", "");
+            _selectionHandler.ConfigureSelectionIndicator($"<color=#{PrimaryColor}>> </color>", "", "  ", "");
 
             _pageHandler = new UIElementPageHandler<ModListItem>();
             _pageHandler.EntriesPerPage = 10;
