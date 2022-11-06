@@ -22,30 +22,32 @@ namespace ComputerInterface.Views.GameSettings
 
             str.AppendLine("Credits (1 - 3 to change change pages)").AppendLine();
 
-            if (page == 1)
+            switch (page)
             {
-                str.AppendLine("Game by Another Axiom").AppendLine()
-                    .AppendLine("(Kerestell, David Yee, David Neubelt)")
-                    .AppendLines(6).Repeat("=", SCREEN_WIDTH);
-            }
-            else if (page == 2)
-            {
-                str.AppendLine("\"Monke Need To Swing\"")
-                    .AppendLine("Composed by Stunshine")
-                    .AppendLine("Produced by Audiopfeil & Owlobe").AppendLine();
+                case 1:
+                    str.AppendLine("Game by Another Axiom").AppendLine()
+                   .AppendLine("(Kerestell, David Yee, David Neubelt)")
+                   .AppendLines(6).Repeat("=", SCREEN_WIDTH);
+                    break;
 
-                str.AppendLine("\"Cave Wave\" & \"Campfire\"")
-                    .AppendLine("Composed by Stunshine")
-                    .AppendLine("Sound design by David Anderson Kirk")
-                    .AppendLine().AppendLine().Repeat("=", SCREEN_WIDTH);
-            }
-            else // i mean i guess you're on page three, are you??
-            {
-                str.AppendLine("Additional art by:").AppendLine()
-                    .AppendLine("Lulu (Laura) Lorian")
-                    .AppendLine("@LuluLorian").AppendLine()
-                    .AppendLine("Lilith Tothill")
-                    .AppendLines(3).Repeat("=", SCREEN_WIDTH);
+                case 2:
+                    str.AppendLine("\"Monke Need To Swing\"")
+                        .AppendLine("Composed by Stunshine")
+                        .AppendLine("Produced by Audiopfeil & Owlobe").AppendLine();
+
+                    str.AppendLine("\"Cave Wave\", \"Campfire\", \"Monkebone Bash\"")
+                        .AppendLine("Composed by Stunshine")
+                        .AppendLine("Sound design by David Anderson Kirk")
+                        .AppendLine().AppendLine().Repeat("=", SCREEN_WIDTH);
+                    break;
+
+                default:
+                    str.AppendLine("Additional art by:").AppendLine()
+                        .AppendLine("Lulu (Laura) Lorian")
+                        .AppendLine("@LuluLorian").AppendLine()
+                        .AppendLine("Lilith Tothill")
+                        .AppendLines(3).Repeat("=", SCREEN_WIDTH);
+                    break;
             }
 
             Text = str.ToString();
