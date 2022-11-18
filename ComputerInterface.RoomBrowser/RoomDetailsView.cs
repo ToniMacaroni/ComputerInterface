@@ -1,4 +1,5 @@
-﻿using System.Text;
+﻿using System;
+using System.Text;
 using System.Threading.Tasks;
 using ComputerInterface.ViewLib;
 using Photon.Pun;
@@ -44,7 +45,7 @@ namespace ComputerInterface.RoomBrowser
 
             str.Append(" ").BeginColor("ffffff50").Append("Description: ").EndColor();
 
-            var desc = _room.CustomProperties["Description"].ToString();
+            var desc = _room.GetDescription() == null ? "Description not found." : _room.GetDescription().ToString();
 
             if (desc.Length < 50)
             {
