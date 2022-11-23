@@ -26,8 +26,12 @@ namespace ComputerInterface.Views.GameSettings
             {
                 case 1:
                     str.AppendLine("Game by Another Axiom").AppendLine()
-                   .AppendLine("(Kerestell, David Yee, David Neubelt)")
-                   .AppendLines(6).Repeat("=", SCREEN_WIDTH);
+                        .AppendLine("(Kerestell, David Yee, David Neubelt)");
+
+                    str.AppendLine().AppendLine("\"Nice Gorilla Store\"")
+                        .AppendLine("Composed by Stunshine & Jaguar Jen,")
+                        .AppendLine("Sound design by David Anderson Kirk")
+                        .AppendLines(2).Repeat("=", SCREEN_WIDTH);
                     break;
 
                 case 2:
