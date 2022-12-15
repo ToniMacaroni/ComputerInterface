@@ -425,7 +425,7 @@ namespace ComputerInterface
 			// Monitor was baked into the scene, so we need to do all this jank to get rid of it
             if (forceRemoval)
 			{
-				var combinedScene = GameObject.Find("Level/forest/Uncover ForestCombined").GetComponentInChildren<MeshRenderer>().gameObject;
+				var combinedScene = GameObject.Find("forest/ForestObjects/Uncover ForestCombined/").GetComponentInChildren<MeshRenderer>().gameObject;
 				Mesh combinedSceneMesh = combinedScene.GetComponent<MeshFilter>().mesh;
 
 				var bounds = monitor.GetComponent<Renderer>().bounds;
