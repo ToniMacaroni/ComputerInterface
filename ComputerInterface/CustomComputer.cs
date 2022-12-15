@@ -393,6 +393,8 @@ namespace ComputerInterface
             newMonitor.transform.eulerAngles = rotation;
             newMonitor.transform.position = position;
 
+            foreach(RectTransform rect in newMonitor.GetComponentsInChildren<RectTransform>()) rect.gameObject.layer = 9;
+
             var info = new CustomScreenInfo();
 
             info.Transform = newMonitor.transform;
