@@ -91,9 +91,10 @@ namespace ComputerInterface
             _computerViewController.OnSwitchView += SwitchView;
             _computerViewController.OnSetBackground += SetBGImage;
 
-            GameObject[] physcialComputers = { GameObject.Find("UI/PhysicalComputer"), GameObject.Find("goodigloo/PhysicalComputer (2)") };
-            Vector3[] positions = { new Vector3(-67.95f, 11.53f, -85.36f) , new Vector3(-28.69f, 17.57f, -96.73f) };
-            Vector3[] rotations = { Vector3.up * 342, Vector3.up * 38.81f };
+			// Treehouse, Mountains, Sky
+            GameObject[] physcialComputers = { GameObject.Find("UI/PhysicalComputer"), GameObject.Find("goodigloo/PhysicalComputer (2)"), GameObject.Find("UI/PhysicalComputer (3)") };
+            Vector3[] positions = { new Vector3(-67.95f, 11.53f, -85.36f), new Vector3(-28.69f, 17.57f, -96.73f), new Vector3(-74.86f, 162.26f, -103.60f) };
+            Vector3[] rotations = { Vector3.up * 342, Vector3.up * 38.81f, Vector3.up * 330f };
 
             for (int i = 0; i < physcialComputers.Length; i++)
             {
@@ -308,6 +309,7 @@ namespace ComputerInterface
 
         private static Text FindText(GameObject button, string name = null)
         {
+			// Debug.Log($"Replacing key {button.name} / {name}");
             if (button.GetComponent<Text>() is Text text)
             {
                 return text;
@@ -323,7 +325,34 @@ namespace ComputerInterface
                 name = "enter";
             }
 
+			// Forest
             Transform t = button.transform.parent?.parent?.Find("Text/" + name);
+			// if (t != null) {
+			// 	Debug.Log($"Found key using Forest {t.gameObject.name}");
+			// 	return t.GetComponent<Text>();
+			// }
+
+			// Sky
+			t ??= button.transform
+				?.parent
+				?.parent
+				?.parent
+				?.parent
+				?.parent
+				.Find("Text/" + name);
+			t ??= button.transform
+				?.parent
+				?.parent
+				?.parent
+				?.parent
+				?.parent
+				.Find("Text/" + name + " (1)");
+			// if (t != null) {
+			// 	Debug.Log($"Found key using Sky {t.gameObject.name}");
+			// 	return t.GetComponent<Text>();
+			// }
+
+			// Mountain
             if (t is null)
             {
                 // bruh
@@ -337,6 +366,14 @@ namespace ComputerInterface
                     ?.parent
                     .Find("UI/Text/" + name);
             }
+			t ??= button.transform.parent?.parent?.Find("Text/" + name + " (1)");
+			// if (t != null) {
+			// 	Debug.Log($"Found key using Mountain {t.gameObject.name}");
+			// 	return t.GetComponent<Text>();
+			// }
+			// if (t is null) {
+			// 	Debug.Log($"Unable to find transform");
+			// }
 
             return t.GetComponent<Text>();
         }
@@ -411,22 +448,35 @@ namespace ComputerInterface
 
         private void RemoveMonitor(GameObject computer)
 		{
-            GameObject monitor = computer.transform.Find("monitor")?.gameObject;
-            bool forceRemoval = monitor != null;
-            monitor ??= computer.transform.Find("monitor (1)")?.gameObject;
+			GameObject monitor = null;
+			foreach (Transform child in computer.transform)
+			{
+				if (child.name.StartsWith("monitor"))
+				{
+					monitor = child.gameObject;
+					monitor.SetActive(false);
+				}
+			}
 
-            monitor.SetActive(false);
-            // Mountain computer is strewn across the heriarchy
+			if (monitor is null)
+			{
+				Debug.Log("Unable to find monitor");
+				return;
+			}
+
+			// If not Treehouse
             if (monitor.transform.Find("FunctionSelect") is null)
             {
-                computer?.transform?.parent?.parent?.parent?.Find("UI/Text/FunctionSelect").gameObject.SetActive(false);
-                computer?.transform?.parent?.parent?.parent?.Find("UI/Text/Data").gameObject.SetActive(false);
-                computer?.transform?.parent?.parent?.parent?.Find("UI/Text/monitor").gameObject.SetActive(false);
-            }
+				// Sky, Mountain
+				Transform test = computer?.transform?.parent?.Find("Text") ?? computer?.transform?.parent?.parent?.parent?.Find("UI/Text");
 
-			// Monitor was baked into the scene, so we need to do all this jank to get rid of it
-            if (forceRemoval)
+                test.Find("FunctionSelect")?.gameObject?.SetActive(false);
+                test.Find("Data")?.gameObject?.SetActive(false);
+                test.Find("monitor")?.gameObject?.SetActive(false);
+            }
+			else
 			{
+				// Treehouse monitor was baked into the scene, so we need to do all this jank to get rid of it
 				var combinedScene = GameObject.Find("forest/ForestObjects/Uncover ForestCombined/").GetComponentInChildren<MeshRenderer>().gameObject;
 				Mesh combinedSceneMesh = combinedScene.GetComponent<MeshFilter>().mesh;
 
