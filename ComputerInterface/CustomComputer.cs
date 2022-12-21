@@ -393,6 +393,8 @@ namespace ComputerInterface
             newMonitor.transform.eulerAngles = rotation;
             newMonitor.transform.position = position;
 
+            foreach(RectTransform rect in newMonitor.GetComponentsInChildren<RectTransform>()) rect.gameObject.layer = 9;
+
             var info = new CustomScreenInfo();
 
             info.Transform = newMonitor.transform;
@@ -425,7 +427,7 @@ namespace ComputerInterface
 			// Monitor was baked into the scene, so we need to do all this jank to get rid of it
             if (forceRemoval)
 			{
-				var combinedScene = GameObject.Find("Level/forest/Uncover ForestCombined").GetComponentInChildren<MeshRenderer>().gameObject;
+				var combinedScene = GameObject.Find("forest/ForestObjects/Uncover ForestCombined/").GetComponentInChildren<MeshRenderer>().gameObject;
 				Mesh combinedSceneMesh = combinedScene.GetComponent<MeshFilter>().mesh;
 
 				var bounds = monitor.GetComponent<Renderer>().bounds;

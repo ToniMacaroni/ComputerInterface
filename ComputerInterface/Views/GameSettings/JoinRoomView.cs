@@ -102,17 +102,6 @@ namespace ComputerInterface.Views.GameSettings
                 }
             }
 
-            // Old code
-            /*
-            if (_joinedRoom.IsNullOrWhiteSpace())
-            {
-                str.AppendClr("Enter to join", "ffffff50").EndAlign().AppendLine();
-            }
-            else
-            {
-                str.AppendClr($"Joined room {_joinedRoom}", "ffffff50").EndAlign().AppendLine();
-            }
-            */
             str.Repeat("=", SCREEN_WIDTH).AppendLine();
             str.AppendLine();
             str.BeginColor("ffffff50").Append("> ").EndColor().Append(_textInputHandler.Text).AppendClr("_", "ffffff50");
@@ -124,9 +113,10 @@ namespace ComputerInterface.Views.GameSettings
         {
             if (_textInputHandler.HandleKey(key))
             {
-                if (_textInputHandler.Text.Length >= 11)
-                    _textInputHandler.Text = _textInputHandler.Text.Substring(0, 10);
-                // Limits the room code length as people have been getting banned for "INVALID ROOM ID" due to joining codes longer than 9 characters.
+                if (_textInputHandler.Text.Length > BaseGameInterface.MAX_ROOM_LENGTH)
+                {
+                    _textInputHandler.Text = _textInputHandler.Text.Substring(0, BaseGameInterface.MAX_ROOM_LENGTH);
+                }
 
                 Redraw();
                 return;

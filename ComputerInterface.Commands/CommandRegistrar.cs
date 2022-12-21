@@ -38,7 +38,7 @@ namespace ComputerInterface.Commands
             {
                 var newName = ((string)args[0]).ToUpper();
 
-                if (newName.Length >= 13)
+                if (newName.Length > BaseGameInterface.MAX_NAME_LENGTH)
                 {
                     return "Name too long";
                 }
@@ -66,7 +66,7 @@ namespace ComputerInterface.Commands
                     return "Invalid room";
                 }
 
-                if (roomId.Length >= 11)
+                if (roomId.Length > BaseGameInterface.MAX_ROOM_LENGTH)
                 {
                     return "Room too long";
                 }

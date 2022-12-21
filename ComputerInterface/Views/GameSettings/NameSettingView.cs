@@ -39,8 +39,10 @@ namespace ComputerInterface.Views.GameSettings
         {
             if (_textInputHandler.HandleKey(key))
             {
-                if (_textInputHandler.Text.Length >= 13)
-                    _textInputHandler.Text = _textInputHandler.Text.Substring(0, 12);
+                if (_textInputHandler.Text.Length > BaseGameInterface.MAX_NAME_LENGTH)
+                {
+                    _textInputHandler.Text = _textInputHandler.Text.Substring(0, BaseGameInterface.MAX_NAME_LENGTH);
+                }
                 Redraw();
                 return;
             }
