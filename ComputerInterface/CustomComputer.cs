@@ -93,14 +93,12 @@ namespace ComputerInterface
 
 			// Treehouse, Mountains, Sky
             GameObject[] physcialComputers = { GameObject.Find("UI/PhysicalComputer"), GameObject.Find("goodigloo/PhysicalComputer (2)"), GameObject.Find("UI/PhysicalComputer (3)") };
-            Vector3[] positions = { new Vector3(-67.95f, 11.53f, -85.36f), new Vector3(-28.69f, 17.57f, -96.73f), new Vector3(-74.86f, 162.26f, -103.60f) };
-            Vector3[] rotations = { Vector3.up * 342, Vector3.up * 38.81f, Vector3.up * 330f };
 
             for (int i = 0; i < physcialComputers.Length; i++)
             {
                 try {
                     await ReplaceKeys(physcialComputers[i]);
-                    CustomScreenInfo screenInfo = await CreateMonitor(physcialComputers[i], positions[i], rotations[i]);
+                    CustomScreenInfo screenInfo = await CreateMonitor(physcialComputers[i]);
                     screenInfo.Color = _config.ScreenBackgroundColor.Value;
                     screenInfo.Background = _config.BackgroundTexture;
                     _customScreenInfos.Add(screenInfo);
@@ -412,7 +410,7 @@ namespace ComputerInterface
             return customKeyboardKey;
         }
 
-        private async Task<CustomScreenInfo> CreateMonitor(GameObject computer, Vector3 position, Vector3 rotation)
+        private async Task<CustomScreenInfo> CreateMonitor(GameObject computer)
         {
             RemoveMonitor(computer);
 
@@ -426,9 +424,10 @@ namespace ComputerInterface
 
             var newMonitor = Instantiate(monitorAsset);
             newMonitor.name = "Custom Monitor";
-            //newMonitor.transform.localScale = new Vector3(0.4f, 0.4f, 0.4f);
-            newMonitor.transform.eulerAngles = rotation;
-            newMonitor.transform.position = position;
+			newMonitor.transform.parent = computer.transform.Find("monitor") ?? computer.transform.Find("monitor (1)");
+			newMonitor.transform.localPosition = new Vector3(2.28f, -0.72f, 0.0f);
+			newMonitor.transform.localEulerAngles = new Vector3(0.0f, 270.0f, 270.02f);
+			newMonitor.transform.parent = null;
 
             foreach(RectTransform rect in newMonitor.GetComponentsInChildren<RectTransform>()) rect.gameObject.layer = 9;
 
@@ -477,6 +476,8 @@ namespace ComputerInterface
 			else
 			{
 				// Treehouse monitor was baked into the scene, so we need to do all this jank to get rid of it
+				// Currently, This is broken as the combined mesh has isReadable set to false
+				// so all the mesh info lives on the GPU, which makes it unaccessabel afaik
 				var combinedScene = GameObject.Find("forest/ForestObjects/Uncover ForestCombined/").GetComponentInChildren<MeshRenderer>().gameObject;
 				Mesh combinedSceneMesh = combinedScene.GetComponent<MeshFilter>().mesh;
 
