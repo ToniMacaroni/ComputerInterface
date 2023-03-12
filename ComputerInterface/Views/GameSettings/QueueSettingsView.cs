@@ -2,7 +2,8 @@
 using ComputerInterface.ViewLib;
 using ComputerInterface.Interfaces;
 using ComputerInterface.Queues;
-using UnityEngine;
+
+// This class isn't used anymore, go to CustomQueuesView instead.
 
 namespace ComputerInterface.Views.GameSettings
 {
@@ -59,17 +60,18 @@ namespace ComputerInterface.Views.GameSettings
 
         public override void OnKeyPressed(EKeyboardKey key)
         {
-            if (_selectionHandler.HandleKeypress(key))
-            {
-                SetMode();
-                Redraw();
-                return;
-            }
-
             switch (key)
             {
                 case EKeyboardKey.Back:
                     ShowView<GameSettingsView>();
+                    break;
+                default: // Forgot about Line 6 lmao
+                    if (_selectionHandler.HandleKeypress(key))
+                    {
+                        SetMode();
+                        Redraw();
+                        return;
+                    }
                     break;
             }
         }

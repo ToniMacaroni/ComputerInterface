@@ -7,13 +7,12 @@ namespace ComputerInterface.Views.GameSettings
     public class ItemSettingsView : ComputerView
     {
         private readonly UISelectionHandler _selectionHandler;
+        private float _insVolumeFloat = 0.1f;
 
-        private float _insVolumeFloat = 0.10f;
-
-        private ItemSettingsView()
+        public ItemSettingsView()
         {
             _selectionHandler = new UISelectionHandler(EKeyboardKey.Up, EKeyboardKey.Down);
-            _selectionHandler.ConfigureSelectionIndicator("", $"<color=#{PrimaryColor}> <</color>", "", "");
+            _selectionHandler.ConfigureSelectionIndicator($"<color=#{PrimaryColor}> ></color> ", "", "   ", "");
             _selectionHandler.MaxIdx = 1;
         }
 
@@ -24,26 +23,24 @@ namespace ComputerInterface.Views.GameSettings
             Redraw();
         }
 
-		void UpdateState()
-		{
-			_selectionHandler.CurrentSelectionIndex = BaseGameInterface.GetItemMode() ? 1 : 0;
-            _insVolumeFloat = BaseGameInterface.GetInstrumentVolume();
-		}
+		void UpdateState() => _insVolumeFloat = BaseGameInterface.GetInstrumentVolume();
 
         private void Redraw()
         {
             var str = new StringBuilder();
 
             str.BeginCenter().Repeat("=", SCREEN_WIDTH).AppendLine();
-            str.Append("Visual Mode").AppendLine();
+            str.Append("Item Tab").AppendLine();
             str.AppendClr("0 - 9 to set instrument volume", "ffffff50").AppendLine();
             str.Repeat("=", SCREEN_WIDTH).EndAlign().AppendLines(2);
 
-            str.Append("Instrument Volume: ").Append(Mathf.CeilToInt(_insVolumeFloat * 50f));
-            str.AppendLines(2);
+            str.Append("Instrument Volume: ")
+              .Append(Mathf.CeilToInt(_insVolumeFloat * 50f));
 
-            str.AppendClr("Item Particles", "ffffff60").AppendLine();
-            str.Append(_selectionHandler.GetIndicatedText(0, "Enabled ")).AppendLine();
+            str.AppendLines(3);
+
+            str.Append("Item Particles:").AppendLine();
+            str.Append(_selectionHandler.GetIndicatedText(0, "Enabled")).AppendLine();
             str.Append(_selectionHandler.GetIndicatedText(1, "Disabled")).AppendLine();
 
             SetText(str);
@@ -51,26 +48,24 @@ namespace ComputerInterface.Views.GameSettings
 
         public override void OnKeyPressed(EKeyboardKey key)
         {
-            if (_selectionHandler.HandleKeypress(key))
-            {
-				BaseGameInterface.SetItemMode(_selectionHandler.CurrentSelectionIndex == 1);
-                UpdateState();
-                Redraw();
-                return;
-            }
-
-            if (key.TryParseNumber(out var num))
-            {
-                BaseGameInterface.SetInstrumentVolume(num);
-                UpdateState();
-                Redraw();
-                return;
-            }
-
             switch (key)
             {
                 case EKeyboardKey.Back:
                     ShowView<GameSettingsView>();
+                    break;
+                default:
+                    if (_selectionHandler.HandleKeypress(key))
+                    {
+                        BaseGameInterface.SetItemMode(_selectionHandler.CurrentSelectionIndex == 1);
+                        Redraw();
+                        return;
+                    }
+                    if (key.TryParseNumber(out var num))
+                    {
+                        BaseGameInterface.SetInstrumentVolume(num);
+                        UpdateState();
+                        Redraw();
+                    }
                     break;
             }
         }

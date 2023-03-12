@@ -1,10 +1,5 @@
 using System;
-using System.Collections.Generic;
-using System.Xml.Linq;
 using BepInEx;
-using ComputerInterface.ViewLib;
-using ComputerInterface.Views;
-using GorillaLocomotion;
 using GorillaNetworking;
 using HarmonyLib;
 using Photon.Pun;
@@ -18,6 +13,8 @@ namespace ComputerInterface
     {
         public const int MAX_ROOM_LENGTH = 10;
         public const int MAX_NAME_LENGTH = 12;
+
+        #region Color/Colour settings
 
         public static void SetColor(float r, float g, float b)
         {
@@ -44,6 +41,20 @@ namespace ComputerInterface
             return new Color(r, g, b);
         }
 
+        public static void InitializeNoobMaterial(float r, float g, float b) => InitializeNoobMaterial(new Color(r, g, b));
+
+        public static void InitializeNoobMaterial(Color color) => GorillaTagger.Instance.myVRRig?.photonView.RPC("InitializeNoobMaterial", RpcTarget.All, color.r, color.g, color.b, GorillaComputer.instance?.leftHanded ?? true);
+
+        #endregion
+
+        #region Name settings
+
+        public static string GetName()
+        {
+            if (CheckForComputer(out var computer)) return computer.savedName.IsNullOrWhiteSpace() ? GorillaComputer.instance.savedName : PhotonNetwork.LocalPlayer.NickName;
+            return null;
+        }
+
         public static void SetName(string name)
         {
             if (!CheckForComputer(out var computer)) return;
@@ -64,26 +75,21 @@ namespace ComputerInterface
             InitializeNoobMaterial(r, g, b);
         }
 
-        public static void InitializeNoobMaterial(float r, float g, float b) => InitializeNoobMaterial(new Color(r, g, b));
+        #endregion
 
-        public static void InitializeNoobMaterial(Color color) => GorillaTagger.Instance.myVRRig?.photonView.RPC("InitializeNoobMaterial", RpcTarget.All, color.r, color.g, color.b, GorillaComputer.instance?.leftHanded ?? true);
-
-        public static string GetName()
-        {
-            return !GorillaComputer.instance.savedName.IsNullOrWhiteSpace() ? PhotonNetwork.LocalPlayer.NickName : GorillaComputer.instance.savedName;
-        }
+        #region Turn settings
 
         public static void SetTurnMode(ETurnMode turnMode)
         {
-            if (GorillaComputer.instance == null) return;
+            if (!CheckForComputer(out var computer)) return;
 
             var turnModeString = turnMode.ToString();
             var turnTypeField = AccessTools.Field(typeof(GorillaComputer), "turnType");
             var turnValueField = AccessTools.Field(typeof(GorillaComputer), "turnValue");
-            turnTypeField.SetValue(GorillaComputer.instance, turnModeString);
+            turnTypeField.SetValue(computer, turnModeString);
             PlayerPrefs.SetString("stickTurning", turnModeString);
             PlayerPrefs.Save();
-            GorillaTagger.Instance.GetComponent<GorillaSnapTurn>().ChangeTurnMode(turnModeString, (int)turnValueField.GetValue(GorillaComputer.instance));
+            GorillaTagger.Instance.GetComponent<GorillaSnapTurn>().ChangeTurnMode(turnModeString, (int)turnValueField.GetValue(computer));
         }
 
         public static ETurnMode GetTurnMode()
@@ -92,6 +98,10 @@ namespace ComputerInterface
             if (turnMode.IsNullOrWhiteSpace()) return ETurnMode.NONE;
             return (ETurnMode)Enum.Parse(typeof(ETurnMode), turnMode);
         }
+
+        #endregion
+
+        #region Item settings
 
         public static void SetInstrumentVolume(int value)
         {
@@ -122,6 +132,10 @@ namespace ComputerInterface
             return itemMode == "TRUE";
         }
 
+        #endregion
+
+        #region Turn settings
+
         public static void SetTurnValue(int value)
         {
             if (!CheckForComputer(out var computer)) return;
@@ -136,6 +150,10 @@ namespace ComputerInterface
         {
             return PlayerPrefs.GetInt("turnFactor", 4);
         }
+
+        #endregion
+
+        #region Microphone settings
 
         public static void SetPttMode(EPTTMode mode)
         {
@@ -166,6 +184,10 @@ namespace ComputerInterface
             };
         }
 
+        #endregion
+
+        #region Voice settings
+
         public static void SetVoiceMode(bool voiceChatOn)
         {
             if (!CheckForComputer(out var computer)) return;
@@ -179,11 +201,9 @@ namespace ComputerInterface
             return PlayerPrefs.GetString("voiceChatOn", "TRUE") == "TRUE";
         }
 
-        public static string[] GetGroupJoinMaps()
-        {
-            if (!CheckForComputer(out var computer)) return Array.Empty<string>();
-            return computer.allowedMapsToJoin;
-        }
+        #endregion
+
+        #region Group settings
 
         public static void JoinGroupMap(int map)
         {
@@ -199,8 +219,18 @@ namespace ComputerInterface
             PlayerPrefs.SetInt("groupMapJoinIndex", computer.groupMapJoinIndex);
             PlayerPrefs.Save();
 
-            computer.OnGroupJoinButtonPress(map, computer.friendJoinCollider);
+            computer.OnGroupJoinButtonPress(Mathf.Min(allowedMapsToJoin.Length - 1, map), computer.friendJoinCollider);
         }
+
+        public static string[] GetGroupJoinMaps()
+        {
+            if (!CheckForComputer(out var computer)) return Array.Empty<string>();
+            return computer.allowedMapsToJoin;
+        }
+
+        #endregion
+
+        #region Room settings
 
         public static void Disconnect()
         {
@@ -226,6 +256,10 @@ namespace ComputerInterface
             if (PhotonNetwork.InRoom) return PhotonNetwork.CurrentRoom.Name;
             return null;
         }
+
+        #endregion
+
+        #region Initialization
 
         public static void InitColorState()
         {
@@ -298,7 +332,9 @@ namespace ComputerInterface
             //PhotonNetworkController.instance.SetField("pastFirstConnection", true);
         }
 
-        private static bool CheckForComputer(out GorillaComputer computer)
+        #endregion
+
+        public static bool CheckForComputer(out GorillaComputer computer)
         {
             if (GorillaComputer.instance == null)
             {

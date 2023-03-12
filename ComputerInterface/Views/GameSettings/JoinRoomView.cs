@@ -2,7 +2,6 @@ using System;
 using System.Text;
 
 using BepInEx;
-using HarmonyLib;
 
 using UnityEngine;
 
@@ -16,16 +15,17 @@ namespace ComputerInterface.Views.GameSettings
     public class JoinRoomView : ComputerView
     {
         private readonly UITextInputHandler _textInputHandler;
-
+        private readonly GameObject callbacks;
         private string _joinedRoom;
 
         public JoinRoomView()
         {
             _textInputHandler = new UITextInputHandler();
 
-            GameObject callbacks = new GameObject();
+            callbacks = new GameObject();
             callbacks.name = "RoomCallbacks";
-            GameObject.Instantiate(callbacks);
+            UnityEngine.Object.DontDestroyOnLoad(callbacks);
+
             JoinRoomViewCallbacks calllbacksComponent = callbacks.AddComponent<JoinRoomViewCallbacks>();
             calllbacksComponent.view = this;
         }
@@ -111,20 +111,10 @@ namespace ComputerInterface.Views.GameSettings
 
         public override void OnKeyPressed(EKeyboardKey key)
         {
-            if (_textInputHandler.HandleKey(key))
-            {
-                if (_textInputHandler.Text.Length > BaseGameInterface.MAX_ROOM_LENGTH)
-                {
-                    _textInputHandler.Text = _textInputHandler.Text.Substring(0, BaseGameInterface.MAX_ROOM_LENGTH);
-                }
-
-                Redraw();
-                return;
-            }
-
             switch (key)
             {
                 case EKeyboardKey.Back:
+                    UnityEngine.Object.Destroy(callbacks);
                     ShowView<GameSettingsView>();
                     break;
                 case EKeyboardKey.Enter:
@@ -140,13 +130,25 @@ namespace ComputerInterface.Views.GameSettings
                 case EKeyboardKey.Option1:
                     BaseGameInterface.Disconnect();
                     break;
+                default:
+                    if (_textInputHandler.HandleKey(key))
+                    {
+                        if (_textInputHandler.Text.Length > BaseGameInterface.MAX_ROOM_LENGTH)
+                        {
+                            _textInputHandler.Text = _textInputHandler.Text.Substring(0, BaseGameInterface.MAX_ROOM_LENGTH);
+                        }
+
+                        Redraw();
+                        return;
+                    }
+                    break;
             }
         }
 
         // Gets connection state if that wasn't obvious
         private PhotonNetworkController.ConnectionState GetConnectionState()
         {
-            return (PhotonNetworkController.ConnectionState)Traverse.Create(PhotonNetworkController.Instance).Field("currentState").GetValue();
+            return PhotonNetworkController.Instance.GetField<PhotonNetworkController.ConnectionState>("currentState");
         }
     }
 }

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using BepInEx.Bootstrap;
 using ComputerInterface.Interfaces;
@@ -32,8 +33,16 @@ namespace ComputerInterface.Views
 
 			private bool DoesModImplementFeature()
 			{
-                var onEnable = AccessTools.Method(PluginInfo.Instance.GetType(), "OnEnable");
-                var onDisable = AccessTools.Method(PluginInfo.Instance.GetType(), "OnDisable");
+                MethodInfo onEnable = null;
+                MethodInfo onDisable = null;
+
+                try
+                {
+                    onEnable = AccessTools.Method(PluginInfo.Instance.GetType(), "OnEnable");
+                    onDisable = AccessTools.Method(PluginInfo.Instance.GetType(), "OnDisable");
+                }
+                catch { }
+
                 return onEnable != null && onDisable != null;
 			}
 

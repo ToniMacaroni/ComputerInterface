@@ -1,16 +1,20 @@
-﻿using System.Text;
+﻿using System;
+using System.Text;
 using ComputerInterface.ViewLib;
+using static ComputerInterface.BaseGameInterface;
 
 namespace ComputerInterface.Views.GameSettings
 {
     internal class MicSettingsView : ComputerView
     {
         private readonly UISelectionHandler _selectionHandler;
+        private bool SwitchedName = false;
+        private string MicrophoneMode = "";
 
         public MicSettingsView()
         {
             _selectionHandler = new UISelectionHandler(EKeyboardKey.Up, EKeyboardKey.Down);
-            _selectionHandler.ConfigureSelectionIndicator("", $"<color=#{PrimaryColor}> <</color>", "", "");
+            _selectionHandler.ConfigureSelectionIndicator($"<color=#{PrimaryColor}> ></color> ", "", "   ", "");
             _selectionHandler.MaxIdx = 2;
         }
 
@@ -35,33 +39,51 @@ namespace ComputerInterface.Views.GameSettings
         {
             var str = new StringBuilder();
 
-            str.AppendLines(5);
-
-            DrawOptions(str);
+            DrawHeader(ref str);
+            DrawOptions(ref str);
 
             SetText(str);
         }
 
-        public void DrawOptions(StringBuilder str)
+        public void DrawHeader(ref StringBuilder str)
         {
-            str.Append(_selectionHandler.GetIndicatedText(0, "All Chat    ")).AppendLine();
-            str.Append(_selectionHandler.GetIndicatedText(1, "Push To Talk")).AppendLine();
-            str.Append(_selectionHandler.GetIndicatedText(2, "Push To Mute")).AppendLine();
+            str.BeginCenter().Repeat("=", SCREEN_WIDTH).AppendLine();
+            str.Append("Mic Tab").AppendLine();
+            str.AppendClr(!SwitchedName ? "Enter to save" : $"Set mode to {MicrophoneMode}", "ffffff50").AppendLine();
+            str.Repeat("=", SCREEN_WIDTH).EndAlign().AppendLines(2);
+
+            str.AppendLine("Mic Mode: ");
+        }
+
+        public void DrawOptions(ref StringBuilder str)
+        {
+            str.Append(_selectionHandler.GetIndicatedText(0, "All Chat    ")).AppendLine()
+                .Append(_selectionHandler.GetIndicatedText(1, "Push To Talk")).AppendLine()
+                .Append(_selectionHandler.GetIndicatedText(2, "Push To Mute")).AppendLine();
         }
 
         public override void OnKeyPressed(EKeyboardKey key)
         {
-            if (_selectionHandler.HandleKeypress(key))
-            {
-                SetMode();
-                Redraw();
-                return;
-            }
-
+            SwitchedName = false;
             switch (key)
             {
+                case EKeyboardKey.Enter:
+                    SetMode();
+                    MicrophoneMode = (EPTTMode)_selectionHandler.CurrentSelectionIndex switch
+                    {
+                        EPTTMode.AllChat => "All Chat",
+                        EPTTMode.PushToTalk => "Push to Talk",
+                        EPTTMode.PushToMute => "Push To Mute",
+                        _ => throw new ArgumentOutOfRangeException()
+                    };
+                    SwitchedName = true;
+                    Redraw();
+                    return;
                 case EKeyboardKey.Back:
                     ShowView<GameSettingsView>();
+                    break;
+                default:
+                    if (_selectionHandler.HandleKeypress(key)) Redraw();
                     break;
             }
         }

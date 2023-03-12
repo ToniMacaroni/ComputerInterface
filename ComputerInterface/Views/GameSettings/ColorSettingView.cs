@@ -37,8 +37,8 @@ namespace ComputerInterface.Views.GameSettings
         {
             var str = new StringBuilder();
             str.BeginColor(_color).Repeat("=", SCREEN_WIDTH).EndColor().AppendLine();
-            str.BeginCenter().Append("Change Color").AppendLine();
-            str.Append("Values are from 0 - 255").EndAlign().AppendLine();
+            str.BeginCenter().Append("Color Tab").AppendLine(); // Wow I typed the word Colour like it was typed out as Color I don't know what to think
+            str.AppendClr("Values are from 0 - 255", "ffffff50").EndAlign().AppendLine();
             str.BeginColor(_color).Repeat("=", SCREEN_WIDTH).EndColor().AppendLines(2);
 
             str.Append("R: ");
@@ -94,41 +94,42 @@ namespace ComputerInterface.Views.GameSettings
 
         public override void OnKeyPressed(EKeyboardKey key)
         {
-            if (_selectionHandler.HandleKeypress(key) || _columnSelectionHandler.HandleKeypress(key))
-            {
-                Redraw();
-                return;
-            }
-
-            if (key.IsNumberKey())
-            {
-                var line = _selectionHandler.CurrentSelectionIndex;
-                var column = _columnSelectionHandler.CurrentSelectionIndex;
-                var numChar = key.ToString().Substring(3)[0];
-
-                switch (line)
-                {
-                    case 0:
-                        SetValOnString(ref _rString, column, numChar);
-                        break;
-                    case 1:
-                        SetValOnString(ref _gString, column, numChar);
-                        break;
-                    case 2:
-                        SetValOnString(ref _bString, column, numChar);
-                        break;
-                }
-
-                _columnSelectionHandler.MoveSelectionDown();
-                UpdateColor();
-                Redraw();
-                return;
-            }
-
             switch (key)
             {
                 case EKeyboardKey.Back:
                     ReturnView();
+                    break;
+                default:
+                    if (_selectionHandler.HandleKeypress(key) || _columnSelectionHandler.HandleKeypress(key))
+                    {
+                        Redraw();
+                        return;
+                    }
+
+                    if (key.IsNumberKey())
+                    {
+                        var line = _selectionHandler.CurrentSelectionIndex;
+                        var column = _columnSelectionHandler.CurrentSelectionIndex;
+                        var numChar = key.ToString().Substring(3)[0];
+
+                        switch (line)
+                        {
+                            case 0:
+                                SetValOnString(ref _rString, column, numChar);
+                                break;
+                            case 1:
+                                SetValOnString(ref _gString, column, numChar);
+                                break;
+                            case 2:
+                                SetValOnString(ref _bString, column, numChar);
+                                break;
+                        }
+
+                        _columnSelectionHandler.MoveSelectionDown();
+                        UpdateColor();
+                        Redraw();
+                        return;
+                    }
                     break;
             }
         }

@@ -33,21 +33,8 @@ namespace ComputerInterface
 
         private List<CustomKeyboardKey> _keys;
         private GameObject _keyboard;
-        private MeshFilter _meshFilter = null;
-        private MeshFilter MeshFilter
-        {
-            get
-            {
-                if (_meshFilter == null)
-                {
-                    GameObject cube = GameObject.CreatePrimitive(PrimitiveType.Cube);
-                    _meshFilter = cube.GetComponent<MeshFilter>();
-                    cube.SetActive(false);
-                }
 
-                return _meshFilter;
-            }
-        }
+        private readonly Mesh CubeMesh = Resources.GetBuiltinResource<Mesh>("Cube.fbx");
 
         private AssetsLoader _assetsLoader;
 
@@ -256,7 +243,7 @@ namespace ComputerInterface
                     customButton.pressTime = button.pressTime;
                     customButton.functionKey = button.functionKey;
 
-                    button.GetComponent<MeshFilter>().mesh = MeshFilter.mesh;
+                    button.GetComponent<MeshFilter>().mesh = CubeMesh;
                     DestroyImmediate(button);
 
                     customButton.Init(this, key, buttonText);
@@ -382,7 +369,7 @@ namespace ComputerInterface
             var newKey = Instantiate(prefab.gameObject, prefab.transform.parent);
             newKey.name = goName;
             newKey.transform.localPosition += offset;
-            newKey.GetComponent<MeshFilter>().mesh = MeshFilter.mesh;
+            newKey.GetComponent<MeshFilter>().mesh = CubeMesh;
 
             Text keyText = FindText(prefab, prefab.name);
             Text newKeyText = Instantiate(keyText.gameObject, keyText.gameObject.transform.parent).GetComponent<Text>();
