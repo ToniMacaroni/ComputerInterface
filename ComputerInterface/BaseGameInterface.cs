@@ -21,9 +21,9 @@ namespace ComputerInterface
 
         public static void SetColor(float r, float g, float b)
         {
-            PlayerPrefs.SetFloat("redValue", r);
-            PlayerPrefs.SetFloat("greenValue", g);
-            PlayerPrefs.SetFloat("blueValue", b);
+            PlayerPrefs.SetFloat("redValue", Mathf.Clamp(r, 0f, 1f));
+            PlayerPrefs.SetFloat("greenValue", Mathf.Clamp(g, 0f, 1f));
+            PlayerPrefs.SetFloat("blueValue", Mathf.Clamp(b, 0f, 1f));
             PlayerPrefs.Save();
 
             GorillaTagger.Instance.UpdateColor(r, g, b);
@@ -33,9 +33,9 @@ namespace ComputerInterface
 
         public static void GetColor(out float r, out float g, out float b)
         {
-            r = PlayerPrefs.GetFloat("redValue");
-            g = PlayerPrefs.GetFloat("greenValue");
-            b = PlayerPrefs.GetFloat("blueValue");
+            r = Mathf.Clamp(PlayerPrefs.GetFloat("redValue"), 0f, 1f);
+            g = Mathf.Clamp(PlayerPrefs.GetFloat("greenValue"), 0f, 1f);
+            b = Mathf.Clamp(PlayerPrefs.GetFloat("blueValue"), 0f, 1f);
         }
 
         public static Color GetColor()
@@ -46,18 +46,17 @@ namespace ComputerInterface
 
         public static void SetName(string name)
         {
-            if (GorillaComputer.instance == null) return;
+            if (!CheckForComputer(out var computer)) return;
+            if (!computer.CheckAutoBanListForName(name)) return;
+            if (name.Length > MAX_NAME_LENGTH) name = name.Substring(0, MAX_NAME_LENGTH);
 
-            if (!GorillaComputer.instance.CheckAutoBanListForName(name)) return;
+            // Change player tags to reflect off of their new name
+            if (GorillaTagger.Instance.myVRRig != null) GorillaTagger.Instance.myVRRig.playerText.text = name;
+            computer.offlineVRRigNametagText.text = name;
 
-            if (name.Length > MAX_NAME_LENGTH)
-            {
-                name = name.Substring(0, MAX_NAME_LENGTH);
-            }
-
+            // Switch the player's name internally 
+            computer.savedName = name;
             PhotonNetwork.LocalPlayer.NickName = name;
-            GorillaComputer.instance.offlineVRRigNametagText.text = name;
-            GorillaComputer.instance.savedName = name;
             PlayerPrefs.SetString("playerName", name);
             PlayerPrefs.Save();
 
@@ -67,11 +66,7 @@ namespace ComputerInterface
 
         public static void InitializeNoobMaterial(float r, float g, float b) => InitializeNoobMaterial(new Color(r, g, b));
 
-        public static void InitializeNoobMaterial(Color color)
-        {
-            if (PhotonNetwork.InRoom)
-                GorillaTagger.Instance.myVRRig.photonView.RPC("InitializeNoobMaterial", RpcTarget.All, color.r, color.g, color.b, GorillaComputer.instance?.leftHanded ?? true);
-        }
+        public static void InitializeNoobMaterial(Color color) => GorillaTagger.Instance.myVRRig?.photonView.RPC("InitializeNoobMaterial", RpcTarget.All, color.r, color.g, color.b, GorillaComputer.instance?.leftHanded ?? true);
 
         public static string GetName()
         {
