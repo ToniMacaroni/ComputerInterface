@@ -15,12 +15,17 @@ namespace ComputerInterface.Views.GameSettings
     public class JoinRoomView : ComputerView
     {
         private readonly UITextInputHandler _textInputHandler;
-        private readonly GameObject callbacks;
+        private GameObject callbacks;
         private string _joinedRoom;
 
         public JoinRoomView()
         {
             _textInputHandler = new UITextInputHandler();
+        }
+
+        public override void OnShow(object[] args)
+        {
+            base.OnShow(args);
 
             callbacks = new GameObject();
             callbacks.name = "RoomCallbacks";
@@ -28,11 +33,7 @@ namespace ComputerInterface.Views.GameSettings
 
             JoinRoomViewCallbacks calllbacksComponent = callbacks.AddComponent<JoinRoomViewCallbacks>();
             calllbacksComponent.view = this;
-        }
 
-        public override void OnShow(object[] args)
-        {
-            base.OnShow(args);
             Redraw();
         }
 
@@ -57,7 +58,6 @@ namespace ComputerInterface.Views.GameSettings
                 str.AppendClr("Room not allowed", "ffffff50").EndAlign().AppendLine();
                 showState = false;
             }
-
 
 
             if (showState)
