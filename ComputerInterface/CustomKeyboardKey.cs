@@ -10,7 +10,7 @@ namespace ComputerInterface
 {
     public class CustomKeyboardKey : GorillaTriggerBox
     {
-        private const int PRESS_COOLDOWN = 150;
+        private const int PRESS_COOLDOWN = 25;
         private const float KEY_BUMP_AMOUNT = 0.2f;
         private readonly Color _pressedColor = new Color(0.5f, 0.5f, 0.5f);
 
@@ -92,16 +92,10 @@ namespace ComputerInterface
             if (_isOnCooldown) return;
             _isOnCooldown = true;
 
-            if (collider.GetComponentInParent<GorillaTriggerColliderHandIndicator>() != null)
+            if (collider.TryGetComponent(out GorillaTriggerColliderHandIndicator component))
             {
-                GorillaTriggerColliderHandIndicator component = collider.GetComponent<GorillaTriggerColliderHandIndicator>();
-
                 _computer.PressButton(this);
-
-                if (component != null)
-                {
-                    GorillaTagger.Instance.StartVibration(component.isLeftHand, GorillaTagger.Instance.tapHapticStrength / 2f, GorillaTagger.Instance.tapHapticDuration);
-                }
+                GorillaTagger.Instance.StartVibration(component.isLeftHand, GorillaTagger.Instance.tapHapticStrength / 2f, GorillaTagger.Instance.tapHapticDuration);
             }
 
             await Task.Delay(PRESS_COOLDOWN);

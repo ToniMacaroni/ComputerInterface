@@ -41,8 +41,8 @@ namespace ComputerInterface.Views.GameSettings
             switch (key)
             {
                 case EKeyboardKey.Enter:
-                    SwitchedName = true;
-                    BaseGameInterface.SetName(_textInputHandler.Text);
+                    BaseGameInterface.SetName(_textInputHandler.Text, out bool error);
+                    SwitchedName = !error;
                     Redraw();
                     break;
                 case EKeyboardKey.Back:

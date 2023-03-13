@@ -91,7 +91,7 @@ namespace ComputerInterface.RoomBrowser
                 return;
             }
 
-            BaseGameInterface.JoinRoom(_room.Name);
+            BaseGameInterface.JoinRoom(_room.Name, out _);
 
             _isShowingMessage = true;
 

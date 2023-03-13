@@ -38,12 +38,8 @@ namespace ComputerInterface.Commands
             {
                 var newName = ((string)args[0]).ToUpper();
 
-                if (newName.Length > BaseGameInterface.MAX_NAME_LENGTH)
-                {
-                    return "Name too long";
-                }
-
-                BaseGameInterface.SetName(newName);
+                BaseGameInterface.SetName(newName, out bool error);
+                if (error) return "Name could not be set";
                 return $"Name set to {newName}";
             }));
 
@@ -61,20 +57,11 @@ namespace ComputerInterface.Commands
             {
                 var roomId = (string)args[0];
 
-                if (roomId.IsNullOrWhiteSpace())
-                {
-                    return "Invalid room";
-                }
-
-                if (roomId.Length > BaseGameInterface.MAX_ROOM_LENGTH)
-                {
-                    return "Room too long";
-                }
-
                 roomId = roomId.ToUpper();
-                BaseGameInterface.JoinRoom(roomId);
+                BaseGameInterface.JoinRoom(roomId, out bool error);
 
-                return $"Joined {args[0]}";
+                if (error) return "Room can not be joined";
+                return $"Joined {roomId}";
             }));
 
             // cam <fp|tp>

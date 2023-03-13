@@ -1,8 +1,10 @@
 using System;
+using System.Xml.Linq;
 using BepInEx;
 using GorillaNetworking;
 using HarmonyLib;
 using Photon.Pun;
+using Photon.Realtime;
 using UnityEngine;
 using UnityEngine.XR.Interaction.Toolkit;
 
@@ -55,24 +57,48 @@ namespace ComputerInterface
             return null;
         }
 
-        public static void SetName(string name)
+        public static void SetName(string name, out bool error)
         {
-            if (!CheckForComputer(out var computer)) return;
-            if (!computer.CheckAutoBanListForName(name)) return;
-            if (name.Length > MAX_NAME_LENGTH) name = name.Substring(0, MAX_NAME_LENGTH);
+            error = false;
+            if (CheckForComputer(out var computer))
+            {
+                if (!NameAllowed(name))
+                {
+                    error = true;
+                    return;
+                }
 
-            // Change player tags to reflect off of their new name
-            if (GorillaTagger.Instance.myVRRig != null) GorillaTagger.Instance.myVRRig.playerText.text = name;
-            computer.offlineVRRigNametagText.text = name;
+                // Change player tags to reflect off of their new name
+                if (GorillaTagger.Instance.myVRRig != null) GorillaTagger.Instance.myVRRig.playerText.text = name;
+                computer.offlineVRRigNametagText.text = name;
 
-            // Switch the player's name internally 
-            computer.savedName = name;
-            PhotonNetwork.LocalPlayer.NickName = name;
-            PlayerPrefs.SetString("playerName", name);
-            PlayerPrefs.Save();
+                // Switch the player's name internally 
+                computer.savedName = name;
+                PhotonNetwork.LocalPlayer.NickName = name;
+                PlayerPrefs.SetString("playerName", name);
+                PlayerPrefs.Save();
 
-            GetColor(out var r, out var g, out var b);
-            InitializeNoobMaterial(r, g, b);
+                GetColor(out var r, out var g, out var b);
+                InitializeNoobMaterial(r, g, b);
+
+                return;
+            }
+            error = true;
+        }
+
+        private static bool NameAllowed(string name)
+        {
+            if (CheckForComputer(out var computer))
+            {
+                if (name.Length == 0) return false;
+                if (string.IsNullOrWhiteSpace(name)) return false;
+                if (!computer.CheckAutoBanListForName(name)) return false;
+                if (name.Length > MAX_NAME_LENGTH) return false;
+
+                return true;
+            }
+
+            return false;
         }
 
         #endregion
@@ -234,21 +260,42 @@ namespace ComputerInterface
 
         public static void Disconnect()
         {
-            PhotonNetworkController.Instance.AttemptDisconnect();
+            if (CheckForComputer(out var computer))
+            {
+                computer.networkController.AttemptDisconnect();
+            }
         }
 
-        public static void JoinRoom(string roomId)
+        public static void JoinRoom(string roomId, out bool error)
         {
-            if (!CheckForComputer(out var computer)) return;
-            if (string.IsNullOrWhiteSpace(roomId)) return;
-            if (!GorillaComputer.instance.CheckAutoBanListForName(roomId)) return;
-
-            if (roomId.Length > MAX_ROOM_LENGTH)
+            error = false;
+            if (CheckForComputer(out var computer))
             {
-                roomId = roomId.Substring(0,MAX_ROOM_LENGTH);
+                if (!RoomAllowed(roomId))
+                {
+                    error = true;
+                    return;
+                }
+
+                computer.networkController.AttemptToJoinSpecificRoom(roomId);
+                return;
+            }
+            error = true;
+        }
+
+        public static bool RoomAllowed(string roomId)
+        {
+            if (CheckForComputer(out _))
+            {
+                if (roomId.Length == 0) return false;
+                if (string.IsNullOrWhiteSpace(roomId)) return false;
+                if (!GorillaComputer.instance.CheckAutoBanListForName(roomId)) return false;
+                if (roomId.Length > MAX_ROOM_LENGTH) return false;
+
+                return true;
             }
 
-            computer.networkController.AttemptToJoinSpecificRoom(roomId);
+            return false;
         }
 
         public static string GetRoomCode()
@@ -272,7 +319,7 @@ namespace ComputerInterface
         public static void InitNameState()
         {
             var name = PlayerPrefs.GetString("playerName", "gorilla");
-            SetName(name);
+            SetName(name, out _);
         }
 
         public static void InitTurnState()
@@ -303,7 +350,7 @@ namespace ComputerInterface
         {
             if (!CheckForComputer(out var computer)) return "";
 
-            string currentGameMode = gamemode.IsNullOrWhiteSpace() ? currentGameMode = PlayerPrefs.GetString("currentGameMode", "INFECTION") : gamemode;
+            string currentGameMode = gamemode.IsNullOrWhiteSpace() ? PlayerPrefs.GetString("currentGameMode", "INFECTION") : gamemode;
             computer.currentGameMode = currentGameMode;
             computer.OnModeSelectButtonPress(currentGameMode, computer.leftHanded);
             return currentGameMode;

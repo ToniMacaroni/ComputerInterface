@@ -123,7 +123,7 @@ namespace ComputerInterface.Views.GameSettings
                         _joinedRoom = _textInputHandler.Text.ToUpper();
                         GorillaComputer.instance.roomFull = false;
                         GorillaComputer.instance.roomNotAllowed = false;
-                        BaseGameInterface.JoinRoom(_joinedRoom);
+                        BaseGameInterface.JoinRoom(_joinedRoom, out _);
                         Redraw();
                     }
                     break;

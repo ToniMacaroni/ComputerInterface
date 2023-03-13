@@ -181,6 +181,8 @@ namespace ComputerInterface
             _computerViewController.NotifyOfKeyPress(key.KeyboardKey);
         }
 
+        public void PressButton(EKeyboardKey key) => _computerViewController.NotifyOfKeyPress(key);
+
         private void SwitchView(ComputerViewSwitchEventArgs args)
         {
             if (args.SourceType == args.DestinationType) return;

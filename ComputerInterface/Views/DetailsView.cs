@@ -48,25 +48,25 @@ namespace ComputerInterface.Views
                 .AppendLine()
                 .Repeat(" ", 4)
                 .Append(_name)
-                .AppendLine();
+                .AppendLines(2);
 
-            str.AppendClr("Current room   : ", "ffffff50")
+            str.AppendClr("Current room:", "ffffff50")
                 .AppendLine()
                 .Repeat(" ", 4)
                 .Append(_roomCode.IsNullOrWhiteSpace() ? "-None-" : _roomCode)
-                .AppendLine();
+                .AppendLines(2);
 
-            str.AppendClr("Players online : ", "ffffff50")
+            str.AppendClr("Players online:", "ffffff50")
                 .AppendLine()
                 .Repeat(" ", 4)
                 .Append(_playerCount)
-                .AppendLine();
+                .AppendLines(2);
 
-            str.AppendClr("Bans yesterday : ", "ffffff50")
+            str.AppendClr("Bans yesterday:", "ffffff50")
                 .AppendLine()
                 .Repeat(" ", 4)
                 .Append(_playerBans)
-                .AppendLine();
+                .AppendLines(2);
 
             Text = str.ToString();
         }
