@@ -100,11 +100,7 @@ namespace ComputerInterface.Views.GameSettings
                     ReturnView();
                     break;
                 default:
-                    if (_selectionHandler.HandleKeypress(key) || _columnSelectionHandler.HandleKeypress(key))
-                    {
-                        Redraw();
-                        return;
-                    }
+                    if (_selectionHandler.HandleKeypress(key) || _columnSelectionHandler.HandleKeypress(key)) Redraw();
 
                     if (key.IsNumberKey())
                     {

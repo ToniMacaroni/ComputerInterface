@@ -10,7 +10,7 @@ namespace ComputerInterface
 {
     public class CustomKeyboardKey : GorillaTriggerBox
     {
-        private const int PRESS_COOLDOWN = 25;
+        private const int PRESS_COOLDOWN = 100;
         private const float KEY_BUMP_AMOUNT = 0.2f;
         private readonly Color _pressedColor = new Color(0.5f, 0.5f, 0.5f);
 

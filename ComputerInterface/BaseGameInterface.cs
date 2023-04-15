@@ -68,18 +68,13 @@ namespace ComputerInterface
                     return;
                 }
 
-                // Change player tags to reflect off of their new name
-                if (GorillaTagger.Instance.myVRRig != null) GorillaTagger.Instance.myVRRig.playerText.text = name;
                 computer.offlineVRRigNametagText.text = name;
-
-                // Switch the player's name internally 
                 computer.savedName = name;
-                PhotonNetwork.LocalPlayer.NickName = name;
                 PlayerPrefs.SetString("playerName", name);
                 PlayerPrefs.Save();
 
                 GetColor(out var r, out var g, out var b);
-                InitializeNoobMaterial(r, g, b);
+                SetColor(r, g, b);
 
                 return;
             }
