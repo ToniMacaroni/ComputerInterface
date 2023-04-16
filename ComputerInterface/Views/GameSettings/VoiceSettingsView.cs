@@ -52,7 +52,7 @@ namespace ComputerInterface.Views.GameSettings
             switch (key)
             {
                 case EKeyboardKey.Enter:
-                    BaseGameInterface.SetVoiceMode(!BaseGameInterface.GetVoiceMode());
+                    BaseGameInterface.SetVoiceMode(_selectionHandler.CurrentSelectionIndex == 0);
                     SwitchedName = true;
                     Redraw();
                     break;

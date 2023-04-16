@@ -41,7 +41,7 @@ namespace ComputerInterface.Views
 
         public void DrawHeader(StringBuilder str)
         {
-            str.AppendClr("/// MonkeShell ///", "ffffff").AppendLine();
+            str.AppendClr("/// Commandline ///", "ffffff").AppendLine();
             str.AppendClr("/ Press option 1 for help", "ffffff50").AppendLines(2);
         }
 

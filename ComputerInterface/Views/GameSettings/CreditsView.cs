@@ -2,14 +2,15 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 
 namespace ComputerInterface.Views.GameSettings
 {
     public class CreditsView : ComputerView
     {
+        private int MaxPage;
         private int ScrollLevel;
-        private readonly int MaxPage = 6;
         private readonly List<string> CreditsList = new List<string>();
 
         public CreditsView()
@@ -26,11 +27,11 @@ namespace ComputerInterface.Views.GameSettings
         private void SetList()
         {
             CreditsList.Clear();
-
             if (BaseGameInterface.CheckForComputer(out var computer))
             {
                 var creditView = computer.creditsView;
-
+                PropertyInfo propInfo = creditView.GetType().GetProperty("TotalPages", BindingFlags.NonPublic | BindingFlags.Instance);
+                MaxPage = (int)propInfo.GetValue(creditView);
                 for (int i = 0; i < MaxPage; i++)
                 {
                     var page = "";
@@ -52,7 +53,7 @@ namespace ComputerInterface.Views.GameSettings
 
             str.AppendLines(2)
                 .Append(CreditsList[ScrollLevel])
-                .Append($"<color=#ffffff50><align=\"center\"><       >     {ScrollLevel + 1}/{CreditsList.Count}</align></color>");
+                .Append($"<color=#ffffff50><align=\"center\"><  {ScrollLevel + 1}/{CreditsList.Count}  ></align></color>");
 
             Text = str.ToString();
         }
