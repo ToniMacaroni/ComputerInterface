@@ -11,7 +11,7 @@ namespace ComputerInterface
 {
     public class CustomKeyboardKey : GorillaTriggerBox
     {
-        private const int PRESS_COOLDOWN = 50;
+        private const int PRESS_COOLDOWN = 80;
         private const float KEY_BUMP_AMOUNT = 0.2f;
 
         public static bool KeyDebuggerEnabled;
@@ -121,7 +121,7 @@ namespace ComputerInterface
             var pos = transform.localPosition;
             pos.y -= KEY_BUMP_AMOUNT;
             transform.localPosition = pos;
-            collider.center -= new Vector3(0, 0, KEY_BUMP_AMOUNT / 1.3f);
+            collider.center -= new Vector3(0, 0, KEY_BUMP_AMOUNT / 1.125f);
 
             _material.color = _pressedColor;
         }
@@ -131,7 +131,7 @@ namespace ComputerInterface
             var pos = transform.localPosition;
             pos.y += KEY_BUMP_AMOUNT;
             transform.localPosition = pos;
-            collider.center += new Vector3(0, 0, KEY_BUMP_AMOUNT / 1.3f);
+            collider.center += new Vector3(0, 0, KEY_BUMP_AMOUNT / 1.125f);
 
             _material.color = _originalColor;
         }

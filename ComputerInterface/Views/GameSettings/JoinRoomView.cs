@@ -84,13 +84,10 @@ namespace ComputerInterface.Views.GameSettings
                         str.AppendClr($"Joining room {_joinedRoom}", "ffffff50").EndAlign().AppendLine();
                         break;
                     case PhotonNetworkController.ConnectionState.InPrivateRoom:
-                        str.AppendClr("In private room", "ffffff50").EndAlign().AppendLine();
+                        str.AppendClr($"In room {(PhotonNetwork.InRoom ? PhotonNetwork.CurrentRoom.Name : "")}", "ffffff50").EndAlign().AppendLine(); ;
                         break;
                     case PhotonNetworkController.ConnectionState.InPublicRoom:
-                        if (PhotonNetwork.InRoom)
-                            str.AppendClr($"In room {PhotonNetwork.CurrentRoom.Name}", "ffffff50").EndAlign().AppendLine();
-                        else
-                            str.AppendClr($"Error", "ffffff50").EndAlign().AppendLine();
+                        str.AppendClr($"In room {(PhotonNetwork.InRoom ? PhotonNetwork.CurrentRoom.Name : "")}", "ffffff50").EndAlign().AppendLine();
                         break;
                     default:
                         Console.WriteLine("Invalid connection state");

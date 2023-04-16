@@ -101,7 +101,6 @@ namespace ComputerInterface.Views.GameSettings
                     break;
                 default:
                     if (_selectionHandler.HandleKeypress(key) || _columnSelectionHandler.HandleKeypress(key)) Redraw();
-
                     if (key.IsNumberKey())
                     {
                         var line = _selectionHandler.CurrentSelectionIndex;
@@ -123,9 +122,8 @@ namespace ComputerInterface.Views.GameSettings
 
                         _columnSelectionHandler.MoveSelectionDown();
                         UpdateColor();
-                        Redraw();
-                        return;
                     }
+                    Redraw();
                     break;
             }
         }
