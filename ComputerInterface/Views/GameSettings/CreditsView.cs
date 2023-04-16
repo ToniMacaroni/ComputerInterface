@@ -1,8 +1,8 @@
-﻿using System;
+﻿using ComputerInterface.ViewLib;
+using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using System.Collections.Generic;
-using ComputerInterface.ViewLib;
 
 namespace ComputerInterface.Views.GameSettings
 {
@@ -26,12 +26,12 @@ namespace ComputerInterface.Views.GameSettings
         private void SetList()
         {
             CreditsList.Clear();
-            
+
             if (BaseGameInterface.CheckForComputer(out var computer))
             {
                 var creditView = computer.creditsView;
 
-                for(int i = 0; i < MaxPage; i++)
+                for (int i = 0; i < MaxPage; i++)
                 {
                     var page = "";
                     creditView.SetField("currentPage", i);
@@ -50,9 +50,9 @@ namespace ComputerInterface.Views.GameSettings
         {
             var str = new StringBuilder();
 
-            str.Repeat("=", SCREEN_WIDTH).AppendLines(2)
+            str.AppendLines(2)
                 .Append(CreditsList[ScrollLevel])
-                .Repeat("=", SCREEN_WIDTH);
+                .Append($"<color=#ffffff50><align=\"center\"><       >     {ScrollLevel + 1}/{CreditsList.Count}</align></color>");
 
             Text = str.ToString();
         }
@@ -61,9 +61,14 @@ namespace ComputerInterface.Views.GameSettings
         {
             switch (key)
             {
-                case EKeyboardKey.Enter:
+                case EKeyboardKey.Left:
+                    ScrollLevel--;
+                    if (ScrollLevel < 0) ScrollLevel = 0;
+                    Redraw();
+                    break;
+                case EKeyboardKey.Right:
                     ScrollLevel++;
-                    if (ScrollLevel == CreditsList.Count) ScrollLevel = 0;
+                    if (ScrollLevel >= CreditsList.Count) ScrollLevel = CreditsList.Count - 1;
                     Redraw();
                     break;
                 case EKeyboardKey.Back:

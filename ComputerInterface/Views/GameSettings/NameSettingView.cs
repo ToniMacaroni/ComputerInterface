@@ -1,5 +1,5 @@
-﻿using System.Text;
-using ComputerInterface.ViewLib;
+﻿using ComputerInterface.ViewLib;
+using System.Text;
 
 namespace ComputerInterface.Views.GameSettings
 {
@@ -7,6 +7,8 @@ namespace ComputerInterface.Views.GameSettings
     {
         private readonly UITextInputHandler _textInputHandler;
         private bool SwitchedName = false;
+        private bool DisplayOutcome = false;
+        private string ErrorReason = "";
 
         public NameSettingView()
         {
@@ -26,7 +28,7 @@ namespace ComputerInterface.Views.GameSettings
 
             str.Repeat("=", SCREEN_WIDTH).AppendLine();
             str.BeginCenter().Append("Name Tab").AppendLine();
-            str.AppendClr(!SwitchedName ? "Enter to save" : $"Changed name to {BaseGameInterface.GetName()}", "ffffff50").EndAlign().AppendLine();
+            str.AppendClr(!SwitchedName ? "Enter to save" : (!DisplayOutcome ? ErrorReason : $"Changed name to {BaseGameInterface.GetName()}"), "ffffff50").EndAlign().AppendLine();
             str.Repeat("=", SCREEN_WIDTH).AppendLine();
             str.AppendLine();
             str.BeginColor("ffffff50").Append("> ").EndColor().AppendClr(_textInputHandler.Text, "ffffffff").AppendClr("_", "ffffff50");
@@ -41,8 +43,9 @@ namespace ComputerInterface.Views.GameSettings
             switch (key)
             {
                 case EKeyboardKey.Enter:
-                    BaseGameInterface.SetName(_textInputHandler.Text, out bool error);
-                    SwitchedName = !error;
+                    BaseGameInterface.SetName(_textInputHandler.Text, out bool error, out ErrorReason);
+                    SwitchedName = true;
+                    DisplayOutcome = !error;
                     Redraw();
                     break;
                 case EKeyboardKey.Back:

@@ -1,9 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using BepInEx;
+﻿using BepInEx;
 using BepInEx.Configuration;
 using Bepinject;
+using System;
+using System.Collections.Generic;
+using System.IO;
 using UnityEngine;
 
 namespace ComputerInterface
@@ -21,7 +21,7 @@ namespace ComputerInterface
         {
             var file = config.Config;
 
-            ScreenBackgroundColor = file.Bind("Colors", "ScreenBackgroundColor", new Color(0.02f, 0.02f, 0.02f), "The background color of the screen");
+            ScreenBackgroundColor = file.Bind("Colors", "ScreenBackgroundColor", new Color(0.1f, 0.1f, 0.1f), "The background color of the screen"); // increased value from 0.02 to 0.1 to make it look brighter
             _screenBackgroundPath = file.Bind("Textures", "ScreenBackgroundPath", "BepInEx/plugins/ComputerInterface/background.png", "Path to a custom screen background");
             _disabledMods = file.Bind("Mod Management", "DisabledMods", "", "List of disabled mods");
 

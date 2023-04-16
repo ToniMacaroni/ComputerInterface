@@ -1,18 +1,17 @@
-using System.Text;
 using ComputerInterface.ViewLib;
 using GorillaNetworking;
+using System.Text;
 using UnityEngine;
 
 namespace ComputerInterface.Views.GameSettings
 {
     internal class SupportView : ComputerView
     {
-        private bool supportVisible = false;
 
         public override void OnShow(object[] args)
         {
             base.OnShow(args);
-            supportVisible = false;
+            BaseGameInterface.InitSupportMode();
 
             Redraw();
         }
@@ -37,7 +36,7 @@ namespace ComputerInterface.Views.GameSettings
 
         public void DrawOptions(StringBuilder str)
         {
-            if (!supportVisible)
+            if (!BaseGameInterface.displaySupportTab)
             {
                 str.AppendLine("To view support and account inforamtion, press the Option 1 key.").AppendLines(2);
                 str.AppendClr("Only show this information to Another Axiom support.", ColorUtility.ToHtmlStringRGB(Color.red));
@@ -57,7 +56,7 @@ namespace ComputerInterface.Views.GameSettings
             switch (key)
             {
                 case EKeyboardKey.Option1:
-                    supportVisible = true;
+                    BaseGameInterface.displaySupportTab = true;
                     Redraw();
                     break;
                 case EKeyboardKey.Back:

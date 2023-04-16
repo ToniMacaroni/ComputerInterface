@@ -1,5 +1,5 @@
-using System.Text;
 using ComputerInterface.ViewLib;
+using System.Text;
 
 namespace ComputerInterface.Views.GameSettings
 {
@@ -42,11 +42,12 @@ namespace ComputerInterface.Views.GameSettings
             str.BeginCenter().BeginColor("ffffff50").Repeat("=", SCREEN_WIDTH).AppendLine();
             str.Append("Press enter to join").AppendLine();
             str.Append("Option 1 for more info").AppendLine();
-            str.Repeat("=", SCREEN_WIDTH).EndColor().EndAlign().AppendLine().AppendLine();
+            str.Repeat("=", SCREEN_WIDTH).EndColor().EndAlign().AppendLines(2);
         }
 
         public void DrawOptions(StringBuilder str)
         {
+            str.AppendLine("Available maps: ");
             var maps = BaseGameInterface.GetGroupJoinMaps();
             for (int i = 0; i < maps.Length; i++)
             {

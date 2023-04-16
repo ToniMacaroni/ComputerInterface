@@ -1,12 +1,10 @@
-﻿using System;
-using System.IO;
-using System.Text;
-using BepInEx;
+﻿using BepInEx;
 using ComputerInterface.Interfaces;
 using ComputerInterface.ViewLib;
 using GorillaNetworking;
 using Photon.Pun;
-using UnityEngine;
+using System;
+using System.Text;
 
 namespace ComputerInterface.Views
 {
@@ -62,7 +60,7 @@ namespace ComputerInterface.Views
                 .Append(_playerCount)
                 .AppendLines(2);
 
-            str.AppendClr("Bans yesterday:", "ffffff50")
+            str.AppendClr("User bans yesterday:", "ffffff50")
                 .AppendLine()
                 .Repeat(" ", 4)
                 .Append(_playerBans)

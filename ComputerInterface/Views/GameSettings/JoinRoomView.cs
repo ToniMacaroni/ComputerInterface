@@ -1,14 +1,9 @@
-using System;
-using System.Text;
-
-using BepInEx;
-
-using UnityEngine;
-
+using ComputerInterface.ViewLib;
 using GorillaNetworking;
 using Photon.Pun;
-
-using ComputerInterface.ViewLib;
+using System;
+using System.Text;
+using UnityEngine;
 
 namespace ComputerInterface.Views.GameSettings
 {
@@ -64,12 +59,10 @@ namespace ComputerInterface.Views.GameSettings
             {
                 switch (GetConnectionState())
                 {
-                    // Stop being American
                     case PhotonNetworkController.ConnectionState.Initialization:
-                        str.AppendClr("Initialisation", "ffffff50").EndAlign().AppendLine();
+                        str.AppendClr("Initialization", "ffffff50").EndAlign().AppendLine();
                         break;
                     case PhotonNetworkController.ConnectionState.WrongVersion:
-                        // I doubt anyone is gonna see this but still
                         str.AppendClr("Invalid version", "ffffff50").EndAlign().AppendLine();
                         break;
                     case PhotonNetworkController.ConnectionState.DeterminingPingsAndPlayerCount:
@@ -82,6 +75,8 @@ namespace ComputerInterface.Views.GameSettings
                         str.AppendClr("Leaving room", "ffffff50").EndAlign().AppendLine();
                         break;
                     case PhotonNetworkController.ConnectionState.JoiningFriend:
+                        str.AppendClr("Joining group", "ffffff50").EndAlign().AppendLine();
+                        break;
                     case PhotonNetworkController.ConnectionState.JoiningPublicRoom:
                         str.AppendClr("Joining room", "ffffff50").EndAlign().AppendLine();
                         break;
@@ -89,6 +84,8 @@ namespace ComputerInterface.Views.GameSettings
                         str.AppendClr($"Joining room {_joinedRoom}", "ffffff50").EndAlign().AppendLine();
                         break;
                     case PhotonNetworkController.ConnectionState.InPrivateRoom:
+                        str.AppendClr("In private room", "ffffff50").EndAlign().AppendLine();
+                        break;
                     case PhotonNetworkController.ConnectionState.InPublicRoom:
                         if (PhotonNetwork.InRoom)
                             str.AppendClr($"In room {PhotonNetwork.CurrentRoom.Name}", "ffffff50").EndAlign().AppendLine();
@@ -118,14 +115,11 @@ namespace ComputerInterface.Views.GameSettings
                     ShowView<GameSettingsView>();
                     break;
                 case EKeyboardKey.Enter:
-                    if (!_textInputHandler.Text.IsNullOrWhiteSpace())
-                    {
-                        _joinedRoom = _textInputHandler.Text.ToUpper();
-                        GorillaComputer.instance.roomFull = false;
-                        GorillaComputer.instance.roomNotAllowed = false;
-                        BaseGameInterface.JoinRoom(_joinedRoom, out _);
-                        Redraw();
-                    }
+                    _joinedRoom = _textInputHandler.Text.ToUpper();
+                    GorillaComputer.instance.roomFull = false;
+                    GorillaComputer.instance.roomNotAllowed = false;
+                    BaseGameInterface.JoinRoom(_joinedRoom, out _, out _);
+                    Redraw();
                     break;
                 case EKeyboardKey.Option1:
                     BaseGameInterface.Disconnect();

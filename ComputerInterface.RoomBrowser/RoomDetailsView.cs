@@ -1,10 +1,8 @@
-﻿using System;
-using System.Text;
-using System.Threading.Tasks;
-using ComputerInterface.ViewLib;
+﻿using ComputerInterface.ViewLib;
 using Photon.Pun;
 using Photon.Realtime;
-using UnityEngine;
+using System.Text;
+using System.Threading.Tasks;
 
 namespace ComputerInterface.RoomBrowser
 {
@@ -29,7 +27,7 @@ namespace ComputerInterface.RoomBrowser
                 return;
             }
 
-            _room = (RoomInfo) args[0];
+            _room = (RoomInfo)args[0];
 
             Redraw();
         }
@@ -91,7 +89,7 @@ namespace ComputerInterface.RoomBrowser
                 return;
             }
 
-            BaseGameInterface.JoinRoom(_room.Name, out _);
+            BaseGameInterface.JoinRoom(_room.Name, out _, out _);
 
             _isShowingMessage = true;
 

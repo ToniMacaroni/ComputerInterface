@@ -2,10 +2,10 @@
 using HarmonyLib;
 using Photon.Pun;
 
-/* A Haunted Army#2861 */
-/* A Haunted Army#2861 */
-/* A Haunted Army#2861 */
+// Original code by Haunted, "fixed" by dev
+// This code would break group joining completely when used
 
+/*
 namespace ComputerInterface.Patches
 {
     [HarmonyPatch(typeof(PhotonNetworkController))]
@@ -53,3 +53,4 @@ namespace ComputerInterface.Patches
         }
     }
 }
+*/

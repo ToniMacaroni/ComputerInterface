@@ -1,10 +1,8 @@
-using System;
-using System.Xml.Linq;
 using BepInEx;
 using GorillaNetworking;
 using HarmonyLib;
 using Photon.Pun;
-using Photon.Realtime;
+using System;
 using UnityEngine;
 using UnityEngine.XR.Interaction.Toolkit;
 
@@ -53,21 +51,22 @@ namespace ComputerInterface
 
         public static string GetName()
         {
-            if (CheckForComputer(out var computer)) return computer.savedName.IsNullOrWhiteSpace() ? GorillaComputer.instance.savedName : PhotonNetwork.LocalPlayer.NickName;
+            if (CheckForComputer(out var computer)) return computer.savedName;
             return null;
         }
 
-        public static void SetName(string name, out bool error)
+        public static void SetName(string name, out bool isError, out string errorReason)
         {
-            error = false;
             if (CheckForComputer(out var computer))
             {
-                if (!NameAllowed(name))
+                if (!NameAllowed(name, out string errorReasonInit))
                 {
-                    error = true;
+                    isError = true;
+                    errorReason = errorReasonInit;
                     return;
                 }
 
+                name = name.Replace(" ", "");
                 computer.offlineVRRigNametagText.text = name;
                 computer.savedName = name;
                 PlayerPrefs.SetString("playerName", name);
@@ -76,23 +75,44 @@ namespace ComputerInterface
                 GetColor(out var r, out var g, out var b);
                 SetColor(r, g, b);
 
+                isError = false;
+                errorReason = "No error found";
                 return;
             }
-            error = true;
+            isError = true;
+            errorReason = "Computer not found";
         }
 
-        private static bool NameAllowed(string name)
+        private static bool NameAllowed(string name, out string reason)
         {
             if (CheckForComputer(out var computer))
             {
-                if (name.Length == 0) return false;
-                if (string.IsNullOrWhiteSpace(name)) return false;
-                if (!computer.CheckAutoBanListForName(name)) return false;
-                if (name.Length > MAX_NAME_LENGTH) return false;
+                if (name.Length == 0)
+                {
+                    reason = "Name is empty";
+                    return false;
+                }
+                if (string.IsNullOrWhiteSpace(name))
+                {
+                    reason = "Name is blank";
+                    return false;
+                }
+                if (!computer.CheckAutoBanListForName(name))
+                {
+                    reason = "Name isn't allowed";
+                    return false;
+                }
+                if (name.Length > MAX_NAME_LENGTH)
+                {
+                    reason = "Name is too long";
+                    return false;
+                }
 
+                reason = "No error found";
                 return true;
             }
 
+            reason = "Computer not found.";
             return false;
         }
 
@@ -261,35 +281,56 @@ namespace ComputerInterface
             }
         }
 
-        public static void JoinRoom(string roomId, out bool error)
+        public static void JoinRoom(string roomId, out bool isError, out string errorReason)
         {
-            error = false;
             if (CheckForComputer(out var computer))
             {
-                if (!RoomAllowed(roomId))
+                if (!RoomAllowed(roomId, out errorReason))
                 {
-                    error = true;
+                    isError = true;
                     return;
                 }
 
+                isError = false;
+                errorReason = "Error not found";
                 computer.networkController.AttemptToJoinSpecificRoom(roomId);
                 return;
             }
-            error = true;
+
+            errorReason = "Computer not found";
+            isError = true;
         }
 
-        public static bool RoomAllowed(string roomId)
+        public static bool RoomAllowed(string roomId, out string errorReason)
         {
             if (CheckForComputer(out _))
             {
-                if (roomId.Length == 0) return false;
-                if (string.IsNullOrWhiteSpace(roomId)) return false;
-                if (!GorillaComputer.instance.CheckAutoBanListForName(roomId)) return false;
-                if (roomId.Length > MAX_ROOM_LENGTH) return false;
+                if (roomId.Length == 0)
+                {
+                    errorReason = "Room is empty";
+                    return false;
+                }
+                if (string.IsNullOrWhiteSpace(roomId))
+                {
+                    errorReason = "Room is blank";
+                    return false;
+                }
+                if (!GorillaComputer.instance.CheckAutoBanListForName(roomId))
+                {
+                    errorReason = "Room isn't allowed";
+                    return false;
+                }
+                if (roomId.Length > MAX_ROOM_LENGTH)
+                {
+                    errorReason = "Room is too long";
+                    return false;
+                }
 
+                errorReason = "No error";
                 return true;
             }
 
+            errorReason = "Computer not found";
             return false;
         }
 
@@ -298,6 +339,12 @@ namespace ComputerInterface
             if (PhotonNetwork.InRoom) return PhotonNetwork.CurrentRoom.Name;
             return null;
         }
+
+        #endregion
+
+        #region Support settings
+
+        public static bool displaySupportTab;
 
         #endregion
 
@@ -314,7 +361,7 @@ namespace ComputerInterface
         public static void InitNameState()
         {
             var name = PlayerPrefs.GetString("playerName", "gorilla");
-            SetName(name, out _);
+            SetName(name, out _, out _);
         }
 
         public static void InitTurnState()
@@ -351,6 +398,11 @@ namespace ComputerInterface
             return currentGameMode;
         }
 
+        public static void InitSupportMode()
+        {
+            displaySupportTab = false;
+        }
+
         public static void InitAll()
         {
             InitColorState();
@@ -359,6 +411,7 @@ namespace ComputerInterface
             InitMicState();
             InitVoiceMode();
             InitItemMode();
+            InitSupportMode();
 
             // The computer will reset custom gamemodes when start is called
             // var gamemode = InitGameMode();

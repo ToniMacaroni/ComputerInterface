@@ -1,5 +1,4 @@
 ﻿using System;
-using BepInEx;
 using UnityEngine;
 using Zenject;
 
@@ -38,9 +37,9 @@ namespace ComputerInterface.Commands
             {
                 var newName = ((string)args[0]).ToUpper();
 
-                BaseGameInterface.SetName(newName, out bool error);
-                if (error) return "Name could not be set";
-                return $"Name set to {newName}";
+                BaseGameInterface.SetName(newName, out bool error, out string errorReason);
+                if (error) return errorReason;
+                return $"Name set to {newName.Replace(" ", "")}";
             }));
 
             // leave: leave
@@ -58,9 +57,9 @@ namespace ComputerInterface.Commands
                 var roomId = (string)args[0];
 
                 roomId = roomId.ToUpper();
-                BaseGameInterface.JoinRoom(roomId, out bool error);
+                BaseGameInterface.JoinRoom(roomId, out bool error, out string errorReason);
 
-                if (error) return "Room can not be joined";
+                if (error) return errorReason;
                 return $"Joined {roomId}";
             }));
 

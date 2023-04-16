@@ -12,16 +12,10 @@ namespace ComputerInterface
         public Material[] Materials;
         public RawImage RawImage;
 
-        //public Color Color
-        //{
-        //    get => Materials[2].color;
-        //    set => Materials[2].color = value;
-        //}
-
         public Color Color
         {
-            get => RawImage.material.color;
-            set => RawImage.material.color = value;
+            get => RawImage.color;
+            set => RawImage.color = value;
         }
 
         public string Text
