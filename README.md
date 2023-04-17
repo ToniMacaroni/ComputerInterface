@@ -46,14 +46,9 @@ For more advanced examples check out the base library views here:
 https://github.com/ToniMacaroni/ComputerInterface/tree/main/ComputerInterface/Views
 
 ## Adding Views
-Computer Interface works with "Views" (classes that inherit ComputerView or IComputerView).  
-You navigate through the computer by specifying the type of your view.  
-The instantiation / injection / Caching is handled by Computer Interface itself.
-As stated you can normally ask for bound types in your views via zenject.
+Computer Interface works with "Views" which are classes that inherit either ComputerView or IComputerView. You wont need any additional code for Instantiation/Injection/Caching the view into the mod, since the mod does all of it for you with Zenject.
 
-In your view you can for example navigate (go back, go to main menu, go to a specific view)  
-and check for key presses (by overriding OnKeyPressed).  
-All keys are wrapped by an EKeyboardKey enum to easier handle keys.
+In your view you can navigate through other views such as the main view, a specific view, and even the previous view. You can also check for different key presses with the ``OnKeyPressed`` method. All keys are wrapped by an EKeyboardKey enum to easier handle keys.
 
 An example view may look like this:
 
@@ -75,7 +70,7 @@ public class MyModView : ComputerView
         {
             switch (key)
             {
-                case EKeyboardKey.Delete:
+                case EKeyboardKey.Back:
                     // "ReturnToMainMenu" will basically switch to the main menu again
                     ReturnToMainMenu();
                     break;
@@ -88,8 +83,7 @@ public class MyModView : ComputerView
     }
 ```
 
-To actually create an entry in the main menu and specify an initial view  
-you use a mod entry (inherits IComputerModEntry) and bind it via zenject.
+Now to put your own custom view in the main view, you will need an "Entry". For an entry you will need the entry name which will appear on the main view, and the type of custom view you have created by wrapping the class in the ``typeof`` operator. 
 
 Example ModEntry:
 ```csharp
@@ -104,16 +98,16 @@ public class MyModEntry : IComputerModEntry
     }
 ```
 
-Then you bind the mod entry like this:
+Then you can bind the entry like this:
 ```csharp
 Container.Bind<IComputerModEntry>().To<MyModEntry>().AsSingle();
 ```
 
 ## Adding your own commands
-
 Adding your own CLI commands is really easy.  
 In a type that you bound via zenject request the CommandHandler and add your command.
 
+An example of adding your own commands may look like this:
 ```csharp
 internal class MyModCommandManager : IInitializable
     {
@@ -142,8 +136,7 @@ internal class MyModCommandManager : IInitializable
     }
 ```
 
-I just created a dummy class called MyModCommandManager.  
-But of course you can do this in any type as long as you request the CommandHandler.
+I just created a dummy class called MyModCommandManager, but of course you can do this in any type as long as you request the CommandHandler.
 
 ## Disclaimers
 This product is not affiliated with Gorilla Tag or Another Axiom LLC and is not endorsed or otherwise sponsored by Another Axiom LLC. Portions of the materials contained herein are property of Another Axiom LLC. ©2021 Another Axiom LLC.
