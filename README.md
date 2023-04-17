@@ -1,44 +1,40 @@
 # Computer Interface
-## What is Computer Interface?
-Computer Interface is a library for Gorilla Tag which enabled developers to write programs for the Gorilla Computer
-and users to make more out of the computer.
+Computer Interface is a library for Gorilla Tag which replaces the base computer with a modern desktop computer. This computer then can be utilized by both Developers to create their own computer tabs, and Modders in which they can make more out of the Computer.
 
-If you want to contact me on discord: Toni Macaroni#8970
+If you want to contact me on Discord: ``Toni Macaroni#8970``
 
 ## Command Line
-Computer Interface ships with a CLI that enables you to execute routine / change settings.  
-Developers can also add their own commands which is discussed later.
+Computer Interface ships with a CLI that enables you to execute routines & change settings.<br>
+Developers can also add their own commands, which is brought up later on.
 
 By default Computer Interface ships with following commands:
-- setcolor <r> <g> <b> //sets your gorilla color (e.g. setcolor 255 255 255)
-- setname <name> //sets your gorilla name (e.g. setname toni)
-- join <roomID> //joins a private room with the room id (e.g. join myroom)
-- leave //disconnects from the current room
-- cam <fp|tp> //sets the view mirrored to your monitor to eiter first person (fp) or third person (tp) (e.g. cam fp)
-- setbg <r> <g> <b> //sets the background color of the computer screen (e.g. setbg 40 70 40)
+  - <b>setcolor ``Int`` ``Int`` ``Int`` </b><br>   This command changes your gorilla color (e.g. setcolor 255 255 255)
+  - <b>setname ``String`` </b><br>   This command changes your gorilla name (e.g. setname toni)
+  - <b>join ``String`` </b><br>    This command connects to a room code (e.g. join dev123)
+  - <b>leave </b><br>    This command disconnects you from the current room
+  - <b>cam ``String`` </b><br>   This command changes your spectator camera's perspective to either First Person (fp) or Third Person (tp)
+  - <b>setbg ``Int`` ``Int`` ``Int`` </b><br>    This command changes your computer's background color (e.g. setbg 40 70 40)
 
 ## Background Image
-To use a custom background image:
-1) go into "Gorilla Tag/BepInEx/config" and open "tonimacaroni.computerinterface.cfg" with a text editor
-2) find "ScreenBackgroundPath" and replace the path with your own image path
+To use a custom background image, follow these steps in order from top to bottom:
+  - <b>Launch the game, this will generate a config file.</b>
+  - <b> Go to your Gorilla Tag folder, then ``BepInEx/config`` and open the ``tonimacaroni.computerinterface.cfg`` file.</b>
+  - <b> Find the "ScreenBackgroundPath" config option, and replace the path with your own image path.</b>
 
-*Use forward slashes (/) instead of backslashes in the path*  
-*Paths can be either relative to the Gorilla Tag folder or absolute*  
-*The image gets multiplied by the set background color.*  
-*If you want the image as is type "setbg 255 255 255" in the commandline in CI*
+Make sure when you're replacing the path, you have:
+  - <b>Used forward slashes (/) instead of back slashes (\) in the path</b>
+  - <b>Acknowledged that your background can be multiplied by the background's color</b>
+  - <b>Paths can also either be relative to your Gorilla Tag folder or absolute.</b>
+  
+You can also run ``setbg 255 255 255`` to leave the background with no modified color.
 
 ## Additional Features
-Computer Interface by iself also adds some changes.  
-These currently are:
-- room browser
-- command line
-- ability to toggle mods on and off
-- visual queue for when a button is pressed (the button moves down and changes color)
-- click sounds on button press
-- added cooldown to buttons to counter missclicks
-- custom computer background (image and color)
-
-And many more to come...
+Computer Interface by itself also includes some exclusive content. This includes:
+- <b>Room Browser (Alpha)</b>
+- <b>Command Line</b>
+- <b>Ability to toggle supported mods on and off</b>
+- <b>Key animation when it's pressed</b>
+- <b>Custom background (Image & Color)</b>
 
 # For Developers
 
