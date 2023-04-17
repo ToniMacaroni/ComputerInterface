@@ -9,6 +9,7 @@ namespace ComputerInterface.Views.GameSettings
         private readonly UISelectionHandler _selectionHandler;
         private readonly UISelectionHandler _columnSelectionHandler;
         private Color _color;
+        private Color _savedColor;
 
         private string _rString = "255";
         private string _gString = "255";
@@ -29,6 +30,7 @@ namespace ComputerInterface.Views.GameSettings
 
             _color = BaseGameInterface.GetColor();
             SetColor(BaseGameInterface.GetColor());
+            _savedColor = _color;
 
             Redraw();
         }
@@ -37,21 +39,21 @@ namespace ComputerInterface.Views.GameSettings
         {
             var str = new StringBuilder();
             str.BeginColor(_color).Repeat("=", SCREEN_WIDTH).EndColor().AppendLine();
-            str.BeginCenter().Append("Color Tab").AppendLine(); // Wow I typed the word Colour like it was typed out as Color I don't know what to think
+            str.BeginCenter().Append("Color Tab").AppendLine();
             str.AppendClr("Values are from 0 - 255", "ffffff50").EndAlign().AppendLine();
             str.BeginColor(_color).Repeat("=", SCREEN_WIDTH).EndColor().AppendLines(2);
 
             str.AppendClr(" R: ", "ffffff50");
             DrawValue(str, _rString, 0);
-            str.AppendLine();
+            str.AppendClr($"<size=40>  Current: {Mathf.RoundToInt(_savedColor.r * 255).ToString().PadLeft(3, '0')}</size>", "ffffff50").AppendLine();
 
             str.AppendClr(" G: ", "ffffff50");
             DrawValue(str, _gString, 1);
-            str.AppendLine();
+            str.AppendClr($"<size=40>  Current: {Mathf.RoundToInt(_savedColor.g * 255).ToString().PadLeft(3, '0')}</size>", "ffffff50").AppendLine();
 
             str.AppendClr(" B: ", "ffffff50");
             DrawValue(str, _bString, 2);
-            str.AppendLine();
+            str.AppendClr($"<size=40>  Current: {Mathf.RoundToInt(_savedColor.b * 255).ToString().PadLeft(3, '0')}</size>", "ffffff50").AppendLine();
 
             str.AppendLines(3)
                 .AppendClr(" * Press Enter to update your color.", "ffffff50").AppendLine();
@@ -87,6 +89,7 @@ namespace ComputerInterface.Views.GameSettings
             {
                 case EKeyboardKey.Enter:
                     BaseGameInterface.SetColor(_color);
+                    _savedColor = _color;
                     Redraw();
                     break;
                 case EKeyboardKey.Back:
