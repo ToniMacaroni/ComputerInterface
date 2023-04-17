@@ -6,11 +6,17 @@ namespace ComputerInterface
 {
     public class CustomScreenInfo
     {
+        public static CustomScreenInfo instance { get; private set; }
         public TextMeshProUGUI TextMeshProUgui;
         public Transform Transform;
         public Renderer Renderer;
         public Material[] Materials;
         public RawImage RawImage;
+
+        public CustomScreenInfo()
+        {
+            instance ??= this;
+        }
 
         public Color Color
         {

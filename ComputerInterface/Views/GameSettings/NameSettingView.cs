@@ -25,13 +25,16 @@ namespace ComputerInterface.Views.GameSettings
         private void Redraw()
         {
             var str = new StringBuilder();
-
+            var hasComputer = BaseGameInterface.CheckForComputer(out var computer);
             str.Repeat("=", SCREEN_WIDTH).AppendLine();
             str.BeginCenter().Append("Name Tab").AppendLine();
-            str.AppendClr(!SwitchedName ? "Enter to save" : (!DisplayOutcome ? ErrorReason : $"Changed name to {BaseGameInterface.GetName()}"), "ffffff50").EndAlign().AppendLine();
-            str.Repeat("=", SCREEN_WIDTH).AppendLine();
-            str.AppendLine();
+            str.AppendClr($"{(hasComputer ? $"Current name: {computer.savedName}" : "Current name not found")}", "ffffff50").EndAlign().AppendLine();
+            str.Repeat("=", SCREEN_WIDTH).AppendLines(2);
+
             str.BeginColor("ffffff50").Append("> ").EndColor().AppendClr(_textInputHandler.Text, "ffffffff").AppendClr("_", "ffffff50");
+
+            str.AppendLines(6)
+                .AppendClr($" * {(!SwitchedName ? "Press Enter to update your name." : (!DisplayOutcome ? $"Error: {ErrorReason}." : $"Changed name to {BaseGameInterface.GetName()}"))}", "ffffff50").AppendLine();
 
             Text = str.ToString();
         }

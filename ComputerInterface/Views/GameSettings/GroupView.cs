@@ -25,6 +25,7 @@ namespace ComputerInterface.Views.GameSettings
         public void Join()
         {
             BaseGameInterface.JoinGroupMap(_selectionHandler.CurrentSelectionIndex);
+            ShowView<JoinRoomView>();
         }
 
         public void Redraw()
