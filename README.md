@@ -1,13 +1,30 @@
 # Computer Interface
-Computer Interface is a library for Gorilla Tag which replaces the base computer with a modern desktop computer. This computer then can be utilized by both Developers to create their own computer tabs, and Modders in which they can make more out of the Computer.
+Computer Interface is a library for Gorilla Tag which replaces the base computer with a modern desktop computer. This computer then can be utilized by both Developers to create their own computer tabs and Modders in which they can make more out of the Computer.
 
-If you want to contact me on Discord: ``Toni Macaroni#8970``
+Main project contributors:
+- [ToniMacaroni](https://github.com/ToniMacaroni)
+- [Graic](https://github.com/Graicc)
+- [Dev](https://github.com/developer9998)
+- [A Haunted Army](https://github.com/AHauntedArmy)
+- [Fchb1239](https://github.com/fchb1239)
 
-## Command Line
+You can find all of us on the [Gorilla Tag Modding Group Discord](http://discord.gg/monkemod) if you need any more assistance. 
+
+## Table of Contents
+- [CommandLine](#commandline)
+- [Background](#background)
+- [Additional Features](#additional-features)
+- [For Developers](#for-developers)
+- [Disclaimers](#disclaimers)
+
+## Install
+To install the mod, the easiest method is through [MonkeModManager](https://github.com/DeadlyKitten/MonkeModManager/releases/latest), scroll down to "ComputerInterface", select it, and click on "Install/Update". This will also download the required dependencies used to make the mod function as intended. 
+
+## CommandLine
 Computer Interface ships with a CLI that enables you to execute routines & change settings.<br>
-Developers can also add their own commands, which is brought up later on.
+Developers can also add their own commands, which are brought up later on.
 
-By default Computer Interface ships with following commands:
+By default Computer Interface ships with the following commands:
   - <b>setcolor ``Int`` ``Int`` ``Int`` </b><br>   This command changes your gorilla color (e.g. setcolor 255 255 255)
   - <b>setname ``String`` </b><br>   This command changes your gorilla name (e.g. setname toni)
   - <b>join ``String`` </b><br>    This command connects to a room code (e.g. join dev123)
@@ -15,8 +32,8 @@ By default Computer Interface ships with following commands:
   - <b>cam ``String`` </b><br>   This command changes your spectator camera's perspective to either First Person (fp) or Third Person (tp)
   - <b>setbg ``Int`` ``Int`` ``Int`` </b><br>    This command changes your computer's background color (e.g. setbg 40 70 40)
 
-## Background Image
-To use a custom background image, follow these steps in order from top to bottom:
+## Background
+To use a custom background image, follow these steps:
   - <b>Launch the game, this will generate a config file.</b>
   - <b> Go to your Gorilla Tag folder, then ``BepInEx/config`` and open the ``tonimacaroni.computerinterface.cfg`` file.</b>
   - <b> Find the "ScreenBackgroundPath" config option, and replace the path with your own image path.</b>
@@ -38,7 +55,7 @@ Computer Interface by itself also includes some exclusive content. This includes
 
 # For Developers
 
-Before you begin reading I have created a very well documented example mod which you can use as a starting point.  
+Before you begin reading I have created a very well-documented example mod which you can use as a starting point.  
 It shows examples for creating multiple views, navigating between those and creating your own commands.
 https://github.com/ToniMacaroni/ComputerInterfaceExample
 
@@ -46,36 +63,31 @@ For more advanced examples check out the base library views here:
 https://github.com/ToniMacaroni/ComputerInterface/tree/main/ComputerInterface/Views
 
 ## Adding Views
-Computer Interface works with "Views" (classes that inherit ComputerView or IComputerView).  
-You navigate through the computer by specifying the type of your view.  
-The instantiation / injection / Caching is handled by Computer Interface itself.
-As stated you can normally ask for bound types in your views via zenject.
+Computer Interface works with "Views" which are classes that inherit either ComputerView or IComputerView. You won't need any additional code for Instantiation/Injection/Caching the view into the mod since the mod does all of it for you with Zenject.
 
-In your view you can for example navigate (go back, go to main menu, go to a specific view)  
-and check for key presses (by overriding OnKeyPressed).  
-All keys are wrapped by an EKeyboardKey enum to easier handle keys.
+In your view, you can navigate through other views such as the main view, a specific view, and even the previous view. You can also check for different key presses with the ``OnKeyPressed`` method. All keys are wrapped by an EKeyboardKey enum to easier handle keys.
 
 An example view may look like this:
 
 ```csharp
 public class MyModView : ComputerView
     {
-        // This is called when you view is opened
+        // This is called when your view is opened
         public override void OnShow()
         {
             base.OnShow();
-            // changing the Text property will fire an PropertyChanged event
-            // which lets the computer know the text has changed and update it
+            //Changing the Text property will fire a PropertyChanged event
+            // which lets the computer know the text has changed and updates it
             Text = "Monkey Computer\nMonkey Computer\nMounkey Computer";
         }
 
-        // you can do something on keypresses by overriding "OnKeyPressed"
-        // it get's an EKeyboardKey passed as a parameter which wraps the old character string
+        //You can do something on keypresses by overriding "OnKeyPressed"
+        //It gets an EKeyboardKey passed as a parameter which wraps the old character string
         public override void OnKeyPressed(EKeyboardKey key)
         {
             switch (key)
             {
-                case EKeyboardKey.Delete:
+                case EKeyboardKey.Back:
                     // "ReturnToMainMenu" will basically switch to the main menu again
                     ReturnToMainMenu();
                     break;
@@ -88,8 +100,7 @@ public class MyModView : ComputerView
     }
 ```
 
-To actually create an entry in the main menu and specify an initial view  
-you use a mod entry (inherits IComputerModEntry) and bind it via zenject.
+Now to put your own custom view in the main view, you will need an "Entry". For an entry you will need the entry name which will appear on the main view, and the type of custom view you have created by wrapping the class in the ``typeof`` operator. 
 
 Example ModEntry:
 ```csharp
@@ -98,22 +109,22 @@ public class MyModEntry : IComputerModEntry
         // This is the mod name that is going to show up as a selectable mod
         public string EntryName => "MyMod";
 
-        // This is the first view that is going to be shown if the user select you mod
+        // This is the first view that is going to be shown if the user selects you mod
         // The Computer Interface mod will instantiate your view 
         public Type EntryViewType => typeof(MyModView);
     }
 ```
 
-Then you bind the mod entry like this:
+Then you can bind the entry like this:
 ```csharp
 Container.Bind<IComputerModEntry>().To<MyModEntry>().AsSingle();
 ```
 
 ## Adding your own commands
-
 Adding your own CLI commands is really easy.  
 In a type that you bound via zenject request the CommandHandler and add your command.
 
+An example of adding your own commands may look like this:
 ```csharp
 internal class MyModCommandManager : IInitializable
     {
@@ -132,9 +143,9 @@ internal class MyModCommandManager : IInitializable
             _commandHandler.AddCommand(new Command(name: "whoami", argumentCount: 0, args =>
             {
                 // args is an array of arguments (string) passed when entering the command
-                // the command handler already checks if the correct amount of arguments is passed
+                //The command handler already checks if the correct amount of arguments is passed
 
-                // the string you return is going to be shown in the terminal as a return message
+                //The string you return is going to be shown in the terminal as a return message
                 // you can break up the message into multiple lines by using \n
                 return "MONKE";
             }));
@@ -142,8 +153,7 @@ internal class MyModCommandManager : IInitializable
     }
 ```
 
-I just created a dummy class called MyModCommandManager.  
-But of course you can do this in any type as long as you request the CommandHandler.
+I just created a dummy class called MyModCommandManager, but of course, you can do this in any type as long as you request the CommandHandler.
 
 ## Disclaimers
 This product is not affiliated with Gorilla Tag or Another Axiom LLC and is not endorsed or otherwise sponsored by Another Axiom LLC. Portions of the materials contained herein are property of Another Axiom LLC. ©2021 Another Axiom LLC.
