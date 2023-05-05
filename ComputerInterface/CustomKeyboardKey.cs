@@ -96,20 +96,20 @@ namespace ComputerInterface
 
         private async void OnTriggerEnter(Collider collider)
         {
-            if (_isOnCooldown) return;
-            _isOnCooldown = true;
-
             if (collider.TryGetComponent(out GorillaTriggerColliderHandIndicator component))
             {
+                if (_isOnCooldown) return;
+                _isOnCooldown = true;
+
                 BumpIn();
                 _computer.PressButton(this);
                 GorillaTagger.Instance.StartVibration(component.isLeftHand, GorillaTagger.Instance.tapHapticStrength / 2f, GorillaTagger.Instance.tapHapticDuration);
                 if (PhotonNetwork.InRoom && GorillaTagger.Instance.myVRRig != null)
                     PhotonView.Get(GorillaTagger.Instance.myVRRig).RPC("PlayHandTap", RpcTarget.Others, 66, component.isLeftHand, 0.1f);
-            }
 
-            await Task.Delay(PRESS_COOLDOWN);
-            _isOnCooldown = false;
+                await Task.Delay(PRESS_COOLDOWN);
+                _isOnCooldown = false;
+            }
         }
 
         private void OnTriggerExit(Collider collider)
