@@ -79,7 +79,7 @@ namespace ComputerInterface
             _computerViewController.OnSetBackground += SetBGImage;
 
             // Treehouse, Mountains, Sky                                               // that igloo is NOT good!!
-            GameObject[] physcialComputers = { GameObject.Find("UI/PhysicalComputer"), GameObject.Find("goodigloo/PhysicalComputer (2)"), GameObject.Find("UI/PhysicalComputer (3)") };
+            GameObject[] physcialComputers = { GameObject.Find("UI/PhysicalComputer"), GameObject.Find("goodigloo/PhysicalComputer (2)"), GameObject.Find("UI/PhysicalComputer (3)"), GameObject.Find("BasementComputer/PhysicalComputer (2)") };
 
             for (int i = 0; i < physcialComputers.Length; i++)
             {
@@ -365,6 +365,27 @@ namespace ComputerInterface
             // 	Debug.Log($"Unable to find transform");
             // }
 
+            // Basement
+            if (t is null)
+            {
+                // bruh
+                t = button.transform
+                    ?.parent
+                    ?.parent
+                    ?.parent
+                    ?.parent
+                    ?.parent
+                    .Find("UI FOR BASEMENT/Text/" + name);
+            }
+            t ??= button.transform.parent?.parent?.Find("Text/" + name + " (1)");
+            // if (t != null) {
+            // 	Debug.Log($"Found key using Mountain {t.gameObject.name}");
+            // 	return t.GetComponent<Text>();
+            // }
+            // if (t is null) {
+            // 	Debug.Log($"Unable to find transform");
+            // }
+
             return t.GetComponent<Text>();
         }
 
@@ -472,12 +493,13 @@ namespace ComputerInterface
             // If not Treehouse
             if (monitor.transform.Find("FunctionSelect") is null)
             {
-                // Sky, Mountain
-                Transform test = computer?.transform?.parent?.Find("Text") ?? computer?.transform?.parent?.parent?.parent?.Find("UI/Text");
-
-                test.Find("FunctionSelect")?.gameObject?.SetActive(false);
-                test.Find("Data")?.gameObject?.SetActive(false);
-                test.Find("monitor")?.gameObject?.SetActive(false);
+                // Stable for now 
+                if (computer.TryGetComponent<GorillaComputerTerminal>(out GorillaComputerTerminal terminal))
+                {
+                    terminal.monitorMesh?.gameObject?.SetActive(false);
+                    terminal.myFunctionText?.gameObject?.SetActive(false);
+                    terminal.myScreenText?.gameObject?.SetActive(false);
+                }
             }
             else
             {

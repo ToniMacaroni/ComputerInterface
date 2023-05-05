@@ -35,6 +35,7 @@ namespace ComputerInterface
         private KeyHandler _keyHandler;
 
         private BoxCollider collider;
+        private bool _bumped;
 
         private void Awake()
         {
@@ -95,12 +96,12 @@ namespace ComputerInterface
 
         private async void OnTriggerEnter(Collider collider)
         {
-            BumpIn();
             if (_isOnCooldown) return;
             _isOnCooldown = true;
 
             if (collider.TryGetComponent(out GorillaTriggerColliderHandIndicator component))
             {
+                BumpIn();
                 _computer.PressButton(this);
                 GorillaTagger.Instance.StartVibration(component.isLeftHand, GorillaTagger.Instance.tapHapticStrength / 2f, GorillaTagger.Instance.tapHapticDuration);
                 if (PhotonNetwork.InRoom && GorillaTagger.Instance.myVRRig != null)
@@ -113,27 +114,36 @@ namespace ComputerInterface
 
         private void OnTriggerExit(Collider collider)
         {
+            if (collider.GetComponent<GorillaTriggerColliderHandIndicator>() == null) return;
             BumpOut();
         }
 
         private void BumpIn()
         {
-            var pos = transform.localPosition;
-            pos.y -= KEY_BUMP_AMOUNT;
-            transform.localPosition = pos;
-            collider.center -= new Vector3(0, 0, KEY_BUMP_AMOUNT / 1.125f);
+            if (!_bumped)
+            {
+                _bumped = true;
+                var pos = transform.localPosition;
+                pos.y -= KEY_BUMP_AMOUNT;
+                transform.localPosition = pos;
+                collider.center -= new Vector3(0, 0, KEY_BUMP_AMOUNT / 1.125f);
 
-            _material.color = _pressedColor;
+                _material.color = _pressedColor;
+            }
         }
 
         private void BumpOut()
         {
-            var pos = transform.localPosition;
-            pos.y += KEY_BUMP_AMOUNT;
-            transform.localPosition = pos;
-            collider.center += new Vector3(0, 0, KEY_BUMP_AMOUNT / 1.125f);
+            if (_bumped)
+            {
+                _bumped = false;
+                var pos = transform.localPosition;
+                pos.y += KEY_BUMP_AMOUNT;
+                transform.localPosition = pos;
+                collider.center += new Vector3(0, 0, KEY_BUMP_AMOUNT / 1.125f);
 
-            _material.color = _originalColor;
+                _material.color = _originalColor;
+            }
         }
 
         private void OnISKeyPress()
