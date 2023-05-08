@@ -43,7 +43,11 @@ namespace ComputerInterface
 
         public static void InitializeNoobMaterial(float r, float g, float b) => InitializeNoobMaterial(new Color(r, g, b));
 
-        public static void InitializeNoobMaterial(Color color) => GorillaTagger.Instance.myVRRig?.photonView.RPC("InitializeNoobMaterial", RpcTarget.All, color.r, color.g, color.b, GorillaComputer.instance?.leftHanded ?? true);
+        public static void InitializeNoobMaterial(Color color)
+        {
+            if (CheckForComputer(out var computer) && PhotonNetwork.InRoom && GorillaTagger.Instance.myVRRig != null)
+                GorillaTagger.Instance.myVRRig.photonView.RPC("InitializeNoobMaterial", RpcTarget.All, color.r, color.g, color.b, computer.leftHanded);
+        }
 
         #endregion
 
@@ -66,15 +70,24 @@ namespace ComputerInterface
                     return;
                 }
 
-                name = name.Replace(" ", "");
-                computer.offlineVRRigNametagText.text = name;
-                computer.savedName = name;
-                PlayerPrefs.SetString("playerName", name);
-                PlayerPrefs.Save();
+                try
+                {
+                    name = name.Replace(" ", "");
+                    computer.currentName = name;
+                    PhotonNetwork.LocalPlayer.NickName = name;
+                    computer.offlineVRRigNametagText.text = name;
+                    computer.savedName = name;
+                    PlayerPrefs.SetString("playerName", name);
+                    PlayerPrefs.Save();
 
-                GetColor(out var r, out var g, out var b);
-                SetColor(r, g, b);
-
+                    GetColor(out var r, out var g, out var b);
+                    InitializeNoobMaterial(r, g, b);
+                }
+                catch
+                {
+                    throw new NullReferenceException(); // usually occurs due to the InitializeNoobMaterial method
+                }
+               
                 isError = false;
                 errorReason = "No error found";
                 return;
