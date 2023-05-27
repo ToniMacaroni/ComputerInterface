@@ -21,9 +21,10 @@ namespace ComputerInterface
             PlayerPrefs.SetFloat("redValue", Mathf.Clamp(r, 0f, 1f));
             PlayerPrefs.SetFloat("greenValue", Mathf.Clamp(g, 0f, 1f));
             PlayerPrefs.SetFloat("blueValue", Mathf.Clamp(b, 0f, 1f));
-            PlayerPrefs.Save();
 
             GorillaTagger.Instance.UpdateColor(r, g, b);
+            PlayerPrefs.Save();
+
             InitializeNoobMaterial(r, g, b);
         }
         public static void SetColor(Color color) => SetColor(color.r, color.g, color.b);
@@ -41,7 +42,11 @@ namespace ComputerInterface
             return new Color(r, g, b);
         }
 
-        public static void InitializeNoobMaterial(float r, float g, float b) => InitializeNoobMaterial(new Color(r, g, b));
+        public static void InitializeNoobMaterial(float r, float g, float b)
+        {
+            if (CheckForComputer(out var computer) && PhotonNetwork.InRoom && GorillaTagger.Instance.myVRRig != null)
+                GorillaTagger.Instance.myVRRig.photonView.RPC("InitializeNoobMaterial", RpcTarget.All, r, g, b, computer.leftHanded);
+        }
 
         public static void InitializeNoobMaterial(Color color)
         {

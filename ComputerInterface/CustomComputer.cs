@@ -86,7 +86,7 @@ namespace ComputerInterface
                 try
                 {
                     await ReplaceKeys(physcialComputers[i], false); // TODO: Update Clouds key texts
-                    CustomScreenInfo screenInfo = await CreateMonitor(physcialComputers[i]);
+                    CustomScreenInfo screenInfo = await CreateMonitor(physcialComputers[i], i);
                     screenInfo.Color = _config.ScreenBackgroundColor.Value;
                     screenInfo.Background = _config.BackgroundTexture;
                     _customScreenInfos.Add(screenInfo);
@@ -437,9 +437,9 @@ namespace ComputerInterface
             return customKeyboardKey;
         }
 
-        private async Task<CustomScreenInfo> CreateMonitor(GameObject computer)
+        private async Task<CustomScreenInfo> CreateMonitor(GameObject computer, int computerIndex) // index used for removing the base game computer.
         {
-            RemoveMonitor(computer);
+            RemoveMonitor(computer, computerIndex);
 
             var tmpSettings = await _assetsLoader.GetAsset<TMP_Settings>("TMP Settings");
             typeof(TMP_Settings).GetField(
@@ -482,7 +482,7 @@ namespace ComputerInterface
             return info;
         }
 
-        private void RemoveMonitor(GameObject computer)
+        private void RemoveMonitor(GameObject computer, int monitorIndex)
         {
             GameObject monitor = null;
             foreach (Transform child in computer.transform)
@@ -500,125 +500,129 @@ namespace ComputerInterface
                 return;
             }
 
-            // If not Treehouse
-            if (monitor.transform.Find("FunctionSelect") is null)
+            // Stable for now 
+            if (computer.TryGetComponent(out GorillaComputerTerminal terminal))
             {
-                // Stable for now 
-                if (computer.TryGetComponent<GorillaComputerTerminal>(out GorillaComputerTerminal terminal))
-                {
-                    terminal.monitorMesh?.gameObject?.SetActive(false);
-                    terminal.myFunctionText?.gameObject?.SetActive(false);
-                    terminal.myScreenText?.gameObject?.SetActive(false);
-                }
+                terminal.monitorMesh?.gameObject?.SetActive(false);
+                terminal.myFunctionText?.gameObject?.SetActive(false);
+                terminal.myScreenText?.gameObject?.SetActive(false);
             }
-            else
+
+            try
             {
-                // Stable for now 
-                if (computer.TryGetComponent<GorillaComputerTerminal>(out GorillaComputerTerminal terminal))
+                // Treehouse monitor was baked into the scene, so we need to do all this jank to get rid of it
+                // Currently, This is broken as the combined mesh has isReadable set to false
+                // so all the mesh info lives on the GPU, which makes it unaccessabel afaik
+
+                GameObject combinedScene = null;
+                switch (monitorIndex)
                 {
-                    terminal.monitorMesh?.gameObject?.SetActive(false);
-                    terminal.myFunctionText?.gameObject?.SetActive(false);
-                    terminal.myScreenText?.gameObject?.SetActive(false);
+                    case 0:
+                        combinedScene = GameObject.Find("forest/ForestObjects/Uncover ForestCombined/").GetComponentInChildren<MeshRenderer>().gameObject;
+                        break;
+                    case 1:
+                        combinedScene = GameObject.Find("mountain/Mountain Texture Baker/Uncover Mountain Lit/CombinedMesh-Uncover Mountain Lit-mesh/").GetComponentInChildren<MeshRenderer>().gameObject;
+                        break;
+                    case 5:
+                        combinedScene = GameObject.Find("beach/Beach Texture Baker - ABOVE WATER/Uncover Beach Lit/").GetComponentInChildren<MeshRenderer>().gameObject;
+                        break;
+                    default:
+                        break;
                 }
 
-                try
+                if (combinedScene == null) return;
+
+                Mesh combinedSceneMesh = combinedScene.GetComponent<MeshFilter>().mesh;
+                if (!combinedSceneMesh.isReadable) return;
+
+                var bounds = monitor.GetComponent<Renderer>().bounds;
+
+                Vector3[] combinedSceneVertices = combinedSceneMesh.vertices;
+                int[] combinedSceneTriangles = combinedSceneMesh.triangles;
+
+                // There are duplicate verticies, so we need to make a map to not miss any
+                var duplicateVerticiesMap = new Dictionary<Vector3, HashSet<int>>();
+                for (int i = 0; i < combinedSceneVertices.Length; i++)
                 {
-                    // Treehouse monitor was baked into the scene, so we need to do all this jank to get rid of it
-                    // Currently, This is broken as the combined mesh has isReadable set to false
-                    // so all the mesh info lives on the GPU, which makes it unaccessabel afaik
-                    var combinedScene = GameObject.Find("forest/ForestObjects/Uncover ForestCombined/").GetComponentInChildren<MeshRenderer>().gameObject;
-                    Mesh combinedSceneMesh = combinedScene.GetComponent<MeshFilter>().mesh;
-                    if (!combinedSceneMesh.isReadable) return;
-
-                    var bounds = monitor.GetComponent<Renderer>().bounds;
-
-                    Vector3[] combinedSceneVertices = combinedSceneMesh.vertices;
-                    int[] combinedSceneTriangles = combinedSceneMesh.triangles;
-
-                    // There are duplicate verticies, so we need to make a map to not miss any
-                    var duplicateVerticiesMap = new Dictionary<Vector3, HashSet<int>>();
-                    for (int i = 0; i < combinedSceneVertices.Length; i++)
+                    var vertex = combinedSceneVertices[i];
+                    if (!duplicateVerticiesMap.ContainsKey(vertex))
                     {
-                        var vertex = combinedSceneVertices[i];
-                        if (!duplicateVerticiesMap.ContainsKey(vertex))
-                        {
-                            duplicateVerticiesMap.Add(vertex, new HashSet<int>());
-                        }
-                        duplicateVerticiesMap[vertex].Add(i);
+                        duplicateVerticiesMap.Add(vertex, new HashSet<int>());
+                    }
+                    duplicateVerticiesMap[vertex].Add(i);
+                }
+
+                var connectedVerticiesMap = new Dictionary<int, HashSet<int>>();
+                for (int i = 0; i < combinedSceneTriangles.Length; i += 3)
+                {
+                    int vertex1 = combinedSceneTriangles[i];
+                    int vertex2 = combinedSceneTriangles[i + 1];
+                    int vertex3 = combinedSceneTriangles[i + 2];
+
+                    if (!connectedVerticiesMap.ContainsKey(vertex1))
+                    {
+                        connectedVerticiesMap.Add(vertex1, new HashSet<int>());
                     }
 
-                    var connectedVerticiesMap = new Dictionary<int, HashSet<int>>();
-                    for (int i = 0; i < combinedSceneTriangles.Length; i += 3)
+                    if (!connectedVerticiesMap.ContainsKey(vertex2))
                     {
-                        int vertex1 = combinedSceneTriangles[i];
-                        int vertex2 = combinedSceneTriangles[i + 1];
-                        int vertex3 = combinedSceneTriangles[i + 2];
-
-                        if (!connectedVerticiesMap.ContainsKey(vertex1))
-                        {
-                            connectedVerticiesMap.Add(vertex1, new HashSet<int>());
-                        }
-
-                        if (!connectedVerticiesMap.ContainsKey(vertex2))
-                        {
-                            connectedVerticiesMap.Add(vertex2, new HashSet<int>());
-                        }
-
-                        if (!connectedVerticiesMap.ContainsKey(vertex3))
-                        {
-                            connectedVerticiesMap.Add(vertex3, new HashSet<int>());
-                        }
-
-                        connectedVerticiesMap[vertex1].Add(vertex2);
-                        connectedVerticiesMap[vertex1].Add(vertex3);
-
-                        connectedVerticiesMap[vertex2].Add(vertex1);
-                        connectedVerticiesMap[vertex2].Add(vertex3);
-
-                        connectedVerticiesMap[vertex3].Add(vertex1);
-                        connectedVerticiesMap[vertex3].Add(vertex2);
+                        connectedVerticiesMap.Add(vertex2, new HashSet<int>());
                     }
 
-                    HashSet<int> monitorVerticies = new HashSet<int>();
-
-                    for (int i = 0; i < combinedSceneVertices.Length; i++)
+                    if (!connectedVerticiesMap.ContainsKey(vertex3))
                     {
-                        // if the vertex is contined in bounds, use it as a root point for finding all verticies
-                        if (bounds.Contains(combinedSceneVertices[i]))
+                        connectedVerticiesMap.Add(vertex3, new HashSet<int>());
+                    }
+
+                    connectedVerticiesMap[vertex1].Add(vertex2);
+                    connectedVerticiesMap[vertex1].Add(vertex3);
+
+                    connectedVerticiesMap[vertex2].Add(vertex1);
+                    connectedVerticiesMap[vertex2].Add(vertex3);
+
+                    connectedVerticiesMap[vertex3].Add(vertex1);
+                    connectedVerticiesMap[vertex3].Add(vertex2);
+                }
+
+                HashSet<int> monitorVerticies = new HashSet<int>();
+
+                for (int i = 0; i < combinedSceneVertices.Length; i++)
+                {
+                    // if the vertex is contined in bounds, use it as a root point for finding all verticies
+                    if (bounds.Contains(combinedSceneVertices[i]))
+                    {
+                        foreach (int vertex in duplicateVerticiesMap[combinedSceneVertices[i]])
                         {
-                            foreach (int vertex in duplicateVerticiesMap[combinedSceneVertices[i]])
+                            FindConnectedVerticies(vertex, monitorVerticies);
+                        }
+                    }
+                }
+
+                void FindConnectedVerticies(int index, HashSet<int> connectedVerticies)
+                {
+                    if (!connectedVerticies.Contains(index))
+                    {
+                        connectedVerticies.Add(index);
+                        foreach (var connectedVertex in connectedVerticiesMap[index])
+                        {
+                            foreach (int duplicateVertex in duplicateVerticiesMap[combinedSceneVertices[connectedVertex]])
                             {
-                                FindConnectedVerticies(vertex, monitorVerticies);
+                                FindConnectedVerticies(duplicateVertex, connectedVerticies);
                             }
                         }
                     }
-
-                    void FindConnectedVerticies(int index, HashSet<int> connectedVerticies)
-                    {
-                        if (!connectedVerticies.Contains(index))
-                        {
-                            connectedVerticies.Add(index);
-                            foreach (var connectedVertex in connectedVerticiesMap[index])
-                            {
-                                foreach (int duplicateVertex in duplicateVerticiesMap[combinedSceneVertices[connectedVertex]])
-                                {
-                                    FindConnectedVerticies(duplicateVertex, connectedVerticies);
-                                }
-                            }
-                        }
-                    }
-
-                    // Remove the verticies that are not connected to the starting vertex
-                    foreach (int connectedVertex in monitorVerticies)
-                    {
-                        combinedSceneVertices[connectedVertex] = new Vector3(combinedSceneVertices[connectedVertex].x, -100, combinedSceneVertices[connectedVertex].z);
-                    }
-
-                    // Getting the verticies returend a copy of them, so set the actual verticies
-                    combinedSceneMesh.vertices = combinedSceneVertices;
                 }
-                catch { }
+
+                // Remove the verticies that are not connected to the starting vertex
+                foreach (int connectedVertex in monitorVerticies)
+                {
+                    combinedSceneVertices[connectedVertex] = new Vector3(combinedSceneVertices[connectedVertex].x, -100, combinedSceneVertices[connectedVertex].z);
+                }
+
+                // Getting the verticies returend a copy of them, so set the actual verticies
+                combinedSceneMesh.vertices = combinedSceneVertices;
             }
+            catch { }
         }
     }
 }
