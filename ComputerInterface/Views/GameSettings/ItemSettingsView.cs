@@ -60,6 +60,7 @@ namespace ComputerInterface.Views.GameSettings
                         Redraw();
                         return;
                     }
+                    
                     if (key.TryParseNumber(out var num))
                     {
                         BaseGameInterface.SetInstrumentVolume(num);

@@ -1,5 +1,5 @@
-using ComputerInterface.ViewLib;
 using System.Text;
+using ComputerInterface.ViewLib;
 
 namespace ComputerInterface.Views.GameSettings
 {

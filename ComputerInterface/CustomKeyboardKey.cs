@@ -174,7 +174,7 @@ namespace ComputerInterface
             for (int i = 1; i < 9; i++)
             {
                 var localKey = (EKeyboardKey)i;
-                var key = (Key)40 + i;
+                var key = (Key) 40+i;
 
                 _keyMap.Add(localKey, key);
             }
@@ -184,8 +184,8 @@ namespace ComputerInterface
             // add keys that match in name like alphabet keys
             foreach (var gtKey in Enum.GetNames(typeof(EKeyboardKey)))
             {
-                var val = (EKeyboardKey)Enum.Parse(typeof(EKeyboardKey), gtKey);
-                if (_keyMap.ContainsKey(val)) continue;
+                var val = (EKeyboardKey) Enum.Parse(typeof(EKeyboardKey), gtKey);
+                if(_keyMap.ContainsKey(val))continue;
 
                 if (!Enum.TryParse(gtKey, true, out Key key)) continue;
 

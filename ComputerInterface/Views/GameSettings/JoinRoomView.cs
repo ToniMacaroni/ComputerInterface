@@ -1,9 +1,11 @@
-using ComputerInterface.ViewLib;
-using GorillaNetworking;
-using Photon.Pun;
 using System;
 using System.Text;
 using UnityEngine;
+
+using GorillaNetworking;
+using Photon.Pun;
+
+using ComputerInterface.ViewLib;
 
 namespace ComputerInterface.Views.GameSettings
 {

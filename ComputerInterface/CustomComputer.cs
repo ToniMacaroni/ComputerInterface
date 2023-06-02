@@ -1,13 +1,13 @@
-﻿using BepInEx;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
+using BepInEx;
 using BepInEx.Bootstrap;
 using ComputerInterface.Interfaces;
 using ComputerInterface.ViewLib;
 using ComputerInterface.Views;
 using GorillaNetworking;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -232,7 +232,7 @@ namespace ComputerInterface
                     button.GetComponentInChildren<MeshRenderer>().material.color = new Color(0.1f, 0.1f, 0.1f);
                     button.transform.localPosition -= new Vector3(0, 0.6f, 0);
                     DestroyImmediate(button.GetComponent<BoxCollider>());
-                    if (FindText(button.gameObject, button.name + "text")?.GetComponent<Text>() is Text arrowBtnText)
+                    if(FindText(button.gameObject, button.name + "text")?.GetComponent<Text>() is Text arrowBtnText)
                     {
                         DestroyImmediate(arrowBtnText);
                     }
@@ -266,8 +266,7 @@ namespace ComputerInterface
 
             _keyboardAudios.Add(audioSource);
 
-            if (_keyboard.GetComponent<MeshRenderer>() is MeshRenderer renderer)
-            {
+            if (_keyboard.GetComponent<MeshRenderer>() is MeshRenderer renderer) {
                 renderer.material.color = new Color(0.3f, 0.3f, 0.3f);
             }
 
