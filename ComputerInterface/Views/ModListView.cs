@@ -1,11 +1,10 @@
-﻿using BepInEx.Bootstrap;
+﻿using System;
+using System.Linq;
+using System.Text;
+using BepInEx.Bootstrap;
 using ComputerInterface.Interfaces;
 using ComputerInterface.ViewLib;
 using HarmonyLib;
-using System;
-using System.Linq;
-using System.Reflection;
-using System.Text;
 
 namespace ComputerInterface.Views
 {
@@ -17,51 +16,50 @@ namespace ComputerInterface.Views
 
     internal class ModListView : ComputerView
     {
-        internal class ModListItem
-        {
+		internal class ModListItem
+		{
             private readonly CIConfig _config;
 
-            public BepInEx.PluginInfo PluginInfo { get; private set; }
-            public bool Supported { get; private set; }
+			public BepInEx.PluginInfo PluginInfo { get; private set; }
+			public bool Supported { get; private set; }
 
             public ModListItem(BepInEx.PluginInfo pluginInfo, CIConfig config)
-            {
+			{
                 _config = config;
                 PluginInfo = pluginInfo;
                 Supported = DoesModImplementFeature();
-            }
+			}
 
-            private bool DoesModImplementFeature()
-            {
-                MethodInfo onEnable = AccessTools.Method(PluginInfo.Instance.GetType(), "OnEnable");
-                MethodInfo  onDisable = AccessTools.Method(PluginInfo.Instance.GetType(), "OnDisable");
+			private bool DoesModImplementFeature()
+			{
+                var onEnable = AccessTools.Method(PluginInfo.Instance.GetType(), "OnEnable");
+                var onDisable = AccessTools.Method(PluginInfo.Instance.GetType(), "OnDisable");
                 return onEnable != null && onDisable != null;
-            }
+			}
 
             public void EnableMod()
-            {
+			{
                 PluginInfo.Instance.enabled = true;
                 _config.RemoveDisabledMod(PluginInfo.Metadata.GUID);
-            }
+			}
 
             public void DisableMod()
-            {
+			{
                 PluginInfo.Instance.enabled = false;
                 _config.AddDisabledMod(PluginInfo.Metadata.GUID);
-            }
+			}
 
             public void ToggleMod()
-            {
+			{
                 if (PluginInfo.Instance.enabled)
-                {
+				{
                     DisableMod();
-                }
-                else
-                {
+				} else
+				{
                     EnableMod();
-                }
-            }
-        }
+				}
+			}
+		}
 
         private readonly CIConfig _config;
 
@@ -160,9 +158,9 @@ namespace ComputerInterface.Views
         private void SelectMod(int idx)
         {
             if (_plugins[idx].Supported)
-            {
+			{
                 _plugins[idx].ToggleMod();
-            }
+			}
             Redraw();
         }
     }
