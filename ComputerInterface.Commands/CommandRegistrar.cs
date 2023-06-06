@@ -37,9 +37,10 @@ namespace ComputerInterface.Commands
             {
                 var newName = ((string)args[0]).ToUpper();
 
-                BaseGameInterface.SetName(newName, out bool error, out string errorReason);
-                if (error) return errorReason;
-                return $"Name set to {newName.Replace(" ", "")}";
+                var result = BaseGameInterface.SetName(newName);
+
+                if (result == BaseGameInterface.WordCheckResult.Allowed) return $"Name set to {newName.Replace(" ", "")}";
+                else return BaseGameInterface.WordCheckResultToMessage(result);
             }));
 
             // leave: leave
@@ -57,10 +58,10 @@ namespace ComputerInterface.Commands
                 var roomId = (string)args[0];
 
                 roomId = roomId.ToUpper();
-                BaseGameInterface.JoinRoom(roomId, out bool error, out string errorReason);
+                var result = BaseGameInterface.JoinRoom(roomId);
 
-                if (error) return errorReason;
-                return $"Joined {roomId}";
+                if (result == BaseGameInterface.WordCheckResult.Allowed) return $"Joined {roomId}";
+                else return BaseGameInterface.WordCheckResultToMessage(result);
             }));
 
             // cam <fp|tp>

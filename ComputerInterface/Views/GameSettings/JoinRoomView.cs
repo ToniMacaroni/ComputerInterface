@@ -117,7 +117,7 @@ namespace ComputerInterface.Views.GameSettings
                     _joinedRoom = _textInputHandler.Text.ToUpper();
                     GorillaComputer.instance.roomFull = false;
                     GorillaComputer.instance.roomNotAllowed = false;
-                    BaseGameInterface.JoinRoom(_joinedRoom, out _, out _);
+                    BaseGameInterface.JoinRoom(_joinedRoom);
                     Redraw();
                     break;
                 case EKeyboardKey.Option1:

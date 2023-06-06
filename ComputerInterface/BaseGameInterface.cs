@@ -42,12 +42,7 @@ namespace ComputerInterface
             return new Color(r, g, b);
         }
 
-        public static void InitializeNoobMaterial(float r, float g, float b)
-        {
-            if (CheckForComputer(out var computer) && PhotonNetwork.InRoom && GorillaTagger.Instance.myVRRig != null)
-                GorillaTagger.Instance.myVRRig.photonView.RPC("InitializeNoobMaterial", RpcTarget.All, r, g, b, computer.leftHanded);
-        }
-
+        public static void InitializeNoobMaterial(float r, float g, float b) => InitializeNoobMaterial(new Color(r, g, b));
         public static void InitializeNoobMaterial(Color color)
         {
             if (CheckForComputer(out var computer) && PhotonNetwork.InRoom && GorillaTagger.Instance.myVRRig != null)
@@ -64,74 +59,63 @@ namespace ComputerInterface
             return null;
         }
 
-        public static void SetName(string name, out bool isError, out string errorReason)
+        public enum WordCheckResult
         {
-            if (CheckForComputer(out var computer))
-            {
-                if (!NameAllowed(name, out string errorReasonInit))
-                {
-                    isError = true;
-                    errorReason = errorReasonInit;
-                    return;
-                }
-
-                try
-                {
-                    name = name.Replace(" ", "");
-                    computer.currentName = name;
-                    PhotonNetwork.LocalPlayer.NickName = name;
-                    computer.offlineVRRigNametagText.text = name;
-                    computer.savedName = name;
-                    PlayerPrefs.SetString("playerName", name);
-                    PlayerPrefs.Save();
-
-                    GetColor(out var r, out var g, out var b);
-                    InitializeNoobMaterial(r, g, b);
-                }
-                catch
-                {
-                    throw new NullReferenceException(); // usually occurs due to the InitializeNoobMaterial method
-                }
-               
-                isError = false;
-                errorReason = "No error found";
-                return;
-            }
-            isError = true;
-            errorReason = "Computer not found";
+            Allowed,
+            Empty,
+            Blank,
+            NotAllowed,
+            TooLong,
+            ComputerNotFound
         }
 
-        private static bool NameAllowed(string name, out string reason)
+        public static string WordCheckResultToMessage(WordCheckResult result)
         {
-            if (CheckForComputer(out var computer))
+            return result switch
             {
-                if (name.Length == 0)
-                {
-                    reason = "Name is empty";
-                    return false;
-                }
-                if (string.IsNullOrWhiteSpace(name))
-                {
-                    reason = "Name is blank";
-                    return false;
-                }
-                if (!computer.CheckAutoBanListForName(name))
-                {
-                    reason = "Name isn't allowed";
-                    return false;
-                }
-                if (name.Length > MAX_NAME_LENGTH)
-                {
-                    reason = "Name is too long";
-                    return false;
-                }
+                WordCheckResult.Allowed => "Input is allowed",
+                WordCheckResult.Empty => "Input is empty",
+                WordCheckResult.Blank => "Input is blank",
+                WordCheckResult.NotAllowed => "Input is not allowed",
+                WordCheckResult.TooLong => "Input is too long",
+                WordCheckResult.ComputerNotFound => "Computer not found",
+                _ => throw new ArgumentOutOfRangeException(nameof(result), result, null)
+            };
+        }
 
-                reason = "No error found";
-                return true;
+        private static WordCheckResult WordAllowed(string word)
+        {
+            if (word.Length == 0) return WordCheckResult.Empty;
+            if (string.IsNullOrWhiteSpace(word)) return WordCheckResult.Blank;
+            if (!CheckForComputer(out var computer)) return WordCheckResult.ComputerNotFound;
+            if (!computer.CheckAutoBanListForName(word)) return WordCheckResult.NotAllowed;
+            if (word.Length > MAX_NAME_LENGTH) return WordCheckResult.TooLong;
+            return WordCheckResult.Allowed;
+        }
+
+        public static WordCheckResult SetName(string name)
+        {
+            if (!CheckForComputer(out var computer))
+            {
+                return WordCheckResult.ComputerNotFound;
             }
 
-            reason = "Computer not found.";
-            return false;
+			var wordAllowed = WordAllowed(name);
+            if (wordAllowed == WordCheckResult.Allowed)
+            {
+                name = name.Replace(" ", "");
+                computer.currentName = name;
+                PhotonNetwork.LocalPlayer.NickName = name;
+                computer.offlineVRRigNametagText.text = name;
+                computer.savedName = name;
+                PlayerPrefs.SetString("playerName", name);
+                PlayerPrefs.Save();
+
+                GetColor(out var r, out var g, out var b);
+                InitializeNoobMaterial(r, g, b);
+            }
+
+            return wordAllowed;
         }
 
         #endregion
@@ -299,57 +283,21 @@ namespace ComputerInterface
             }
         }
 
-        public static void JoinRoom(string roomId, out bool isError, out string errorReason)
+        public static WordCheckResult JoinRoom(string roomId)
         {
-            if (CheckForComputer(out var computer))
+            if (!CheckForComputer(out var computer))
             {
-                if (!RoomAllowed(roomId, out errorReason))
-                {
-                    isError = true;
-                    return;
-                }
+                return WordCheckResult.ComputerNotFound;
+            }
 
-                isError = false;
-                errorReason = "Error not found";
+            var roomAllowed = WordAllowed(roomId);
+
+            if (roomAllowed == WordCheckResult.Allowed)
+            {
                 computer.networkController.AttemptToJoinSpecificRoom(roomId);
-                return;
             }
 
-            errorReason = "Computer not found";
-            isError = true;
-        }
-
-        public static bool RoomAllowed(string roomId, out string errorReason)
-        {
-            if (CheckForComputer(out _))
-            {
-                if (roomId.Length == 0)
-                {
-                    errorReason = "Room is empty";
-                    return false;
-                }
-                if (string.IsNullOrWhiteSpace(roomId))
-                {
-                    errorReason = "Room is blank";
-                    return false;
-                }
-                if (!GorillaComputer.instance.CheckAutoBanListForName(roomId))
-                {
-                    errorReason = "Room isn't allowed";
-                    return false;
-                }
-                if (roomId.Length > MAX_ROOM_LENGTH)
-                {
-                    errorReason = "Room is too long";
-                    return false;
-                }
-
-                errorReason = "No error";
-                return true;
-            }
-
-            errorReason = "Computer not found";
-            return false;
+            return roomAllowed;
         }
 
         public static string GetRoomCode()
@@ -379,7 +327,7 @@ namespace ComputerInterface
         public static void InitNameState()
         {
             var name = PlayerPrefs.GetString("playerName", "gorilla");
-            SetName(name, out _, out _);
+            SetName(name);
         }
 
         public static void InitTurnState()

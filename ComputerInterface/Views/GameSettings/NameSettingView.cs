@@ -6,9 +6,8 @@ namespace ComputerInterface.Views.GameSettings
     public class NameSettingView : ComputerView
     {
         private readonly UITextInputHandler _textInputHandler;
-        private bool SwitchedName = false;
-        private bool DisplayOutcome = false;
-        private string ErrorReason = "";
+        private bool switchedName = false;
+        private BaseGameInterface.WordCheckResult errorReason;
 
         public NameSettingView()
         {
@@ -33,22 +32,32 @@ namespace ComputerInterface.Views.GameSettings
 
             str.BeginColor("ffffff50").Append("> ").EndColor().AppendClr(_textInputHandler.Text, "ffffffff").AppendClr("_", "ffffff50");
 
-            str.AppendLines(6)
-                .AppendClr($" * {(!SwitchedName ? "Press Enter to update your name." : (!DisplayOutcome ? $"Error: {ErrorReason}." : $"Changed name to {BaseGameInterface.GetName()}"))}", "ffffff50").AppendLine();
+            str.AppendLines(6);
+
+            if (switchedName)
+            {
+                str.AppendClr(errorReason switch {
+                    BaseGameInterface.WordCheckResult.Allowed => $"Changed name to {BaseGameInterface.GetName()}",
+                    _ => $"Error: {BaseGameInterface.WordCheckResultToMessage(errorReason)}.",
+                }, "ffffff50").AppendLine();
+            }
+            else
+            {
+                str.AppendClr("Press Enter to update your name.", "ffffff50").AppendLine();
+            }
 
             Text = str.ToString();
         }
 
         public override void OnKeyPressed(EKeyboardKey key)
         {
-            SwitchedName = false;
+            switchedName = false;
 
             switch (key)
             {
                 case EKeyboardKey.Enter:
-                    BaseGameInterface.SetName(_textInputHandler.Text, out bool error, out ErrorReason);
-                    SwitchedName = true;
-                    DisplayOutcome = !error;
+                    errorReason = BaseGameInterface.SetName(_textInputHandler.Text);
+                    switchedName = true;
                     Redraw();
                     break;
                 case EKeyboardKey.Back:
