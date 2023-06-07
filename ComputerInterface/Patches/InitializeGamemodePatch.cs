@@ -4,7 +4,6 @@ using UnityEngine;
 
 namespace ComputerInterface.Patches
 {
-    // why is this on computer interface? it feels more like a utilla feature
     [HarmonyPatch(typeof(GorillaComputer))]
     [HarmonyPatch("InitializeGameMode")]
     internal class InitializeGamemodePatch
