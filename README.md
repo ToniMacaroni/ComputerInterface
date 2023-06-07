@@ -47,7 +47,6 @@ You can also run ``setbg 255 255 255`` to leave the background with no modified 
 
 ## Additional Features
 Computer Interface by itself also includes some exclusive content. This includes:
-- <b>Room Browser (Alpha)</b>
 - <b>Command Line</b>
 - <b>Ability to toggle supported mods on and off</b>
 - <b>Key animation when it's pressed</b>
