@@ -8,25 +8,23 @@ namespace ComputerInterface.Views
 {
     public class ComputerSettingsEntry : IComputerModEntry
     {
-        public string EntryName => "Computer Settings";
+        public string EntryName => "Computer Display Settings";
         public Type EntryViewType => typeof(ComputerSettingsView);
     }
 
     public class ComputerSettingsView : ComputerView
     {
-        private readonly UISelectionHandler _selectionHandler;
+        private readonly CustomComputer _computer;
+        private readonly UISelectionHandler _rowSelectionHandler;
         private readonly UISelectionHandler _columnSelectionHandler;
         private Color _color;
-        private Color _savedColor;
 
-        private string _rString = "255";
-        private string _gString = "255";
-        private string _bString = "255";
-
-        public ComputerSettingsView()
+        public ComputerSettingsView(CustomComputer computer)
         {
-            _selectionHandler = new UISelectionHandler(EKeyboardKey.Up, EKeyboardKey.Down);
-            _selectionHandler.MaxIdx = 2;
+            _computer = computer;
+
+            _rowSelectionHandler = new UISelectionHandler(EKeyboardKey.Up, EKeyboardKey.Down);
+            _rowSelectionHandler.MaxIdx = 2;
 
             _columnSelectionHandler = new UISelectionHandler(EKeyboardKey.Left, EKeyboardKey.Right);
             _columnSelectionHandler.MaxIdx = 2;
@@ -36,32 +34,31 @@ namespace ComputerInterface.Views
         {
             base.OnShow(args);
 
-            SetColor(CustomScreenInfo.instance.Color);
-            _savedColor = _color;
+            _color = _computer.GetBG();
             Redraw();
         }
 
         public void Redraw()
         {
+            Color savedColor = _computer.GetBG();
+
             var str = new StringBuilder();
             str.Repeat("=", SCREEN_WIDTH).AppendLine();
-            str.BeginCenter().Append("Computer Settings").AppendLine();
-            str.AppendClr("Setting auto-saved to Config file", "ffffff50").EndAlign().AppendLine();
+            str.BeginCenter().Append("Computer Display Settings").AppendLine();
             str.Repeat("=", SCREEN_WIDTH).AppendLines(2);
 
             str.AppendLine(" Background Color:");
 
-            str.AppendClr($"  R: ", "ffffff50");
-            DrawValue(str, _rString, 0);
-            str.AppendClr($"<size=40>  Current: {Mathf.RoundToInt(_savedColor.r * 255).ToString().PadLeft(3, '0')}</size>", "ffffff50").AppendLine();
+			void DrawRow(char name, float color, float savedColor, int col)
+            {
+                str.AppendClr($"  {name}: ", "ffffff50");
+                DrawValue(str, color, col);
+                str.AppendClr($"<size=40>  Current: {FormatColor(savedColor)}</size>", "ffffff50").AppendLine();
+            }
 
-            str.AppendClr("  G: ", "ffffff50");
-            DrawValue(str, _gString, 1);
-            str.AppendClr($"<size=40>  Current: {Mathf.RoundToInt(_savedColor.g * 255).ToString().PadLeft(3, '0')}</size>", "ffffff50").AppendLine();
-
-            str.AppendClr("  B: ", "ffffff50");
-            DrawValue(str, _bString, 2);
-            str.AppendClr($"<size=40>  Current: {Mathf.RoundToInt(_savedColor.b * 255).ToString().PadLeft(3, '0')}</size>", "ffffff50").AppendLine();
+            DrawRow('R', _color.r, savedColor.r, 0);
+            DrawRow('G', _color.g, savedColor.g, 1);
+            DrawRow('B', _color.b, savedColor.b, 2);
 
             str.AppendLines(2)
                 .AppendClr(" * Press Enter to update settings.", "ffffff50").AppendLine();
@@ -74,78 +71,68 @@ namespace ComputerInterface.Views
             switch (key)
             {
                 case EKeyboardKey.Enter:
-                    UnityEngine.Object.FindObjectOfType<CustomComputer>().SetBG(_color.r, _color.g, _color.b);
-                    _savedColor = _color;
+                    _computer.SetBG(_color);
                     Redraw();
                     break;
                 case EKeyboardKey.Back:
                     ReturnToMainMenu();
                     break;
                 default:
-                    if (key.IsNumberKey())
+                    if (key.TryParseNumber(out var num))
                     {
-                        var line = _selectionHandler.CurrentSelectionIndex;
-                        var column = _columnSelectionHandler.CurrentSelectionIndex;
-                        var numChar = key.ToString().Substring(3)[0];
+                        var line = _rowSelectionHandler.CurrentSelectionIndex;
+                        var column = _columnSelectionHandler.MaxIdx - _columnSelectionHandler.CurrentSelectionIndex; // first column is most significant digit
 
                         switch (line)
                         {
                             case 0:
-                                SetValOnString(ref _rString, column, numChar);
+                                _color.r = SetValOnColor(_color.r, column, num);
                                 break;
                             case 1:
-                                SetValOnString(ref _gString, column, numChar);
+                                _color.g = SetValOnColor(_color.g, column, num);
                                 break;
                             case 2:
-                                SetValOnString(ref _bString, column, numChar);
+                                _color.b = SetValOnColor(_color.b, column, num);
                                 break;
                         }
 
-                        var r = Mathf.Clamp(int.Parse(_rString), 0, 255);
-                        var g = Mathf.Clamp(int.Parse(_gString), 0, 255);
-                        var b = Mathf.Clamp(int.Parse(_bString), 0, 255);
-
-                        _rString = r.ToString().PadLeft(3, '0');
-                        _gString = g.ToString().PadLeft(3, '0');
-                        _bString = b.ToString().PadLeft(3, '0');
-
-                        _color = new Color(r / 255f, g / 255f, b / 255f);
                         _columnSelectionHandler.MoveSelectionDown();
                         Redraw();
                         break;
                     }
-                    if (_selectionHandler.HandleKeypress(key) || _columnSelectionHandler.HandleKeypress(key)) Redraw();
+                    if (_rowSelectionHandler.HandleKeypress(key) || _columnSelectionHandler.HandleKeypress(key)) Redraw();
                     break;
             }
         }
 
-        private void SetColor(Color color)
-        {
-            _color = color;
-            _rString = Mathf.RoundToInt(color.r * 255).ToString().PadLeft(3, '0');
-            _gString = Mathf.RoundToInt(color.g * 255).ToString().PadLeft(3, '0');
-            _bString = Mathf.RoundToInt(color.b * 255).ToString().PadLeft(3, '0');
-        }
+        string FormatColor(float color) => Mathf.RoundToInt(color * 255).ToString().PadLeft(3, '0');
 
-        private void SetValOnString(ref string str, int column, char chr)
+        private void DrawValue(StringBuilder str, float val, int lineNum)
         {
-            char[] ch = str.ToCharArray();
-            ch[column] = chr;
-            str = new string(ch);
-        }
-
-        private void DrawValue(StringBuilder str, string val, int lineNum)
-        {
+            var valStr = FormatColor(val);
             for (int i = 0; i < 3; i++)
             {
-                if (_columnSelectionHandler.CurrentSelectionIndex == i && lineNum == _selectionHandler.CurrentSelectionIndex)
+                if (_columnSelectionHandler.CurrentSelectionIndex == i && lineNum == _rowSelectionHandler.CurrentSelectionIndex)
                 {
-                    str.BeginColor(PrimaryColor).Append(val[i]).EndColor();
+                    str.BeginColor(PrimaryColor).Append(valStr[i]).EndColor();
                     continue;
                 }
 
-                str.Append(val[i]);
+                str.Append(valStr[i]);
             }
+        }
+
+        private static float SetValOnColor(float input, int column, int val) => Mathf.Clamp01(SetVal(Mathf.RoundToInt(input * 255), column, val) / 255f);
+        private static int SetVal(int input, int column, int val)
+        {
+            Debug.Log($"input: {input}, column: {column}, val: {val}");
+            int powerOfTen = (int)Math.Pow(10, column);
+            Debug.Log($"powerOfTen: {powerOfTen}");
+            int digitToReplace = input / powerOfTen % 10;
+            Debug.Log($"digitToReplace: {digitToReplace}");
+            var newValue = input + powerOfTen * (val - digitToReplace);
+            Debug.Log($"newValue: {newValue}");
+            return newValue;
         }
     }
 }

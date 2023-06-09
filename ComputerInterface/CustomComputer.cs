@@ -146,13 +146,19 @@ namespace ComputerInterface
             }
         }
 
-        public void SetBG(float r, float g, float b)
+        public void SetBG(float r, float g, float b) => SetBG(new Color(r, g, b));
+        public void SetBG(Color color) 
         {
             foreach (CustomScreenInfo customScreenInfo in _customScreenInfos)
             {
-                customScreenInfo.Color = new Color(r, g, b);
+                customScreenInfo.Color = color;
                 _config.ScreenBackgroundColor.Value = customScreenInfo.Color;
             }
+        }
+
+        public Color GetBG()
+        {
+            return _config.ScreenBackgroundColor.Value;
         }
 
         public void SetBGImage(ComputerViewChangeBackgroundEventArgs args)
