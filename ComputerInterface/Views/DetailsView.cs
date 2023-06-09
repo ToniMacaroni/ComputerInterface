@@ -1,10 +1,10 @@
-﻿using BepInEx;
+﻿using System;
+using System.Text;
+using BepInEx;
 using ComputerInterface.Interfaces;
 using ComputerInterface.ViewLib;
 using GorillaNetworking;
 using Photon.Pun;
-using System;
-using System.Text;
 
 namespace ComputerInterface.Views
 {

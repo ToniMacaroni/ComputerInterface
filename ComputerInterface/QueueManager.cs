@@ -1,8 +1,11 @@
-﻿using ComputerInterface.Interfaces;
-using ComputerInterface.Queues;
-using GorillaNetworking;
+﻿using System;
 using System.Collections.Generic;
+using System.Text;
+using ComputerInterface.Interfaces;
+using ComputerInterface.Queues;
+using Zenject;
 using UnityEngine;
+using GorillaNetworking;
 
 namespace ComputerInterface
 {
@@ -29,12 +32,6 @@ namespace ComputerInterface
         static string GetQueueString()
         {
             string currentQueue = PlayerPrefs.GetString("currentQueue", "DEFAULT");
-            /* if (currentQueue != "DEFAULT" && currentQueue != "COMPETITIVE" && currentQueue != "MINIGAMES")
-            {
-                PlayerPrefs.SetString("currentQueue", "DEFAULT");
-                PlayerPrefs.Save();
-                currentQueue = "DEFAULT";
-            }*/ // most likely the best idea as of right now just in case it's ignored again
 
             return currentQueue;
         }

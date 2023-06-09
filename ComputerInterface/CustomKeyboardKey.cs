@@ -13,6 +13,7 @@ namespace ComputerInterface
     {
         private const int PRESS_COOLDOWN = 80;
         private const float KEY_BUMP_AMOUNT = 0.2f;
+        private Color _pressedColor = new Color(0.5f, 0.5f, 0.5f);
 
         public static bool KeyDebuggerEnabled;
 
@@ -31,7 +32,6 @@ namespace ComputerInterface
 
         private Material _material;
         private Color _originalColor;
-        private Color _pressedColor = new Color(0.5f, 0.5f, 0.5f);
         private KeyHandler _keyHandler;
 
         private BoxCollider collider;
