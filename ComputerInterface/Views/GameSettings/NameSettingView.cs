@@ -1,5 +1,5 @@
-﻿using ComputerInterface.ViewLib;
-using System.Text;
+﻿using System.Text;
+using ComputerInterface.ViewLib;
 
 namespace ComputerInterface.Views.GameSettings
 {
@@ -25,12 +25,15 @@ namespace ComputerInterface.Views.GameSettings
         {
             var str = new StringBuilder();
             var hasComputer = BaseGameInterface.CheckForComputer(out var computer);
+
             str.Repeat("=", SCREEN_WIDTH).AppendLine();
             str.BeginCenter().Append("Name Tab").AppendLine();
             str.AppendClr($"{(hasComputer ? $"Current name: {computer.savedName}" : "Current name not found")}", "ffffff50").EndAlign().AppendLine();
             str.Repeat("=", SCREEN_WIDTH).AppendLines(2);
 
-            str.BeginColor("ffffff50").Append("> ").EndColor().AppendClr(_textInputHandler.Text, "ffffffff").AppendClr("_", "ffffff50");
+            str.BeginColor("ffffff50").Append("> ").EndColor()
+                .Append(_textInputHandler.Text)
+                .AppendClr("_", "ffffff50");
 
             str.AppendLines(6);
 
@@ -53,6 +56,16 @@ namespace ComputerInterface.Views.GameSettings
         {
             switchedName = false;
 
+            if (_textInputHandler.HandleKey(key))
+            {
+                if (_textInputHandler.Text.Length > BaseGameInterface.MAX_NAME_LENGTH)
+                {
+                    _textInputHandler.Text = _textInputHandler.Text.Substring(0, BaseGameInterface.MAX_NAME_LENGTH);
+                }
+                Redraw();
+                return;
+            }
+
             switch (key)
             {
                 case EKeyboardKey.Enter:
@@ -63,18 +76,6 @@ namespace ComputerInterface.Views.GameSettings
                 case EKeyboardKey.Back:
                     _textInputHandler.Text = BaseGameInterface.GetName();
                     ShowView<GameSettingsView>();
-                    break;
-                default:
-                    if (_textInputHandler.HandleKey(key))
-                    {
-                        if (_textInputHandler.Text.Length > BaseGameInterface.MAX_NAME_LENGTH)
-                        {
-                            _textInputHandler.Text = _textInputHandler.Text.Substring(0, BaseGameInterface.MAX_NAME_LENGTH);
-                        }
-
-                        Redraw();
-                        return;
-                    }
                     break;
             }
         }
