@@ -27,6 +27,7 @@ namespace ComputerInterface.Views
                 new Tuple<string, Type>("Color  ", typeof(ColorSettingView)),
                 new Tuple<string, Type>("Turn   ", typeof(TurnSettingView)),
                 new Tuple<string, Type>("Mic    ", typeof(MicSettingsView)),
+                new Tuple<string, Type>("Queue  ", typeof(CustomQueuesView)),
                 new Tuple<string, Type>("Group  ", typeof(GroupView)),
                 new Tuple<string, Type>("Voice  ", typeof(VoiceSettingsView)),
                 new Tuple<string, Type>("Items  ", typeof(ItemSettingsView)),
@@ -48,7 +49,7 @@ namespace ComputerInterface.Views
         private void Redraw()
         {
             var str = new StringBuilder();
-            str.AppendLines(2);
+            str.AppendLine();
             for (var i = 0; i < _gameSettingsViews.Count; i++)
             {
                 var pair = _gameSettingsViews[i];
