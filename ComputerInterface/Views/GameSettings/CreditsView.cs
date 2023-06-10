@@ -9,53 +9,46 @@ namespace ComputerInterface.Views.GameSettings
 {
     public class CreditsView : ComputerView
     {
-        private int MaxPage;
-        private int ScrollLevel;
-        private readonly List<string> CreditsList = new List<string>();
+        int page;
+        GorillaNetworking.CreditsView creditsView;
 
-        public CreditsView()
-        {
-            SetList();
-        }
+        int MaxPage => (int)totalPages.GetValue(creditsView);
+        PropertyInfo totalPages;
+
+        MethodInfo getPage;
 
         public override void OnShow(object[] args)
         {
-            base.OnShow(args);
+			if (!BaseGameInterface.CheckForComputer(out var computer))
+			{
+				ShowView<GameSettingsView>();
+				return;
+			}
+
+            creditsView = computer.creditsView;
+            creditsView.pageSize = SCREEN_HEIGHT - 3;
+            totalPages = creditsView.GetType().GetProperty("TotalPages", BindingFlags.NonPublic | BindingFlags.Instance);
+            getPage = creditsView.GetType().GetMethod("GetPage", BindingFlags.NonPublic | BindingFlags.Instance);
+
+			base.OnShow(args);
             Redraw();
-        }
-
-        private void SetList()
-        {
-            CreditsList.Clear();
-            if (BaseGameInterface.CheckForComputer(out var computer))
-            {
-                var creditView = computer.creditsView;
-                PropertyInfo propInfo = creditView.GetType().GetProperty("TotalPages", BindingFlags.NonPublic | BindingFlags.Instance);
-                MaxPage = (int)propInfo.GetValue(creditView);
-                for (int i = 0; i < MaxPage; i++)
-                {
-                    var page = "";
-                    creditView.SetField("currentPage", i);
-                    var lines = creditView.GetScreenText().Split(new string[] { "\n" }, StringSplitOptions.None).ToList();
-                    lines.RemoveAt(lines.Count - 1); // remove the extra space
-                    lines.RemoveAt(lines.Count - 1); // remove the enter statement
-
-                    page += string.Join("\n", lines);
-                    page += "\n";
-                    CreditsList.Add(page);
-                }
-            }
         }
 
         private void Redraw()
         {
             var str = new StringBuilder();
 
-            str.AppendLines(2)
-                .Append(CreditsList[ScrollLevel])
-                .Append($"<color=#ffffff50><align=\"center\"><  {ScrollLevel + 1}/{CreditsList.Count}  ></align></color>");
+            str.Append(GetPage(page))
+                .Append($"<color=#ffffff50><align=\"center\"><  {page + 1}/{MaxPage}  ></align></color>");
 
-            Text = str.ToString();
+			SetText(str);
+        }
+
+        string GetPage(int page)
+        {
+            var text = getPage.Invoke(creditsView, new object[] { page }) as string;
+            var lines = text.Split('\n');
+            return string.Join("\n", lines.Take(lines.Length - 2));
         }
 
         public override void OnKeyPressed(EKeyboardKey key)
@@ -63,13 +56,13 @@ namespace ComputerInterface.Views.GameSettings
             switch (key)
             {
                 case EKeyboardKey.Left:
-                    ScrollLevel--;
-                    if (ScrollLevel < 0) ScrollLevel = 0;
+                    page--;
+                    page %= MaxPage;
                     Redraw();
                     break;
                 case EKeyboardKey.Right:
-                    ScrollLevel++;
-                    if (ScrollLevel >= CreditsList.Count) ScrollLevel = CreditsList.Count - 1;
+                    page++;
+                    page %= MaxPage;
                     Redraw();
                     break;
                 case EKeyboardKey.Back:

@@ -7,7 +7,7 @@ namespace ComputerInterface.Views.GameSettings
     internal class VoiceSettingsView : ComputerView
     {
         private readonly UISelectionHandler _selectionHandler;
-        private bool SwitchedName = false;
+        private bool hasSwitched = false;
 
         public VoiceSettingsView()
         {
@@ -23,7 +23,10 @@ namespace ComputerInterface.Views.GameSettings
             Redraw();
         }
 
-        public void UpdateState() => _selectionHandler.CurrentSelectionIndex = BaseGameInterface.GetVoiceMode() ? 0 : 1;
+        public void UpdateState()
+        {
+                _selectionHandler.CurrentSelectionIndex = BaseGameInterface.GetVoiceMode() ? 0 : 1;
+        }
 
         public void Redraw()
         {
@@ -31,7 +34,7 @@ namespace ComputerInterface.Views.GameSettings
 
             str.BeginCenter().Repeat("=", SCREEN_WIDTH).AppendLine();
             str.Append("Voice Tab").AppendLine();
-            str.AppendClr(!SwitchedName ? "Enter to save" : $"Voice Chat is now {(BaseGameInterface.GetVoiceMode() ? "Enabled" : "Disabled")}", "ffffff50").AppendLine();
+            str.AppendClr(!hasSwitched ? "Enter to save" : $"Voice Chat is now {(BaseGameInterface.GetVoiceMode() ? "Enabled" : "Disabled")}", "ffffff50").AppendLine();
             str.Repeat("=", SCREEN_WIDTH).EndAlign().AppendLines(2);
 
             str.AppendLine("Voice Chat: ");
@@ -48,12 +51,12 @@ namespace ComputerInterface.Views.GameSettings
 
         public override void OnKeyPressed(EKeyboardKey key)
         {
-            SwitchedName = false;
+            hasSwitched = false;
             switch (key)
             {
                 case EKeyboardKey.Enter:
                     BaseGameInterface.SetVoiceMode(_selectionHandler.CurrentSelectionIndex == 0);
-                    SwitchedName = true;
+                    hasSwitched = true;
                     Redraw();
                     break;
                 case EKeyboardKey.Back:

@@ -8,8 +8,8 @@ namespace ComputerInterface.Views.GameSettings
     internal class MicSettingsView : ComputerView
     {
         private readonly UISelectionHandler _selectionHandler;
-        private bool SwitchedName = false;
-        private string MicrophoneMode = "";
+        private bool hasSwitched = false;
+        private string microphoneMode = "";
 
         public MicSettingsView()
         {
@@ -49,7 +49,7 @@ namespace ComputerInterface.Views.GameSettings
         {
             str.BeginCenter().Repeat("=", SCREEN_WIDTH).AppendLine();
             str.Append("Mic Tab").AppendLine();
-            str.AppendClr(!SwitchedName ? "Enter to save" : $"Set mode to {MicrophoneMode}", "ffffff50").AppendLine();
+            str.AppendClr(hasSwitched ? $"Set mode to {microphoneMode}" : "Enter to save", "ffffff50").AppendLine();
             str.Repeat("=", SCREEN_WIDTH).EndAlign().AppendLines(2);
 
             str.AppendLine("Mic Mode: ");
@@ -64,19 +64,19 @@ namespace ComputerInterface.Views.GameSettings
 
         public override void OnKeyPressed(EKeyboardKey key)
         {
-            SwitchedName = false;
+            hasSwitched = false;
             switch (key)
             {
                 case EKeyboardKey.Enter:
                     SetMode();
-                    MicrophoneMode = (EPTTMode)_selectionHandler.CurrentSelectionIndex switch
+                    microphoneMode = (EPTTMode)_selectionHandler.CurrentSelectionIndex switch
                     {
                         EPTTMode.AllChat => "All Chat",
                         EPTTMode.PushToTalk => "Push to Talk",
                         EPTTMode.PushToMute => "Push To Mute",
                         _ => throw new ArgumentOutOfRangeException()
                     };
-                    SwitchedName = true;
+                    hasSwitched = true;
                     Redraw();
                     return;
                 case EKeyboardKey.Back:
