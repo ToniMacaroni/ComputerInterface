@@ -1,7 +1,5 @@
 using BepInEx;
 using Bepinject;
-using HarmonyLib;
-using System.Reflection;
 using UnityEngine;
 
 namespace ComputerInterface
@@ -15,11 +13,8 @@ namespace ComputerInterface
         /// </summary>
         public bool Loaded { get; private set; }
 
-        // public static Harmony _harmony;
-
         private void Awake()
         {
-            // _harmony = new Harmony(PluginInfo.Id);
             Load();
         }
 
@@ -27,7 +22,6 @@ namespace ComputerInterface
         {
             if (Loaded) return;
 
-            // _harmony.PatchAll(Assembly.GetExecutingAssembly());
             Patches.HarmonyPatches.ApplyHarmonyPatches();
 
             Debug.Log("Computer Interface loading");

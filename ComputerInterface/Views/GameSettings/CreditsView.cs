@@ -1,16 +1,36 @@
 ﻿using ComputerInterface.ViewLib;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Reflection;
 using System.Text;
-using UnityEngine;
 
 namespace ComputerInterface.Views.GameSettings
 {
     public class CreditsView : ComputerView
     {
-        private int page = 1;
+        int page;
+        GorillaNetworking.CreditsView creditsView;
+
+        int MaxPage => (int)totalPages.GetValue(creditsView);
+        PropertyInfo totalPages;
+
+        MethodInfo getPage;
 
         public override void OnShow(object[] args)
         {
-            base.OnShow(args);
+			if (!BaseGameInterface.CheckForComputer(out var computer))
+			{
+				ShowView<GameSettingsView>();
+				return;
+			}
+
+            creditsView = computer.creditsView;
+            creditsView.pageSize = SCREEN_HEIGHT - 3;
+            totalPages = creditsView.GetType().GetProperty("TotalPages", BindingFlags.NonPublic | BindingFlags.Instance);
+            getPage = creditsView.GetType().GetMethod("GetPage", BindingFlags.NonPublic | BindingFlags.Instance);
+
+			base.OnShow(args);
             Redraw();
         }
 
@@ -18,56 +38,33 @@ namespace ComputerInterface.Views.GameSettings
         {
             var str = new StringBuilder();
 
-            str.Repeat("=", SCREEN_WIDTH).AppendLines(2);
+            str.Append(GetPage(page))
+                .Append($"<color=#ffffff50><align=\"center\"><  {page + 1}/{MaxPage}  ></align></color>");
 
-            str.AppendLine("Credits (1 - 3 to change change pages)").AppendLine();
+			SetText(str);
+        }
 
-            switch (page)
-            {
-                case 1:
-                    str.AppendLine("Game by Another Axiom").AppendLine()
-                        .AppendLine("(Kerestell, David Yee, David Neubelt)");
-
-                    str.AppendLine().AppendLine("\"Nice Gorilla Store\"")
-                        .AppendLine("Composed by Stunshine & Jaguar Jen,")
-                        .AppendLine("Sound design by David Anderson Kirk")
-                        .AppendLines(2).Repeat("=", SCREEN_WIDTH);
-                    break;
-
-                case 2:
-                    str.AppendLine("\"Monke Need To Swing\"")
-                        .AppendLine("Composed by Stunshine")
-                        .AppendLine("Produced by Audiopfeil & Owlobe").AppendLine();
-
-                    str.AppendLine("\"Cave Wave\", \"Campfire\", \"Monkebone Bash\"")
-                        .AppendLine("Composed by Stunshine")
-                        .AppendLine("Sound design by David Anderson Kirk")
-                        .AppendLine().AppendLine().Repeat("=", SCREEN_WIDTH);
-                    break;
-
-                default:
-                    str.AppendLine("Additional art by:").AppendLine()
-                        .AppendLine("Lulu (Laura) Lorian")
-                        .AppendLine("@LuluLorian").AppendLine()
-                        .AppendLine("Lilith Tothill")
-                        .AppendLines(3).Repeat("=", SCREEN_WIDTH);
-                    break;
-            }
-
-            Text = str.ToString();
+        string GetPage(int page)
+        {
+            var text = getPage.Invoke(creditsView, new object[] { page }) as string;
+            var lines = text.Split('\n');
+            return string.Join("\n", lines.Take(lines.Length - 2));
         }
 
         public override void OnKeyPressed(EKeyboardKey key)
         {
-            if (key.TryParseNumber(out var num) && num >= 1 && num <= 3)
-            {
-                page = num;
-                Redraw();
-                return;
-            }
-
             switch (key)
             {
+                case EKeyboardKey.Left:
+                    page--;
+                    page %= MaxPage;
+                    Redraw();
+                    break;
+                case EKeyboardKey.Right:
+                    page++;
+                    page %= MaxPage;
+                    Redraw();
+                    break;
                 case EKeyboardKey.Back:
                     ShowView<GameSettingsView>();
                     break;

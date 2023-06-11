@@ -21,7 +21,7 @@ namespace ComputerInterface
         {
             var file = config.Config;
 
-            ScreenBackgroundColor = file.Bind("Colors", "ScreenBackgroundColor", new Color(0.02f, 0.02f, 0.02f), "The background color of the screen");
+            ScreenBackgroundColor = file.Bind("Colors", "ScreenBackgroundColor", new Color(0.08f, 0.08f, 0.08f), "The background color of the screen");
             _screenBackgroundPath = file.Bind("Textures", "ScreenBackgroundPath", "BepInEx/plugins/ComputerInterface/background.png", "Path to a custom screen background");
             _disabledMods = file.Bind("Mod Management", "DisabledMods", "", "List of disabled mods");
 

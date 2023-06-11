@@ -1,5 +1,4 @@
 ﻿using System;
-using BepInEx;
 using UnityEngine;
 using Zenject;
 
@@ -38,13 +37,10 @@ namespace ComputerInterface.Commands
             {
                 var newName = ((string)args[0]).ToUpper();
 
-                if (newName.Length > BaseGameInterface.MAX_NAME_LENGTH)
-                {
-                    return "Name too long";
-                }
+                var result = BaseGameInterface.SetName(newName);
 
-                BaseGameInterface.SetName(newName);
-                return $"Name set to {newName}";
+                if (result == BaseGameInterface.WordCheckResult.Allowed) return $"Name set to {newName.Replace(" ", "")}";
+                else return BaseGameInterface.WordCheckResultToMessage(result);
             }));
 
             // leave: leave
@@ -61,20 +57,11 @@ namespace ComputerInterface.Commands
             {
                 var roomId = (string)args[0];
 
-                if (roomId.IsNullOrWhiteSpace())
-                {
-                    return "Invalid room";
-                }
-
-                if (roomId.Length > BaseGameInterface.MAX_ROOM_LENGTH)
-                {
-                    return "Room too long";
-                }
-
                 roomId = roomId.ToUpper();
-                BaseGameInterface.JoinRoom(roomId);
+                var result = BaseGameInterface.JoinRoom(roomId);
 
-                return $"Joined {args[0]}";
+                if (result == BaseGameInterface.WordCheckResult.Allowed) return $"Joined {roomId}";
+                else return BaseGameInterface.WordCheckResultToMessage(result);
             }));
 
             // cam <fp|tp>

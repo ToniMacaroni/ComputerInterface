@@ -7,8 +7,6 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ComputerInterface", "Comput
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ComputerInterface.Commands", "ComputerInterface.Commands\ComputerInterface.Commands.csproj", "{4F09161E-4E11-4E97-8017-CC7EBAB73709}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ComputerInterface.RoomBrowser", "ComputerInterface.RoomBrowser\ComputerInterface.RoomBrowser.csproj", "{55CB8291-DD02-4400-B11E-F439188944DB}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU

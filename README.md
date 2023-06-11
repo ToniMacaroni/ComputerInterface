@@ -1,86 +1,110 @@
 # Computer Interface
-## What is Computer Interface?
-Computer Interface is a library for Gorilla Tag which enabled developers to write programs for the Gorilla Computer
-and users to make more out of the computer.
 
-If you want to contact me on discord: Toni Macaroni#8970
+Computer Interface is a library for Gorilla Tag which replaces the base computer with a custom computer, and allows developers to add functionality to it.
 
-## Command Line
-Computer Interface ships with a CLI that enables you to execute routine / change settings.  
-Developers can also add their own commands which is discussed later.
+Main project contributors:
 
-By default Computer Interface ships with following commands:
-- setcolor <r> <g> <b> //sets your gorilla color (e.g. setcolor 255 255 255)
-- setname <name> //sets your gorilla name (e.g. setname toni)
-- join <roomID> //joins a private room with the room id (e.g. join myroom)
-- leave //disconnects from the current room
-- cam <fp|tp> //sets the view mirrored to your monitor to eiter first person (fp) or third person (tp) (e.g. cam fp)
-- setbg <r> <g> <b> //sets the background color of the computer screen (e.g. setbg 40 70 40)
+- [ToniMacaroni](https://github.com/ToniMacaroni)
+- [Graic](https://github.com/Graicc)
+- [Dev](https://github.com/developer9998)
+- [A Haunted Army](https://github.com/AHauntedArmy)
+- [Fchb1239](https://github.com/fchb1239)
 
-## Background Image
+You can find all of us on the [Gorilla Tag Modding Group Discord](http://discord.gg/monkemod).
+
+## Table of Contents
+
+- [Install](#install)
+- [CommandLine](#commandline)
+- [Background](#background)
+- [Additional Features](#additional-features)
+- [For Developers](#for-developers)
+- [Disclaimers](#disclaimers)
+
+## Install
+
+The recommended way to install Computer Interface is through [MonkeModManager](https://github.com/DeadlyKitten/MonkeModManager/releases/latest). Simply select Computer Interface from the menu, and hit "Install/Update".
+This will ensure you have all the necessary dependencies set up.
+
+## CommandLine
+
+Computer Interface ships with a CLI that enables you to execute routines & change settings.
+
+Information on creating commands can be found in the [Adding Your Own Commands](#adding-your-own-commands) section.
+
+By default Computer Interface ships with the following commands:
+
+- **setcolor** ``int`` ``int`` ``int``  
+  Changes your gorilla's color (e.g. setcolor 255 255 255)
+- **setname** ``string``  
+  Changes your gorilla's name (e.g. setname toni)
+- **join** ``string``  
+  Connects to a room code (e.g. join dev123)
+- **leave**  
+  Disconnects you from the current room
+- **cam** ``string``  
+  Changes your spectator camera's perspective to either First Person (fp) or Third Person (tp)
+- **setbg** ``int`` ``int`` ``int``  
+  Changes your computer's background color (e.g. setbg 40 70 40)
+
+## Background
+
 To use a custom background image:
-1) go into "Gorilla Tag/BepInEx/config" and open "tonimacaroni.computerinterface.cfg" with a text editor
-2) find "ScreenBackgroundPath" and replace the path with your own image path
 
-*Use forward slashes (/) instead of backslashes in the path*  
-*Paths can be either relative to the Gorilla Tag folder or absolute*  
-*The image gets multiplied by the set background color.*  
-*If you want the image as is type "setbg 255 255 255" in the commandline in CI*
+- Go to your Gorilla Tag folder, and open ``BepInEx/config/tonimacaroni.computerinterface.cfg``.
+- Find the `ScreenBackgroundPath` config option, and replace the path with your own image path.
+  - Use forward slashes (/) instead of backslashes (\\) in the path
+  - Your background will be multiplied by the background's color
+  - Paths can either be relative to your Gorilla Tag folder or absolute.
+  
+You can also run ``setbg 255 255 255`` to leave the background with no modified color.
 
 ## Additional Features
-Computer Interface by iself also adds some changes.  
-These currently are:
-- room browser
-- command line
-- ability to toggle mods on and off
-- visual queue for when a button is pressed (the button moves down and changes color)
-- click sounds on button press
-- added cooldown to buttons to counter missclicks
-- custom computer background (image and color)
 
-And many more to come...
+- Command Line
+- Ability to toggle supported mods on and off
+- Animated keys
+- Custom background (Image & Color)
 
-# For Developers
+## For Developers
 
-Before you begin reading I have created a very well documented example mod which you can use as a starting point.  
-It shows examples for creating multiple views, navigating between those and creating your own commands.
-https://github.com/ToniMacaroni/ComputerInterfaceExample
+Before you begin reading I have created a very well-documented example mod which you can use as a starting point.  
+It shows examples for creating multiple views, navigating between those and creating your own commands:  
+<https://github.com/ToniMacaroni/ComputerInterfaceExample>
 
 For more advanced examples check out the base library views here:  
-https://github.com/ToniMacaroni/ComputerInterface/tree/main/ComputerInterface/Views
+<https://github.com/ToniMacaroni/ComputerInterface/tree/main/ComputerInterface/Views>
 
-## Adding Views
-Computer Interface works with "Views" (classes that inherit ComputerView or IComputerView).  
-You navigate through the computer by specifying the type of your view.  
-The instantiation / injection / Caching is handled by Computer Interface itself.
-As stated you can normally ask for bound types in your views via zenject.
+### Adding Views
 
-In your view you can for example navigate (go back, go to main menu, go to a specific view)  
-and check for key presses (by overriding OnKeyPressed).  
-All keys are wrapped by an EKeyboardKey enum to easier handle keys.
+Computer Interface works with "Views" which are classes that inherit from `ComputerView` or `IComputerView`.
+Instantiation, injection, and caching are all handled by Computer Interface with Zenject. You can get bound types through the constructor, and Zenject will handle the dependency injection.
+
+Views can navigate to others views through `ShowView<TargetView>()`, or return to the main menu with `ReturnToMainMenu()`.
+Views can check for key presses by overriding `OnKeyPressed`.
 
 An example view may look like this:
 
 ```csharp
 public class MyModView : ComputerView
     {
-        // This is called when you view is opened
+        // This is called when your view is opened
         public override void OnShow()
         {
             base.OnShow();
-            // changing the Text property will fire an PropertyChanged event
-            // which lets the computer know the text has changed and update it
+            // Changing the Text property will fire a PropertyChanged event
+            // which lets the computer know the text has changed and updates it
             Text = "Monkey Computer\nMonkey Computer\nMounkey Computer";
         }
 
-        // you can do something on keypresses by overriding "OnKeyPressed"
-        // it get's an EKeyboardKey passed as a parameter which wraps the old character string
+        // You can do something on keypresses by overriding "OnKeyPressed"
+        // It gets an EKeyboardKey passed as a parameter which wraps the old character string
         public override void OnKeyPressed(EKeyboardKey key)
         {
             switch (key)
             {
-                case EKeyboardKey.Delete:
-                    // "ReturnToMainMenu" will basically switch to the main menu again
+                case EKeyboardKey.Back:
+                    // "ReturnToMainMenu" will switch to the main menu again
                     ReturnToMainMenu();
                     break;
                 case EKeyboardKey.Option1:
@@ -92,31 +116,37 @@ public class MyModView : ComputerView
     }
 ```
 
-To actually create an entry in the main menu and specify an initial view  
-you use a mod entry (inherits IComputerModEntry) and bind it via zenject.
+To add a view to the main menu, you need to create a Mod Entry, and bind it with Zenject.
+Mod Entries must implement `IComputerModEntry`, and provide the name type of the view to be shown.
 
-Example ModEntry:
+For example:
+
 ```csharp
 public class MyModEntry : IComputerModEntry
     {
-        // This is the mod name that is going to show up as a selectable mod
+        // This is the name that will be shown on the main menu
         public string EntryName => "MyMod";
 
-        // This is the first view that is going to be shown if the user select you mod
+        // This is the first view that is going to be shown if the user selects you mod
         // The Computer Interface mod will instantiate your view 
         public Type EntryViewType => typeof(MyModView);
     }
 ```
 
-Then you bind the mod entry like this:
+To tell Computer Interface that the entry exists, you must bind it with Zenject like so:
+
 ```csharp
 Container.Bind<IComputerModEntry>().To<MyModEntry>().AsSingle();
 ```
 
-## Adding your own commands
+This is generally done in your `MainInstaller`, see the example [MainInstaller.cs](https://github.com/ToniMacaroni/ComputerInterfaceExample/blob/main/ComputerModExample/MainInstaller.cs) for a full example.
 
-Adding your own CLI commands is really easy.  
-In a type that you bound via zenject request the CommandHandler and add your command.
+### Adding Your Own Commands
+
+Adding your own CLI commands is easy.  
+In a type that you bound via Zenject request the `CommandHandler` and add your command.
+
+For example:
 
 ```csharp
 internal class MyModCommandManager : IInitializable
@@ -135,10 +165,10 @@ internal class MyModCommandManager : IInitializable
             // Add a command
             _commandHandler.AddCommand(new Command(name: "whoami", argumentCount: 0, args =>
             {
-                // args is an array of arguments (string) passed when entering the command
-                // the command handler already checks if the correct amount of arguments is passed
+                // Args is an array of arguments (string) passed when entering the command
+                // The command handler already checks if the correct amount of arguments is passed
 
-                // the string you return is going to be shown in the terminal as a return message
+                // The string you return is going to be shown in the terminal as a return message
                 // you can break up the message into multiple lines by using \n
                 return "MONKE";
             }));
@@ -146,8 +176,8 @@ internal class MyModCommandManager : IInitializable
     }
 ```
 
-I just created a dummy class called MyModCommandManager.  
-But of course you can do this in any type as long as you request the CommandHandler.
+This used a dummy class `MyModCommandManager`, but of course, you can do this in any type as long as you request the `CommandHandler`.
 
 ## Disclaimers
+
 This product is not affiliated with Gorilla Tag or Another Axiom LLC and is not endorsed or otherwise sponsored by Another Axiom LLC. Portions of the materials contained herein are property of Another Axiom LLC. ©2021 Another Axiom LLC.

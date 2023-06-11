@@ -1,9 +1,5 @@
 using System;
 using System.Text;
-
-using BepInEx;
-using HarmonyLib;
-
 using UnityEngine;
 
 using GorillaNetworking;
@@ -16,23 +12,25 @@ namespace ComputerInterface.Views.GameSettings
     public class JoinRoomView : ComputerView
     {
         private readonly UITextInputHandler _textInputHandler;
-
+        private GameObject callbacks;
         private string _joinedRoom;
 
         public JoinRoomView()
         {
             _textInputHandler = new UITextInputHandler();
-
-            GameObject callbacks = new GameObject();
-            callbacks.name = "RoomCallbacks";
-            GameObject.Instantiate(callbacks);
-            JoinRoomViewCallbacks calllbacksComponent = callbacks.AddComponent<JoinRoomViewCallbacks>();
-            calllbacksComponent.view = this;
         }
 
         public override void OnShow(object[] args)
         {
             base.OnShow(args);
+
+            callbacks = new GameObject();
+            callbacks.name = "RoomCallbacks";
+            UnityEngine.Object.DontDestroyOnLoad(callbacks);
+
+            JoinRoomViewCallbacks calllbacksComponent = callbacks.AddComponent<JoinRoomViewCallbacks>();
+            calllbacksComponent.view = this;
+
             Redraw();
         }
 
@@ -59,17 +57,14 @@ namespace ComputerInterface.Views.GameSettings
             }
 
 
-
             if (showState)
             {
                 switch (GetConnectionState())
                 {
-                    // Stop being American
                     case PhotonNetworkController.ConnectionState.Initialization:
-                        str.AppendClr("Initialisation", "ffffff50").EndAlign().AppendLine();
+                        str.AppendClr("Initialization", "ffffff50").EndAlign().AppendLine();
                         break;
                     case PhotonNetworkController.ConnectionState.WrongVersion:
-                        // I doubt anyone is gonna see this but still
                         str.AppendClr("Invalid version", "ffffff50").EndAlign().AppendLine();
                         break;
                     case PhotonNetworkController.ConnectionState.DeterminingPingsAndPlayerCount:
@@ -82,6 +77,8 @@ namespace ComputerInterface.Views.GameSettings
                         str.AppendClr("Leaving room", "ffffff50").EndAlign().AppendLine();
                         break;
                     case PhotonNetworkController.ConnectionState.JoiningFriend:
+                        str.AppendClr("Joining group", "ffffff50").EndAlign().AppendLine();
+                        break;
                     case PhotonNetworkController.ConnectionState.JoiningPublicRoom:
                         str.AppendClr("Joining room", "ffffff50").EndAlign().AppendLine();
                         break;
@@ -89,11 +86,10 @@ namespace ComputerInterface.Views.GameSettings
                         str.AppendClr($"Joining room {_joinedRoom}", "ffffff50").EndAlign().AppendLine();
                         break;
                     case PhotonNetworkController.ConnectionState.InPrivateRoom:
+                        str.AppendClr($"In room {(PhotonNetwork.InRoom ? PhotonNetwork.CurrentRoom.Name : "")}", "ffffff50").EndAlign().AppendLine(); ;
+                        break;
                     case PhotonNetworkController.ConnectionState.InPublicRoom:
-                        if (PhotonNetwork.InRoom)
-                            str.AppendClr($"In room {PhotonNetwork.CurrentRoom.Name}", "ffffff50").EndAlign().AppendLine();
-                        else
-                            str.AppendClr($"Error", "ffffff50").EndAlign().AppendLine();
+                        str.AppendClr($"In room {(PhotonNetwork.InRoom ? PhotonNetwork.CurrentRoom.Name : "")}", "ffffff50").EndAlign().AppendLine();
                         break;
                     default:
                         Console.WriteLine("Invalid connection state");
@@ -111,34 +107,33 @@ namespace ComputerInterface.Views.GameSettings
 
         public override void OnKeyPressed(EKeyboardKey key)
         {
-            if (_textInputHandler.HandleKey(key))
-            {
-                if (_textInputHandler.Text.Length > BaseGameInterface.MAX_ROOM_LENGTH)
-                {
-                    _textInputHandler.Text = _textInputHandler.Text.Substring(0, BaseGameInterface.MAX_ROOM_LENGTH);
-                }
-
-                Redraw();
-                return;
-            }
-
             switch (key)
             {
                 case EKeyboardKey.Back:
+                    UnityEngine.Object.Destroy(callbacks);
                     ShowView<GameSettingsView>();
                     break;
                 case EKeyboardKey.Enter:
-                    if (!_textInputHandler.Text.IsNullOrWhiteSpace())
-                    {
-                        _joinedRoom = _textInputHandler.Text.ToUpper();
-                        GorillaComputer.instance.roomFull = false;
-                        GorillaComputer.instance.roomNotAllowed = false;
-                        BaseGameInterface.JoinRoom(_joinedRoom);
-                        Redraw();
-                    }
+                    _joinedRoom = _textInputHandler.Text.ToUpper();
+                    GorillaComputer.instance.roomFull = false;
+                    GorillaComputer.instance.roomNotAllowed = false;
+                    BaseGameInterface.JoinRoom(_joinedRoom);
+                    Redraw();
                     break;
                 case EKeyboardKey.Option1:
                     BaseGameInterface.Disconnect();
+                    break;
+                default:
+                    if (_textInputHandler.HandleKey(key))
+                    {
+                        if (_textInputHandler.Text.Length > BaseGameInterface.MAX_ROOM_LENGTH)
+                        {
+                            _textInputHandler.Text = _textInputHandler.Text.Substring(0, BaseGameInterface.MAX_ROOM_LENGTH);
+                        }
+
+                        Redraw();
+                        return;
+                    }
                     break;
             }
         }
@@ -146,7 +141,7 @@ namespace ComputerInterface.Views.GameSettings
         // Gets connection state if that wasn't obvious
         private PhotonNetworkController.ConnectionState GetConnectionState()
         {
-            return (PhotonNetworkController.ConnectionState)Traverse.Create(PhotonNetworkController.Instance).Field("currentState").GetValue();
+            return PhotonNetworkController.Instance.GetField<PhotonNetworkController.ConnectionState>("currentState");
         }
     }
 }

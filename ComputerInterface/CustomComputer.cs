@@ -33,28 +33,24 @@ namespace ComputerInterface
 
         private List<CustomKeyboardKey> _keys;
         private GameObject _keyboard;
-        private MeshFilter _meshFilter = null;
-        private MeshFilter MeshFilter
-        {
-            get
-            {
-                if (_meshFilter == null)
-                {
-                    GameObject cube = GameObject.CreatePrimitive(PrimitiveType.Cube);
-                    _meshFilter = cube.GetComponent<MeshFilter>();
-                    cube.SetActive(false);
-                }
 
-                return _meshFilter;
-            }
-        }
+        private readonly Mesh CubeMesh = Resources.GetBuiltinResource<Mesh>("Cube.fbx");
 
         private AssetsLoader _assetsLoader;
 
         private CIConfig _config;
 
         private List<AudioSource> _keyboardAudios = new List<AudioSource>();
-            
+
+		enum MonitorLocation
+        {
+            Treehouse,
+            Mountains,
+            Sky,
+            Basement,
+            Beach
+        }
+
         void Awake()
         {
             enabled = false;
@@ -91,18 +87,20 @@ namespace ComputerInterface
             _computerViewController.OnSwitchView += SwitchView;
             _computerViewController.OnSetBackground += SetBGImage;
 
-			// Treehouse, Mountains, Sky
-            GameObject[] physcialComputers = { GameObject.Find("UI/PhysicalComputer"), GameObject.Find("goodigloo/PhysicalComputer (2)"), GameObject.Find("UI/PhysicalComputer (3)") };
+            // Treehouse, Mountains, Sky, Basement, Beach
+            GameObject[] physicalComputers = { GameObject.Find("UI/-- PhysicalComputer UI --"), GameObject.Find("goodigloo/PhysicalComputer (2)"), GameObject.Find("skyjungle/UI/-- Clouds PhysicalComputer UI --/"), GameObject.Find("BasementComputer/PhysicalComputer (2)"), GameObject.Find("beach/BeachComputer/PhysicalComputer (2)/") };
 
-            for (int i = 0; i < physcialComputers.Length; i++)
+            for (int i = 0; i < physicalComputers.Length; i++)
             {
-                try {
-                    await ReplaceKeys(physcialComputers[i]);
-                    CustomScreenInfo screenInfo = await CreateMonitor(physcialComputers[i]);
+                try
+                {
+                    await ReplaceKeys(physicalComputers[i]); // TODO: Update Clouds key texts
+                    CustomScreenInfo screenInfo = await CreateMonitor(physicalComputers[i], (MonitorLocation)i);
                     screenInfo.Color = _config.ScreenBackgroundColor.Value;
                     screenInfo.Background = _config.BackgroundTexture;
                     _customScreenInfos.Add(screenInfo);
-                } catch (Exception e)
+                }
+                catch (Exception e)
                 {
                     Debug.LogError($"CI: computer {i} could not be initialized: {e}");
                 }
@@ -117,7 +115,7 @@ namespace ComputerInterface
             QueueManager.Queues = queues;
             QueueManager.Init();
 
-            Debug.Log("Initialized Computer");
+            Debug.Log("Initialized computers");
         }
 
         private void ShowInitialView(MainMenuView view, List<IComputerModEntry> computerModEntries)
@@ -157,13 +155,19 @@ namespace ComputerInterface
             }
         }
 
-        public void SetBG(float r, float g, float b)
+        public void SetBG(float r, float g, float b) => SetBG(new Color(r, g, b));
+        public void SetBG(Color color) 
         {
             foreach (CustomScreenInfo customScreenInfo in _customScreenInfos)
             {
-                customScreenInfo.Color = new Color(r, g, b);
+                customScreenInfo.Color = color;
                 _config.ScreenBackgroundColor.Value = customScreenInfo.Color;
             }
+        }
+
+        public Color GetBG()
+        {
+            return _config.ScreenBackgroundColor.Value;
         }
 
         public void SetBGImage(ComputerViewChangeBackgroundEventArgs args)
@@ -185,12 +189,12 @@ namespace ComputerInterface
         public void PressButton(CustomKeyboardKey key)
         {
             foreach (var audio in _keyboardAudios)
-			{
+            {
                 if (audio.isActiveAndEnabled)
-				{
-					audio.Play();
-				}
-			}
+                {
+                    audio.Play();
+                }
+            }
             _computerViewController.NotifyOfKeyPress(key.KeyboardKey);
         }
 
@@ -256,7 +260,7 @@ namespace ComputerInterface
                     customButton.pressTime = button.pressTime;
                     customButton.functionKey = button.functionKey;
 
-                    button.GetComponent<MeshFilter>().mesh = MeshFilter.mesh;
+                    button.GetComponent<MeshFilter>().mesh = CubeMesh;
                     DestroyImmediate(button);
 
                     customButton.Init(this, key, buttonText);
@@ -268,10 +272,10 @@ namespace ComputerInterface
 
             var clickSound = await _assetsLoader.GetAsset<AudioClip>("ClickSound");
 
-			var audioSource = _keyboard.AddComponent<AudioSource>();
+            var audioSource = _keyboard.AddComponent<AudioSource>();
             audioSource.playOnAwake = false;
             audioSource.loop = false;
-			audioSource.clip = clickSound;
+            audioSource.clip = clickSound;
 
             _keyboardAudios.Add(audioSource);
 
@@ -307,7 +311,7 @@ namespace ComputerInterface
 
         private static Text FindText(GameObject button, string name = null)
         {
-			// Debug.Log($"Replacing key {button.name} / {name}");
+            // Debug.Log($"Replacing key {button.name} / {name}");
             if (button.GetComponent<Text>() is Text text)
             {
                 return text;
@@ -317,61 +321,43 @@ namespace ComputerInterface
             {
                 name = button.name.Replace(" ", "");
             }
-            
+
             if (name.Contains("enter"))
             {
                 name = "enter";
             }
 
-			// Forest
+            // Forest
             Transform t = button.transform.parent?.parent?.Find("Text/" + name);
-			// if (t != null) {
-			// 	Debug.Log($"Found key using Forest {t.gameObject.name}");
-			// 	return t.GetComponent<Text>();
-			// }
+            
+            // Mountain
+            t ??= button.transform
+                ?.parent
+                ?.parent
+                ?.parent
+                ?.parent
+                ?.parent
+                ?.parent
+                ?.parent
+                .Find("UI/Text/" + name);
+            t ??= button.transform.parent?.parent?.Find("Text/" + name + " (1)");
 
-			// Sky
-			t ??= button.transform
-				?.parent
-				?.parent
-				?.parent
-				?.parent
-				?.parent
-				.Find("Text/" + name);
-			t ??= button.transform
-				?.parent
-				?.parent
-				?.parent
-				?.parent
-				?.parent
-				.Find("Text/" + name + " (1)");
-			// if (t != null) {
-			// 	Debug.Log($"Found key using Sky {t.gameObject.name}");
-			// 	return t.GetComponent<Text>();
-			// }
+            // Clouds
+            t ??= button.transform.parent?.parent?.parent?.parent?.Find("KeyboardUI/" + name);
+            t ??= button.transform.parent?.parent?.parent?.parent?.Find("KeyboardUI/" + name + " (1)");
 
-			// Mountain
-            if (t is null)
-            {
-                // bruh
-                t = button.transform
-                    ?.parent
-                    ?.parent
-                    ?.parent
-                    ?.parent
-                    ?.parent
-                    ?.parent
-                    ?.parent
-                    .Find("UI/Text/" + name);
-            }
-			t ??= button.transform.parent?.parent?.Find("Text/" + name + " (1)");
-			// if (t != null) {
-			// 	Debug.Log($"Found key using Mountain {t.gameObject.name}");
-			// 	return t.GetComponent<Text>();
-			// }
-			// if (t is null) {
-			// 	Debug.Log($"Unable to find transform");
-			// }
+            // Basement
+            t ??= button.transform
+                ?.parent
+                ?.parent
+                ?.parent
+                ?.parent
+                ?.parent
+                .Find("UI FOR BASEMENT/Text/" + name);
+            t ??= button.transform.parent?.parent?.Find("Text/" + name + " (1)");
+
+            // Beach
+            t ??= button.transform.parent?.parent?.parent?.parent?.parent?.Find("UI FOR BEACH COMPUTER/Text/" + name);
 
             return t.GetComponent<Text>();
         }
@@ -382,7 +368,7 @@ namespace ComputerInterface
             var newKey = Instantiate(prefab.gameObject, prefab.transform.parent);
             newKey.name = goName;
             newKey.transform.localPosition += offset;
-            newKey.GetComponent<MeshFilter>().mesh = MeshFilter.mesh;
+            newKey.GetComponent<MeshFilter>().mesh = CubeMesh;
 
             Text keyText = FindText(prefab, prefab.name);
             Text newKeyText = Instantiate(keyText.gameObject, keyText.gameObject.transform.parent).GetComponent<Text>();
@@ -410,9 +396,9 @@ namespace ComputerInterface
             return customKeyboardKey;
         }
 
-        private async Task<CustomScreenInfo> CreateMonitor(GameObject computer)
+        private async Task<CustomScreenInfo> CreateMonitor(GameObject computer, MonitorLocation location) // index used for removing the base game computer.
         {
-            RemoveMonitor(computer);
+            RemoveMonitor(computer, location);
 
             var tmpSettings = await _assetsLoader.GetAsset<TMP_Settings>("TMP Settings");
             typeof(TMP_Settings).GetField(
@@ -420,154 +406,173 @@ namespace ComputerInterface
                     System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Static)?
                 .SetValue(null, tmpSettings);
 
-            var monitorAsset = await _assetsLoader.GetAsset<GameObject>("monitor");
+            var monitorAsset = await _assetsLoader.GetAsset<GameObject>("Monitor");
 
             var newMonitor = Instantiate(monitorAsset);
             newMonitor.name = "Custom Monitor";
-			newMonitor.transform.parent = computer.transform.Find("monitor") ?? computer.transform.Find("monitor (1)");
-			newMonitor.transform.localPosition = new Vector3(2.28f, -0.72f, 0.0f);
-			newMonitor.transform.localEulerAngles = new Vector3(0.0f, 270.0f, 270.02f);
-			newMonitor.transform.parent = null;
+            newMonitor.transform.parent = computer.transform.Find("monitor") ?? computer.transform.Find("monitor (1)");
+            newMonitor.transform.localPosition = new Vector3(0.0213f, -0.31f, 0.5344f);
+            newMonitor.transform.localEulerAngles = new Vector3(90f, 0f, 0f);
+            newMonitor.transform.parent = null;
 
-            foreach(RectTransform rect in newMonitor.GetComponentsInChildren<RectTransform>()) rect.gameObject.layer = 9;
+            foreach (RectTransform rect in newMonitor.GetComponentsInChildren<RectTransform>()) rect.gameObject.layer = 9;
 
             var info = new CustomScreenInfo();
 
             info.Transform = newMonitor.transform;
             info.TextMeshProUgui = newMonitor.GetComponentInChildren<TextMeshProUGUI>();
-            info.Renderer = newMonitor.GetComponentsInChildren<MeshRenderer>().First(x=>x.name=="Main Monitor");
-            info.RawImage = newMonitor.GetComponentInChildren<RawImage>();
+            info.Renderer = newMonitor.GetComponentsInChildren<MeshRenderer>().First();
             info.Materials = info.Renderer.materials;
+            info.FontSize = 60f;
 
-            info.Color = new Color(0.05f, 0.05f, 0.05f);
-            //info.FontSize = 80f;
+            var collider = info.Renderer.gameObject.AddComponent<BoxCollider>();
+            collider.center = Vector3.zero;
+            collider.size = Vector3.one * 0.02f;
 
+            var image = new GameObject("RawImage", typeof(RectTransform), typeof(RawImage));
+            image.transform.SetParent(info.TextMeshProUgui.transform.parent, false);
+            image.transform.SetPositionAndRotation(info.TextMeshProUgui.transform.position, info.TextMeshProUgui.transform.rotation);
+            image.transform.localScale = info.TextMeshProUgui.transform.localScale;
+            image.GetComponent<RectTransform>().sizeDelta = new Vector2(1920, 1090);
+            image.transform.SetAsFirstSibling();
+
+            info.RawImage = image.GetComponent<RawImage>();
             return info;
         }
 
-        private void RemoveMonitor(GameObject computer)
-		{
-			GameObject monitor = null;
-			foreach (Transform child in computer.transform)
-			{
-				if (child.name.StartsWith("monitor"))
-				{
-					monitor = child.gameObject;
-					monitor.SetActive(false);
-				}
-			}
-
-			if (monitor is null)
-			{
-				Debug.Log("Unable to find monitor");
-				return;
-			}
-
-			// If not Treehouse
-            if (monitor.transform.Find("FunctionSelect") is null)
+        private void RemoveMonitor(GameObject computer, MonitorLocation monitorIndex)
+        {
+            GameObject monitor = null;
+            foreach (Transform child in computer.transform)
             {
-				// Sky, Mountain
-				Transform test = computer?.transform?.parent?.Find("Text") ?? computer?.transform?.parent?.parent?.parent?.Find("UI/Text");
-
-                test.Find("FunctionSelect")?.gameObject?.SetActive(false);
-                test.Find("Data")?.gameObject?.SetActive(false);
-                test.Find("monitor")?.gameObject?.SetActive(false);
+                if (child.name.StartsWith("monitor"))
+                {
+                    monitor = child.gameObject;
+                    monitor.SetActive(false);
+                }
             }
-			else
-			{
-				// Treehouse monitor was baked into the scene, so we need to do all this jank to get rid of it
-				// Currently, This is broken as the combined mesh has isReadable set to false
-				// so all the mesh info lives on the GPU, which makes it unaccessabel afaik
-				var combinedScene = GameObject.Find("forest/ForestObjects/Uncover ForestCombined/").GetComponentInChildren<MeshRenderer>().gameObject;
-				Mesh combinedSceneMesh = combinedScene.GetComponent<MeshFilter>().mesh;
 
-				var bounds = monitor.GetComponent<Renderer>().bounds;
+            if (monitor is null)
+            {
+                Debug.Log("Unable to find monitor");
+                return;
+            }
 
-				Vector3[] combinedSceneVertices = combinedSceneMesh.vertices;
-				int[] combinedSceneTriangles = combinedSceneMesh.triangles;
+            // Stable for now 
+            if (computer.TryGetComponent(out GorillaComputerTerminal terminal))
+            {
+                terminal.monitorMesh?.gameObject?.SetActive(false);
+                terminal.myFunctionText?.gameObject?.SetActive(false);
+                terminal.myScreenText?.gameObject?.SetActive(false);
+            }
 
-                // There are duplicate verticies, so we need to make a map to not miss any
-				var duplicateVerticiesMap = new Dictionary<Vector3, HashSet<int>>();
-				for (int i = 0; i < combinedSceneVertices.Length; i++)
-				{
-					var vertex = combinedSceneVertices[i];
-					if (!duplicateVerticiesMap.ContainsKey(vertex))
-					{
-						duplicateVerticiesMap.Add(vertex, new HashSet<int>());
-					}
-					duplicateVerticiesMap[vertex].Add(i);
-				}
+            try
+            {
+                // Some monitors were baked into the scene, so we need to do all this jank to get rid of them
+                // Currently, This is broken as the combined mesh has isReadable set to false
+                // so all the mesh info lives on the GPU, which makes it unaccessabel afaik
 
-				var connectedVerticiesMap = new Dictionary<int, HashSet<int>>();
-				for (int i = 0; i < combinedSceneTriangles.Length; i += 3)
-				{
-					int vertex1 = combinedSceneTriangles[i];
-					int vertex2 = combinedSceneTriangles[i + 1];
-					int vertex3 = combinedSceneTriangles[i + 2];
+                GameObject combinedScene = monitorIndex switch
+                {
+                    MonitorLocation.Treehouse => GameObject.Find("forest/ForestObjects/Uncover ForestCombined/").GetComponentInChildren<MeshRenderer>().gameObject,
+                    MonitorLocation.Mountains => GameObject.Find("mountain/Mountain Texture Baker/Uncover Mountain Lit/CombinedMesh-Uncover Mountain Lit-mesh/").GetComponentInChildren<MeshRenderer>().gameObject,
+                    MonitorLocation.Beach => GameObject.Find("beach/Beach Texture Baker - ABOVE WATER/Uncover Beach Lit/").GetComponentInChildren<MeshRenderer>().gameObject,
+                    _ => null,
+                };
 
-					if (!connectedVerticiesMap.ContainsKey(vertex1))
-					{
-						connectedVerticiesMap.Add(vertex1, new HashSet<int>());
-					}
+                if (combinedScene == null) return;
 
-					if (!connectedVerticiesMap.ContainsKey(vertex2))
-					{
-						connectedVerticiesMap.Add(vertex2, new HashSet<int>());
-					}
+                Mesh combinedSceneMesh = combinedScene.GetComponent<MeshFilter>().mesh;
+                if (!combinedSceneMesh.isReadable) return;
 
-					if (!connectedVerticiesMap.ContainsKey(vertex3))
-					{
-						connectedVerticiesMap.Add(vertex3, new HashSet<int>());
-					}
+                var bounds = monitor.GetComponent<Renderer>().bounds;
 
-					connectedVerticiesMap[vertex1].Add(vertex2);
-					connectedVerticiesMap[vertex1].Add(vertex3);
+                Vector3[] combinedSceneVertices = combinedSceneMesh.vertices;
+                int[] combinedSceneTriangles = combinedSceneMesh.triangles;
 
-					connectedVerticiesMap[vertex2].Add(vertex1);
-					connectedVerticiesMap[vertex2].Add(vertex3);
+                // There are duplicate vertices, so we need to make a map to not miss any
+                var duplicateVerticesMap = new Dictionary<Vector3, HashSet<int>>();
+                for (int i = 0; i < combinedSceneVertices.Length; i++)
+                {
+                    var vertex = combinedSceneVertices[i];
+                    if (!duplicateVerticesMap.ContainsKey(vertex))
+                    {
+                        duplicateVerticesMap.Add(vertex, new HashSet<int>());
+                    }
+                    duplicateVerticesMap[vertex].Add(i);
+                }
 
-					connectedVerticiesMap[vertex3].Add(vertex1);
-					connectedVerticiesMap[vertex3].Add(vertex2);
-				}
+                var connectedVerticesMap = new Dictionary<int, HashSet<int>>();
+                for (int i = 0; i < combinedSceneTriangles.Length; i += 3)
+                {
+                    int vertex1 = combinedSceneTriangles[i];
+                    int vertex2 = combinedSceneTriangles[i + 1];
+                    int vertex3 = combinedSceneTriangles[i + 2];
 
-				HashSet<int> monitorVerticies = new HashSet<int>();
+                    if (!connectedVerticesMap.ContainsKey(vertex1))
+                    {
+                        connectedVerticesMap.Add(vertex1, new HashSet<int>());
+                    }
 
-				for (int i = 0; i < combinedSceneVertices.Length; i++)
-				{
-					// if the vertex is contined in bounds, use it as a root point for finding all verticies
-					if (bounds.Contains(combinedSceneVertices[i]))
-					{
-						foreach (int vertex in duplicateVerticiesMap[combinedSceneVertices[i]])
-						{
-							FindConnectedVerticies(vertex, monitorVerticies);
-						}
-					}
-				}
+                    if (!connectedVerticesMap.ContainsKey(vertex2))
+                    {
+                        connectedVerticesMap.Add(vertex2, new HashSet<int>());
+                    }
 
-				void FindConnectedVerticies(int index, HashSet<int> connectedVerticies)
-				{
-					if (!connectedVerticies.Contains(index))
-					{
-						connectedVerticies.Add(index);
-						foreach (var connectedVertex in connectedVerticiesMap[index])
-						{
-							foreach (int duplicateVertex in duplicateVerticiesMap[combinedSceneVertices[connectedVertex]])
-							{
-								FindConnectedVerticies(duplicateVertex, connectedVerticies);
-							}
-						}
-					}
-				}
+                    if (!connectedVerticesMap.ContainsKey(vertex3))
+                    {
+                        connectedVerticesMap.Add(vertex3, new HashSet<int>());
+                    }
 
-				// Remove the verticies that are not connected to the starting vertex
-				foreach (int connectedVertex in monitorVerticies)
-				{
-					combinedSceneVertices[connectedVertex] = new Vector3(combinedSceneVertices[connectedVertex].x, -100, combinedSceneVertices[connectedVertex].z);
-				}
+                    connectedVerticesMap[vertex1].Add(vertex2);
+                    connectedVerticesMap[vertex1].Add(vertex3);
 
-                // Getting the verticies returend a copy of them, so set the actual verticies
-				combinedSceneMesh.vertices = combinedSceneVertices;
-			}
-		}
+                    connectedVerticesMap[vertex2].Add(vertex1);
+                    connectedVerticesMap[vertex2].Add(vertex3);
+
+                    connectedVerticesMap[vertex3].Add(vertex1);
+                    connectedVerticesMap[vertex3].Add(vertex2);
+                }
+
+                HashSet<int> monitorVertices = new HashSet<int>();
+
+                for (int i = 0; i < combinedSceneVertices.Length; i++)
+                {
+                    // if the vertex is contained in bounds, use it as a root point for finding all vertices
+                    if (bounds.Contains(combinedSceneVertices[i]))
+                    {
+                        foreach (int vertex in duplicateVerticesMap[combinedSceneVertices[i]])
+                        {
+                            FindConnectedVertices(vertex, monitorVertices);
+                        }
+                    }
+                }
+
+                void FindConnectedVertices(int index, HashSet<int> connectedVertices)
+                {
+                    if (!connectedVertices.Contains(index))
+                    {
+                        connectedVertices.Add(index);
+                        foreach (var connectedVertex in connectedVerticesMap[index])
+                        {
+                            foreach (int duplicateVertex in duplicateVerticesMap[combinedSceneVertices[connectedVertex]])
+                            {
+                                FindConnectedVertices(duplicateVertex, connectedVertices);
+                            }
+                        }
+                    }
+                }
+
+                // Remove the vertices that are not connected to the starting vertex
+                foreach (int connectedVertex in monitorVertices)
+                {
+                    combinedSceneVertices[connectedVertex] = new Vector3(combinedSceneVertices[connectedVertex].x, -100, combinedSceneVertices[connectedVertex].z);
+                }
+
+                // Getting the vertices returned a copy of them, so set the actual vertices
+                combinedSceneMesh.vertices = combinedSceneVertices;
+            }
+            catch { }
+        }
     }
 }

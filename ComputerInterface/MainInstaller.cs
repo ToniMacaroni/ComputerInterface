@@ -22,10 +22,10 @@ namespace ComputerInterface
 
             Container.Bind<MainMenuView>().AsSingle();
             Container.Bind<IComputerModEntry>().To<GameSettingsEntry>().AsSingle();
+            Container.Bind<IComputerModEntry>().To<ComputerSettingsEntry>().AsSingle();
             Container.Bind<IComputerModEntry>().To<CommandLineEntry>().AsSingle();
             Container.Bind<IComputerModEntry>().To<DetailsEntry>().AsSingle();
             Container.Bind<IComputerModEntry>().To<ModListEntry>().AsSingle();
-            Container.Bind<IComputerModEntry>().To<CustomQueuesEntry>().AsSingle();
             Container.Bind<CommandHandler>().AsSingle();
             Container.BindInterfacesAndSelfTo<AssetsLoader>().AsSingle();
             Container.Bind<CIConfig>().AsSingle();

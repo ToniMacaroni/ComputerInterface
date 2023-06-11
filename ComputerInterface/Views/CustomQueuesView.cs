@@ -53,7 +53,7 @@ namespace ComputerInterface.Views
 
         public void DrawOptions(StringBuilder str)
         {
-            str.AppendLine("Current Queue: " + QueueManager.GetQueue().DisplayName);
+            str.AppendLine(" Current Queue: " + QueueManager.GetQueue().DisplayName);
             str.AppendLines(4);
             str.Append(_pageHandler.GetElementsForPage(_pageHandler.CurrentPage)[0].DisplayName).AppendLine(": ").Append(_pageHandler.GetElementsForPage(_pageHandler.CurrentPage)[0].Description).AppendLine();
             _pageHandler.AppendFooter(str);

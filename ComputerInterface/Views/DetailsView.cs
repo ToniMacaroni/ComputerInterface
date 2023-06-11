@@ -1,11 +1,10 @@
 ﻿using System;
-using System.IO;
 using System.Text;
 using BepInEx;
 using ComputerInterface.Interfaces;
 using ComputerInterface.ViewLib;
+using GorillaNetworking;
 using Photon.Pun;
-using UnityEngine;
 
 namespace ComputerInterface.Views
 {
@@ -20,6 +19,7 @@ namespace ComputerInterface.Views
         private string _name;
         private string _roomCode;
         private int _playerCount;
+        private int _playerBans;
 
         public override void OnShow(object[] args)
         {
@@ -33,6 +33,7 @@ namespace ComputerInterface.Views
             _name = BaseGameInterface.GetName();
             _roomCode = BaseGameInterface.GetRoomCode();
             _playerCount = PhotonNetwork.CountOfPlayersInRooms;
+            _playerBans = GorillaComputer.instance.GetField<int>("usersBanned");
         }
 
         private void Redraw()
@@ -47,17 +48,23 @@ namespace ComputerInterface.Views
                 .Append(_name)
                 .AppendLines(2);
 
-            str.AppendClr("Current Room   : ", "ffffff50")
+            str.AppendClr("Current room:", "ffffff50")
                 .AppendLine()
                 .Repeat(" ", 4)
                 .Append(_roomCode.IsNullOrWhiteSpace() ? "-None-" : _roomCode)
                 .AppendLines(2);
 
-            str.AppendClr("Players Online : ", "ffffff50")
+            str.AppendClr("Players online:", "ffffff50")
                 .AppendLine()
                 .Repeat(" ", 4)
                 .Append(_playerCount)
-                .AppendLine();
+                .AppendLines(2);
+
+            str.AppendClr("User bans yesterday:", "ffffff50")
+                .AppendLine()
+                .Repeat(" ", 4)
+                .Append(_playerBans)
+                .AppendLines(2);
 
             Text = str.ToString();
         }

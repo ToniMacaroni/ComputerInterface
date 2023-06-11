@@ -12,9 +12,7 @@ namespace ComputerInterface.Patches
 		internal static void ApplyHarmonyPatches()
 		{
 			if (!IsPatched) {
-				if (instance == null) {
-					instance = new Harmony(InstanceId);
-				}
+				instance ??= new Harmony(InstanceId);
 
 				instance.PatchAll(Assembly.GetExecutingAssembly());
 				IsPatched = true;

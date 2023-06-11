@@ -22,15 +22,17 @@ namespace ComputerInterface.Views
         {
             _gameSettingsViews = new List<Tuple<string, Type>>
             {
-                new Tuple<string, Type>("Room", typeof(JoinRoomView)),
-                new Tuple<string, Type>("Color", typeof(ColorSettingView)),
-                new Tuple<string, Type>("Name", typeof(NameSettingView)),
-                new Tuple<string, Type>("Turn Mode", typeof(TurnSettingView)),
-                new Tuple<string, Type>("Mic Mode", typeof(MicSettingsView)),
-                new Tuple<string, Type>("Voice Mode", typeof(VoiceSettingsView)),
-                new Tuple<string, Type>("Visual Mode", typeof(ItemSettingsView)),
+                new Tuple<string, Type>("Room   ", typeof(JoinRoomView)),
+                new Tuple<string, Type>("Name   ", typeof(NameSettingView)),
+                new Tuple<string, Type>("Color  ", typeof(ColorSettingView)),
+                new Tuple<string, Type>("Turn   ", typeof(TurnSettingView)),
+                new Tuple<string, Type>("Mic    ", typeof(MicSettingsView)),
+                new Tuple<string, Type>("Queue  ", typeof(CustomQueuesView)),
+                new Tuple<string, Type>("Group  ", typeof(GroupView)),
+                new Tuple<string, Type>("Voice  ", typeof(VoiceSettingsView)),
+                new Tuple<string, Type>("Items  ", typeof(ItemSettingsView)),
                 new Tuple<string, Type>("Credits", typeof(CreditsView)),
-                new Tuple<string, Type>("Group", typeof(GroupView))
+                new Tuple<string, Type>("Support", typeof(SupportView)),
             };
 
             _selectionHandler = new UISelectionHandler(EKeyboardKey.Up, EKeyboardKey.Down, EKeyboardKey.Enter);
@@ -47,11 +49,11 @@ namespace ComputerInterface.Views
         private void Redraw()
         {
             var str = new StringBuilder();
-            str.AppendLines(2);
+            str.AppendLine();
             for (var i = 0; i < _gameSettingsViews.Count; i++)
             {
                 var pair = _gameSettingsViews[i];
-                str.Repeat(" ", 8).Append(GetSelector(i)).Append(pair.Item1).AppendLine();
+                str.Repeat(" ", _gameSettingsViews.Count - 1).Append(GetSelector(i)).Append(pair.Item1).AppendLine();
             }
 
             Text = str.ToString();

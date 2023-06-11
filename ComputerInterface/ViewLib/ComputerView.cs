@@ -16,12 +16,12 @@ namespace ComputerInterface.ViewLib
         /// <summary>
         /// How many characters fit in the x axis of the screen
         /// </summary>
-        public static int SCREEN_WIDTH = 41;
+        public static int SCREEN_WIDTH = 53;
 
         /// <summary>
         /// How many characters fit in the y axis of the screen
         /// </summary>
-        public static int SCREEN_HEIGHT = 12;
+        public static int SCREEN_HEIGHT = 13;
 
         public string PrimaryColor = "ed6540";
 

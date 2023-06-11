@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Photon.Pun;
+using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using UnityEngine;
@@ -10,9 +11,9 @@ namespace ComputerInterface
 {
     public class CustomKeyboardKey : GorillaTriggerBox
     {
-        private const int PRESS_COOLDOWN = 150;
+        private const int PRESS_COOLDOWN = 80;
         private const float KEY_BUMP_AMOUNT = 0.2f;
-        private readonly Color _pressedColor = new Color(0.5f, 0.5f, 0.5f);
+        private Color _pressedColor = new Color(0.5f, 0.5f, 0.5f);
 
         public static bool KeyDebuggerEnabled;
 
@@ -33,11 +34,15 @@ namespace ComputerInterface
         private Color _originalColor;
         private KeyHandler _keyHandler;
 
+        private BoxCollider collider;
+        private bool _bumped;
+
         private void Awake()
         {
             enabled = false;
             _material = GetComponent<MeshRenderer>().material;
             _originalColor = _material.color;
+            collider = GetComponent<BoxCollider>();
 
             CreateKeyMap();
         }
@@ -74,9 +79,9 @@ namespace ComputerInterface
         {
             Init(computer, key, keyboardText);
             if (keyboardText != null)
-			{
-				keyboardText.text = text;
-			}
+            {
+                keyboardText.text = text;
+            }
         }
 
         public void Init(CustomComputer computer, EKeyboardKey key, Text keyboardText, string text, Color buttonColor)
@@ -84,51 +89,61 @@ namespace ComputerInterface
             Init(computer, key, keyboardText, text);
             _material.color = buttonColor;
             _originalColor = buttonColor;
+
+            Color.RGBToHSV(buttonColor, out float H, out float S, out float _);
+            _pressedColor = Color.HSVToRGB(H, S, 0.6f);
         }
 
         private async void OnTriggerEnter(Collider collider)
         {
-            BumpIn();
-            if (_isOnCooldown) return;
-            _isOnCooldown = true;
-
-            if (collider.GetComponentInParent<GorillaTriggerColliderHandIndicator>() != null)
+            if (collider.TryGetComponent(out GorillaTriggerColliderHandIndicator component))
             {
-                GorillaTriggerColliderHandIndicator component = collider.GetComponent<GorillaTriggerColliderHandIndicator>();
+                if (_isOnCooldown) return;
+                _isOnCooldown = true;
 
+                BumpIn();
                 _computer.PressButton(this);
+                GorillaTagger.Instance.StartVibration(component.isLeftHand, GorillaTagger.Instance.tapHapticStrength / 2f, GorillaTagger.Instance.tapHapticDuration);
+                if (PhotonNetwork.InRoom && GorillaTagger.Instance.myVRRig != null)
+                    PhotonView.Get(GorillaTagger.Instance.myVRRig).RPC("PlayHandTap", RpcTarget.Others, 66, component.isLeftHand, 0.1f);
 
-                if (component != null)
-                {
-                    GorillaTagger.Instance.StartVibration(component.isLeftHand, GorillaTagger.Instance.tapHapticStrength / 2f, GorillaTagger.Instance.tapHapticDuration);
-                }
+                await Task.Delay(PRESS_COOLDOWN);
+                _isOnCooldown = false;
             }
-
-            await Task.Delay(PRESS_COOLDOWN);
-            _isOnCooldown = false;
         }
 
         private void OnTriggerExit(Collider collider)
         {
+            if (collider.GetComponent<GorillaTriggerColliderHandIndicator>() == null) return;
             BumpOut();
         }
 
         private void BumpIn()
         {
-            var pos = transform.localPosition;
-            pos.y -= KEY_BUMP_AMOUNT;
-            transform.localPosition = pos;
+            if (!_bumped)
+            {
+                _bumped = true;
+                var pos = transform.localPosition;
+                pos.y -= KEY_BUMP_AMOUNT;
+                transform.localPosition = pos;
+                collider.center -= new Vector3(0, 0, KEY_BUMP_AMOUNT / 1.125f);
 
-            _material.color = _pressedColor;
+                _material.color = _pressedColor;
+            }
         }
 
         private void BumpOut()
         {
-            var pos = transform.localPosition;
-            pos.y += KEY_BUMP_AMOUNT;
-            transform.localPosition = pos;
+            if (_bumped)
+            {
+                _bumped = false;
+                var pos = transform.localPosition;
+                pos.y += KEY_BUMP_AMOUNT;
+                transform.localPosition = pos;
+                collider.center += new Vector3(0, 0, KEY_BUMP_AMOUNT / 1.125f);
 
-            _material.color = _originalColor;
+                _material.color = _originalColor;
+            }
         }
 
         private void OnISKeyPress()
@@ -140,19 +155,20 @@ namespace ComputerInterface
         {
             if (_keyMap != null) return;
 
-            _keyMap = new Dictionary<EKeyboardKey, Key>();
+            _keyMap = new Dictionary<EKeyboardKey, Key>
+            {
+                { EKeyboardKey.Left, Key.LeftArrow },
+                { EKeyboardKey.Right, Key.RightArrow },
+                { EKeyboardKey.Up, Key.UpArrow },
+                { EKeyboardKey.Down, Key.DownArrow },
 
-            _keyMap.Add(EKeyboardKey.Left, Key.LeftArrow);
-            _keyMap.Add(EKeyboardKey.Right, Key.RightArrow);
-            _keyMap.Add(EKeyboardKey.Up, Key.UpArrow);
-            _keyMap.Add(EKeyboardKey.Down, Key.DownArrow);
+                { EKeyboardKey.Back, Key.Escape },
+                { EKeyboardKey.Delete, Key.Backspace },
 
-            _keyMap.Add(EKeyboardKey.Back, Key.Escape);
-            _keyMap.Add(EKeyboardKey.Delete, Key.Backspace);
-
-            _keyMap.Add(EKeyboardKey.Option1, Key.Numpad1);
-            _keyMap.Add(EKeyboardKey.Option2, Key.Numpad2);
-            _keyMap.Add(EKeyboardKey.Option3, Key.Numpad3);
+                { EKeyboardKey.Option1, Key.Numpad1 },
+                { EKeyboardKey.Option2, Key.Numpad2 },
+                { EKeyboardKey.Option3, Key.Numpad3 }
+            };
 
             // add num keys
             for (int i = 1; i < 9; i++)

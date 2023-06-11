@@ -7,7 +7,7 @@ namespace ComputerInterface.Views
 {
     public class CommandLineEntry : IComputerModEntry
     {
-        public string EntryName => "Commandline";
+        public string EntryName => "CommandLine";
         public Type EntryViewType => typeof(CommandLineView);
     }
 
@@ -41,8 +41,10 @@ namespace ComputerInterface.Views
 
         public void DrawHeader(StringBuilder str)
         {
-            str.AppendClr("/// MonkeShell ///", "ffffff").AppendLine();
-            str.AppendClr("/ Press option 1 for help", "ffffff50").AppendLines(2);
+            str.BeginCenter().Repeat("=", SCREEN_WIDTH).AppendLine();
+            str.Append("CommandLine").AppendLine();
+            str.AppendClr("Press Option 1 for command list", "ffffff50").AppendLine();
+            str.Repeat("=", SCREEN_WIDTH).EndAlign().AppendLines(2);
         }
 
         public void DrawCurrentCommand(StringBuilder str)
