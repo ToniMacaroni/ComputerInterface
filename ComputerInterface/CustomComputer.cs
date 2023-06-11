@@ -411,8 +411,8 @@ namespace ComputerInterface
             var newMonitor = Instantiate(monitorAsset);
             newMonitor.name = "Custom Monitor";
             newMonitor.transform.parent = computer.transform.Find("monitor") ?? computer.transform.Find("monitor (1)");
-            newMonitor.transform.localPosition = new Vector3(0.0213f, -0.31f, 0.5344f);
-            newMonitor.transform.localEulerAngles = new Vector3(90f, 0f, 0f);
+            newMonitor.transform.localPosition = new Vector3(2.28f, -0.72f, 0.0f);
+            newMonitor.transform.localEulerAngles = new Vector3(0.0f, 270.0f, 270.02f);
             newMonitor.transform.parent = null;
 
             foreach (RectTransform rect in newMonitor.GetComponentsInChildren<RectTransform>()) rect.gameObject.layer = 9;
@@ -421,22 +421,12 @@ namespace ComputerInterface
 
             info.Transform = newMonitor.transform;
             info.TextMeshProUgui = newMonitor.GetComponentInChildren<TextMeshProUGUI>();
-            info.Renderer = newMonitor.GetComponentsInChildren<MeshRenderer>().First();
+            info.Renderer = newMonitor.GetComponentsInChildren<MeshRenderer>().First(x => x.name == "Main Monitor");
+            info.RawImage = newMonitor.GetComponentInChildren<RawImage>();
+            info.RawImage.color = new Color(0.05f, 0.05f, 0.05f);
             info.Materials = info.Renderer.materials;
-            info.FontSize = 60f;
+            info.Color = new Color(0.05f, 0.05f, 0.05f);
 
-            var collider = info.Renderer.gameObject.AddComponent<BoxCollider>();
-            collider.center = Vector3.zero;
-            collider.size = Vector3.one * 0.02f;
-
-            var image = new GameObject("RawImage", typeof(RectTransform), typeof(RawImage));
-            image.transform.SetParent(info.TextMeshProUgui.transform.parent, false);
-            image.transform.SetPositionAndRotation(info.TextMeshProUgui.transform.position, info.TextMeshProUgui.transform.rotation);
-            image.transform.localScale = info.TextMeshProUgui.transform.localScale;
-            image.GetComponent<RectTransform>().sizeDelta = new Vector2(1920, 1090);
-            image.transform.SetAsFirstSibling();
-
-            info.RawImage = image.GetComponent<RawImage>();
             return info;
         }
 

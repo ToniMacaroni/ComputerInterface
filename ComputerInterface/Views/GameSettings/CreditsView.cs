@@ -26,7 +26,7 @@ namespace ComputerInterface.Views.GameSettings
 			}
 
             creditsView = computer.creditsView;
-            creditsView.pageSize = SCREEN_HEIGHT - 3;
+            creditsView.pageSize = SCREEN_HEIGHT - 2;
             totalPages = creditsView.GetType().GetProperty("TotalPages", BindingFlags.NonPublic | BindingFlags.Instance);
             getPage = creditsView.GetType().GetMethod("GetPage", BindingFlags.NonPublic | BindingFlags.Instance);
 
@@ -57,7 +57,7 @@ namespace ComputerInterface.Views.GameSettings
             {
                 case EKeyboardKey.Left:
                     page--;
-                    page %= MaxPage;
+                    if (page == -1) page = MaxPage - 1; // C# modulus is wrong: -1 % 5 = -1
                     Redraw();
                     break;
                 case EKeyboardKey.Right:

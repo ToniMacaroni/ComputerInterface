@@ -85,7 +85,7 @@ namespace ComputerInterface.Views
             switch (key)
             {
                 case EKeyboardKey.Back:
-                    ShowView<MainMenuView>();
+                    ShowView<GameSettingsView>();
                     break;
             }
         }
