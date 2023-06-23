@@ -46,7 +46,7 @@ namespace ComputerInterface
         public static void InitializeNoobMaterial(Color color)
         {
             if (CheckForComputer(out var computer) && PhotonNetwork.InRoom && GorillaTagger.Instance.myVRRig != null)
-                GorillaTagger.Instance.myVRRig.RPC("InitializeNoobMaterial", RpcTarget.All, color.r, color.g, color.b, GorillaComputer.instance?.leftHanded ?? true);
+                GorillaTagger.Instance.myVRRig.RPC("InitializeNoobMaterial", RpcTarget.All, color.r, color.g, color.b, computer.leftHanded);
         }
 
         #endregion
