@@ -1,0 +1,39 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+	<PropertyGroup>
+		<TargetFramework>netstandard2.0</TargetFramework>
+	</PropertyGroup>
+
+	<ItemGroup>
+		<PackageReference Include="BeatSaberModdingTools.Tasks" Version="1.3.2">
+			<PrivateAssets>all</PrivateAssets>
+			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+		</PackageReference>
+	</ItemGroup>
+
+	<ItemGroup>
+		<ProjectReference Include="..\ComputerInterface\ComputerInterface.csproj" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<Reference Include="BepInEx">
+			<HintPath>$(BepInExAssemblyPath)\BepInEx.dll</HintPath>
+		</Reference>
+		<Reference Include="Bepinject">
+			<HintPath>$(PluginsPath)\Bepinject-Auros\Bepinject.dll</HintPath>
+		</Reference>
+		<Reference Include="UnityEngine">
+			<HintPath>$(GameAssemblyPath)\UnityEngine.dll</HintPath>
+		</Reference>
+		<Reference Include="UnityEngine.CoreModule">
+			<HintPath>$(GameAssemblyPath)\UnityEngine.CoreModule.dll</HintPath>
+		</Reference>
+		<Reference Include="Zenject">
+			<HintPath>$(PluginsPath)\Extenject\Zenject.dll</HintPath>
+		</Reference>
+		<Reference Include="Zenject-usage">
+			<HintPath>$(PluginsPath)\Extenject\Zenject-usage.dll</HintPath>
+		</Reference>
+	</ItemGroup>
+
+</Project>

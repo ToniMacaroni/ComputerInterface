@@ -1,0 +1,9 @@
+{
+  "profiles": {
+    "ComputerInterface": {
+      "commandName": "Executable",
+      "executablePath": "D:\\SteamLibrary\\steamapps\\common\\Gorilla Tag\\Gorilla Tag.exe",
+      "commandLineArgs": "-vrmode oculus fpfc"
+    }
+  }
+}

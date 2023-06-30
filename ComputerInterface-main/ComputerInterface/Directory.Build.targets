@@ -1,0 +1,33 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+
+<Project>
+
+	<ItemGroup>
+		<FilesToCopy Include="
+							$(TargetDir)\Unity.TextMeshPro.dll;
+							$(TargetDir)\$(TargetFileName);" />
+	</ItemGroup>
+
+	<Target Name="CopyToPlugins" AfterTargets="Build">
+		<Copy SourceFiles="@(FilesToCopy)" DestinationFolder="$(PluginsPath)\$(ProjectName)\" />
+		<Message Text="Copied to Plugins" Importance="high" />
+	</Target>
+
+	<Target Name="ZipRelease" AfterTargets="AfterBuild" Condition="'$(Configuration)' == 'Release'">
+		<!--<ItemGroup>
+			<OldZips Include="$(SolutionDir)$(TargetName).zip" />
+			<OldBuilds Include="$(DestinationDirectory)*.*" />
+		</ItemGroup>-->
+
+		<!--<Delete Files="@(OldBuilds)" TreatErrorsAsWarnings="true" ContinueOnError="true" />
+		<Delete Files="@(OldZips)" TreatErrorsAsWarnings="false" ContinueOnError="false" />-->
+
+		<Copy SourceFiles="@(FilesToCopy)"
+		      DestinationFolder="$(ZipDir)\BepInEx\plugins\$(ProjectName)\" />
+
+		<!--<ZipDir SourceDirectory="$(DestinationDirectory)" DestinationFile="$(SolutionDir)$(TargetName).zip" />-->
+
+		<Message Text="Zipped Release" Importance="high" />
+	</Target>
+
+</Project>
