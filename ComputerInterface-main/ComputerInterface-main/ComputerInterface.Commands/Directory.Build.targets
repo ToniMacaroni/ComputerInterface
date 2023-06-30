@@ -1,0 +1,22 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+
+<Project>
+
+	<ItemGroup>
+		<FilesToCopy Include="$(TargetPath)" />
+	</ItemGroup>
+
+	<Target Name="CopyToPlugins" AfterTargets="Build">
+		<Copy SourceFiles="@(FilesToCopy)" DestinationFolder="$(PluginsPath)\$(SolutionName)\" />
+		<Message Text="Copied to Plugins" Importance="high" />
+	</Target>
+
+	<Target Name="ZipRelease" AfterTargets="AfterBuild" Condition="'$(Configuration)' == 'Release'">
+
+		<Copy SourceFiles="@(FilesToCopy)"
+		      DestinationFolder="$(ZipDir)\BepInEx\plugins\$(SolutionName)\" />
+
+		<Message Text="Copied to zip folder" Importance="high" />
+	</Target>
+
+</Project>

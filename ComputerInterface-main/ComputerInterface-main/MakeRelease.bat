@@ -1,0 +1,2 @@
+python MakeRelease.py
+pause
