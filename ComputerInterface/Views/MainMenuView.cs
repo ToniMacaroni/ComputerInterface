@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using BepInEx.Bootstrap;
 using ComputerInterface.Interfaces;
@@ -59,18 +60,17 @@ namespace ComputerInterface.Views
         {
             _shownEntries.Clear();
             List<IComputerModEntry> customEntries = new List<IComputerModEntry>();
+            Assembly localAssembly = Assembly.GetExecutingAssembly();
             foreach (var entry in _modEntries)
             {
-                if (!_pluginInfoMap.TryGetValue(entry, out var info)) continue;
-                if (info.Instance.enabled)
+                if (_pluginInfoMap.TryGetValue(entry, out var info))
                 {
-                    if (info.Instance.GetType().Assembly == GetType().Assembly)
-					{
-						_shownEntries.Add(entry);
-					} else
-					{
-						customEntries.Add(entry);
-					}
+                    if (info.GetType().Assembly == localAssembly)
+                    {
+                        _shownEntries.Add(entry);
+                        continue;
+                    }
+                    customEntries.Add(entry);
                 }
             }
             _shownEntries.AddRange(customEntries);
