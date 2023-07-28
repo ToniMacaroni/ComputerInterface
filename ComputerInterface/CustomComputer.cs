@@ -88,34 +88,43 @@ namespace ComputerInterface
             _computerViewController.OnSetBackground += SetBGImage;
 
             // Treehouse, Mountains, Sky, Basement, Beach
-            GameObject[] physicalComputers = { GameObject.Find("UI/-- PhysicalComputer UI --"), GameObject.Find("goodigloo/PhysicalComputer (2)"), GameObject.Find("skyjungle/UI/-- Clouds PhysicalComputer UI --/"), GameObject.Find("BasementComputer/PhysicalComputer (2)"), GameObject.Find("beach/BeachComputer/PhysicalComputer (2)/") };
+            GameObject[] physicalComputers = { GameObject.Find("UI/-- PhysicalComputer UI --"), GameObject.Find("goodigloo/PhysicalComputer (2)"), GameObject.Find("skyjungle/UI/-- Clouds PhysicalComputer UI --/"), GameObject.Find("BasementComputer/PhysicalComputer (2)"), GameObject.Find("Beach/BeachComputer/PhysicalComputer (2)/") };
 
             for (int i = 0; i < physicalComputers.Length; i++)
             {
+                // Keys should pretty much always be done seperate from the computer so you can atleast see what you're doing
+                try { await ReplaceKeys(physicalComputers[i]); } // TODO: Update Clouds key texts
+                catch (Exception ex) { Debug.LogError($"CI: The keyboard for the {(MonitorLocation)i} computer couldn't be replaced: {ex}"); }
+
+                // Then load the computer screens
                 try
                 {
-                    await ReplaceKeys(physicalComputers[i]); // TODO: Update Clouds key texts
                     CustomScreenInfo screenInfo = await CreateMonitor(physicalComputers[i], (MonitorLocation)i);
                     screenInfo.Color = _config.ScreenBackgroundColor.Value;
                     screenInfo.Background = _config.BackgroundTexture;
                     _customScreenInfos.Add(screenInfo);
                 }
-                catch (Exception e)
-                {
-                    Debug.LogError($"CI: computer {i} could not be initialized: {e}");
-                }
+                catch (Exception ex) { Debug.LogError($"CI: The monitor for the {(MonitorLocation)i} computer couldn't be created: {ex}"); }
             }
 
-            BaseGameInterface.InitAll();
+            try
+            {
+                BaseGameInterface.InitAll();
+                ShowInitialView(_mainMenuView, computerModEntries);
+
+                QueueManager.Queues = queues;
+                QueueManager.Init();
+            }
+            catch (Exception ex) { Debug.LogError($"CI: Failed to successfully end initalizing the mod: {ex}"); }
 
             enabled = true;
-
-            ShowInitialView(_mainMenuView, computerModEntries);
-
-            QueueManager.Queues = queues;
-            QueueManager.Init();
-
             Debug.Log("Initialized computers");
+
+            await Task.Delay(200); // Wait for other mods such as Utilla to load, this is here just to be safe
+
+            // Then load the start zone (which disables the other zones), this is done since I've had issues with computers with CI
+            // not being able to have their keyboards in specific not load in due to their map being disabled
+            ZoneManagement.SetActiveZone(PhotonNetworkController.Instance.StartZone);
         }
 
         private void ShowInitialView(MainMenuView view, List<IComputerModEntry> computerModEntries)
@@ -409,20 +418,22 @@ namespace ComputerInterface
             var monitorAsset = await _assetsLoader.GetAsset<GameObject>("Monitor");
 
             var newMonitor = Instantiate(monitorAsset);
-            newMonitor.name = "Custom Monitor";
-            newMonitor.transform.parent = computer.transform.Find("monitor") ?? computer.transform.Find("monitor (1)");
+            newMonitor.name = $"{location} Custom Monitor";
+            newMonitor.transform.SetParent(computer.transform.Find("monitor") ?? computer.transform.Find("monitor (1)"), false);
             newMonitor.transform.localPosition = new Vector3(2.28f, -0.72f, 0.0f);
             newMonitor.transform.localEulerAngles = new Vector3(0.0f, 270.0f, 270.02f);
-            newMonitor.transform.parent = null;
+            newMonitor.transform.SetParent(computer.transform.parent, true);
 
             foreach (RectTransform rect in newMonitor.GetComponentsInChildren<RectTransform>()) rect.gameObject.layer = 9;
+            newMonitor.GetComponentInChildren<ReflectionProbe>().enabled = false;
 
-            var info = new CustomScreenInfo();
-
-            info.Transform = newMonitor.transform;
-            info.TextMeshProUgui = newMonitor.GetComponentInChildren<TextMeshProUGUI>();
-            info.Renderer = newMonitor.GetComponentsInChildren<MeshRenderer>().First(x => x.name == "Main Monitor");
-            info.RawImage = newMonitor.GetComponentInChildren<RawImage>();
+            var info = new CustomScreenInfo
+            {
+                Transform = newMonitor.transform,
+                TextMeshProUgui = newMonitor.GetComponentInChildren<TextMeshProUGUI>(),
+                Renderer = newMonitor.GetComponentsInChildren<MeshRenderer>().First(x => x.name == "Main Monitor"),
+                RawImage = newMonitor.GetComponentInChildren<RawImage>()
+            };
             info.RawImage.color = new Color(0.05f, 0.05f, 0.05f);
             info.Materials = info.Renderer.materials;
             info.Color = new Color(0.05f, 0.05f, 0.05f);
@@ -464,9 +475,9 @@ namespace ComputerInterface
 
                 GameObject combinedScene = monitorIndex switch
                 {
-                    MonitorLocation.Treehouse => GameObject.Find("forest/ForestObjects/Uncover ForestCombined/").GetComponentInChildren<MeshRenderer>().gameObject,
-                    MonitorLocation.Mountains => GameObject.Find("mountain/Mountain Texture Baker/Uncover Mountain Lit/CombinedMesh-Uncover Mountain Lit-mesh/").GetComponentInChildren<MeshRenderer>().gameObject,
-                    MonitorLocation.Beach => GameObject.Find("beach/Beach Texture Baker - ABOVE WATER/Uncover Beach Lit/").GetComponentInChildren<MeshRenderer>().gameObject,
+                    MonitorLocation.Treehouse => GameObject.Find("LocalObjects_Prefab/Forest/Terrain/Uncover ForestCombined/").GetComponentInChildren<MeshRenderer>().gameObject,
+                    MonitorLocation.Mountains => GameObject.Find("Mountain/Mountain Texture Baker/Uncover Mountain Lit/").GetComponentInChildren<MeshRenderer>().gameObject,
+                    MonitorLocation.Beach => GameObject.Find("Beach/Beach Texture Baker - ABOVE WATER/Uncover Beach Lit/").GetComponentInChildren<MeshRenderer>().gameObject,
                     _ => null,
                 };
 

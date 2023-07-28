@@ -276,12 +276,7 @@ namespace ComputerInterface
         #region Room settings
 
         public static void Disconnect()
-        {
-            if (CheckForComputer(out var computer))
-            {
-                computer.networkController.AttemptDisconnect();
-            }
-        }
+            => PhotonNetworkController.Instance.AttemptDisconnect();
 
         public static WordCheckResult JoinRoom(string roomId)
         {
@@ -293,9 +288,7 @@ namespace ComputerInterface
             var roomAllowed = WordAllowed(roomId);
 
             if (roomAllowed == WordCheckResult.Allowed)
-            {
-                computer.networkController.AttemptToJoinSpecificRoom(roomId);
-            }
+                PhotonNetworkController.Instance.AttemptToJoinSpecificRoom(roomId);
 
             return roomAllowed;
         }
