@@ -120,8 +120,6 @@ namespace ComputerInterface
             enabled = true;
             Debug.Log("Initialized computers");
 
-            await Task.Delay(200); // Wait for other mods such as Utilla to load, this is here just to be safe
-
             // Then load the start zone (which disables the other zones), this is done since I've had issues with computers with CI
             // not being able to have their keyboards in specific not load in due to their map being disabled
             ZoneManagement.SetActiveZone(PhotonNetworkController.Instance.StartZone);
@@ -129,20 +127,17 @@ namespace ComputerInterface
 
         private void ShowInitialView(MainMenuView view, List<IComputerModEntry> computerModEntries)
         {
+            foreach (var pluginInfo in Chainloader.PluginInfos.Values)
+            {
+                if (!_config.IsModDisabled(pluginInfo.Metadata.GUID)) continue;
+                pluginInfo.Instance.enabled = false;
+            }
+
             _computerViewController.SetView(view, null);
             view.ShowEntries(computerModEntries);
         }
 
-        public void Initialize()
-        {
-            foreach (var pluginInfo in Chainloader.PluginInfos.Values)
-            {
-                if (_config.IsModDisabled(pluginInfo.Metadata.GUID))
-                {
-                    pluginInfo.Instance.enabled = false;
-                }
-            }
-        }
+        public void Initialize() { }
 
         private void Update()
         {
