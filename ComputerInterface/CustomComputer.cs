@@ -8,6 +8,7 @@ using ComputerInterface.Interfaces;
 using ComputerInterface.ViewLib;
 using ComputerInterface.Views;
 using GorillaNetworking;
+using HarmonyLib;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -87,8 +88,21 @@ namespace ComputerInterface
             _computerViewController.OnSwitchView += SwitchView;
             _computerViewController.OnSetBackground += SetBGImage;
 
-            // Treehouse, Mountains, Sky, Basement, Beach
-            GameObject[] physicalComputers = { GameObject.Find("UI/-- PhysicalComputer UI --"), GameObject.Find("goodigloo/PhysicalComputer (2)"), GameObject.Find("skyjungle/UI/-- Clouds PhysicalComputer UI --/"), GameObject.Find("BasementComputer/PhysicalComputer (2)"), GameObject.Find("Beach/BeachComputer/PhysicalComputer (2)/") };
+            // https://github.com/legoandmars/Utilla/blob/457bc612eda8e63b989dcdb219e04e8e7f06393a/Utilla/GamemodeManager.cs#L54
+            ZoneManagement zoneManager = FindObjectOfType<ZoneManagement>();
+
+            // https://github.com/legoandmars/Utilla/blob/457bc612eda8e63b989dcdb219e04e8e7f06393a/Utilla/GamemodeManager.cs#L56
+            ZoneData FindZoneData(GTZone zone)
+                => (ZoneData)AccessTools.Method(typeof(ZoneManagement), "GetZoneData").Invoke(zoneManager, new object[] { zone });
+
+            Transform[] physicalComputers =
+            {
+                FindZoneData(GTZone.forest).rootGameObjects[1].transform.Find("TreeRoomInteractables/UI/-- PhysicalComputer UI --"),
+                FindZoneData(GTZone.mountain).rootGameObjects[0].transform.Find("Geometry/goodigloo/PhysicalComputer (2)"),
+                FindZoneData(GTZone.skyJungle).rootGameObjects[0].transform.Find("UI/-- Clouds PhysicalComputer UI --"),
+                FindZoneData(GTZone.basement).rootGameObjects[0].transform.Find("DungeonRoomAnchor/BasementComputer/PhysicalComputer (2)"),
+                FindZoneData(GTZone.beach).rootGameObjects[0].transform.Find("BeachComputer/PhysicalComputer (2)")
+            };
 
             for (int i = 0; i < physicalComputers.Length; i++)
             {
@@ -119,10 +133,6 @@ namespace ComputerInterface
 
             enabled = true;
             Debug.Log("Initialized computers");
-
-            // Then load the start zone (which disables the other zones), this is done since I've had issues with computers with CI
-            // not being able to have their keyboards in specific not load in due to their map being disabled
-            ZoneManagement.SetActiveZone(PhotonNetworkController.Instance.StartZone);
         }
 
         private void ShowInitialView(MainMenuView view, List<IComputerModEntry> computerModEntries)
@@ -228,6 +238,8 @@ namespace ComputerInterface
             _cachedViews.Add(type, newView);
             return newView;
         }
+
+        private async Task ReplaceKeys(Transform computer) => await ReplaceKeys(computer.gameObject);
 
         private async Task ReplaceKeys(GameObject computer)
         {
@@ -399,6 +411,8 @@ namespace ComputerInterface
 
             return customKeyboardKey;
         }
+
+        private async Task<CustomScreenInfo> CreateMonitor(Transform computer, MonitorLocation location) => await CreateMonitor(computer.gameObject, location);
 
         private async Task<CustomScreenInfo> CreateMonitor(GameObject computer, MonitorLocation location) // index used for removing the base game computer.
         {
