@@ -253,12 +253,12 @@ namespace ComputerInterface
                 nameToEnum.Add(key, (EKeyboardKey)Enum.Parse(typeof(EKeyboardKey), enumString));
             }
 
-            foreach (var button in computer.GetComponentsInChildren<GorillaKeyboardButton>())
+            foreach (var button in computer.GetComponentsInChildren<GorillaKeyboardButton>(true))
             {
 
                 if (button.characterString == "up" || button.characterString == "down")
                 {
-                    button.GetComponentInChildren<MeshRenderer>().material.color = new Color(0.1f, 0.1f, 0.1f);
+                    button.GetComponentInChildren<MeshRenderer>(true).material.color = new Color(0.1f, 0.1f, 0.1f);
                     button.transform.localPosition -= new Vector3(0, 0.6f, 0);
                     DestroyImmediate(button.GetComponent<BoxCollider>());
                     if(FindText(button.gameObject, button.name + "text")?.GetComponent<Text>() is Text arrowBtnText)
@@ -392,23 +392,21 @@ namespace ComputerInterface
             newKeyText.transform.localPosition += offset;
 
             var customKeyboardKey = newKey.GetComponent<CustomKeyboardKey>();
+
             if (label.IsNullOrWhiteSpace())
             {
                 customKeyboardKey.Init(this, key);
             }
+            else if (color.HasValue)
+            {
+                customKeyboardKey.Init(this, key, newKeyText, label, color.Value);
+            }
             else
             {
-                if (color.HasValue)
-                {
-                    customKeyboardKey.Init(this, key, newKeyText, label, color.Value);
-                }
-                else
-                {
-                    customKeyboardKey.Init(this, key, newKeyText, label);
-                }
+                customKeyboardKey.Init(this, key, newKeyText, label);
             }
-            _keys.Add(customKeyboardKey);
 
+            _keys.Add(customKeyboardKey);
             return customKeyboardKey;
         }
 
@@ -482,11 +480,18 @@ namespace ComputerInterface
                 // Currently, This is broken as the combined mesh has isReadable set to false
                 // so all the mesh info lives on the GPU, which makes it unaccessabel afaik
 
+                // https://github.com/legoandmars/Utilla/blob/457bc612eda8e63b989dcdb219e04e8e7f06393a/Utilla/GamemodeManager.cs#L54
+                ZoneManagement zoneManager = FindObjectOfType<ZoneManagement>();
+
+                // https://github.com/legoandmars/Utilla/blob/457bc612eda8e63b989dcdb219e04e8e7f06393a/Utilla/GamemodeManager.cs#L56
+                ZoneData FindZoneData(GTZone zone)
+                    => (ZoneData)AccessTools.Method(typeof(ZoneManagement), "GetZoneData").Invoke(zoneManager, new object[] { zone });
+
                 GameObject combinedScene = monitorIndex switch
                 {
-                    MonitorLocation.Treehouse => GameObject.Find("LocalObjects_Prefab/Forest/Terrain/Uncover ForestCombined/").GetComponentInChildren<MeshRenderer>().gameObject,
-                    MonitorLocation.Mountains => GameObject.Find("Mountain/Mountain Texture Baker/Uncover Mountain Lit/").GetComponentInChildren<MeshRenderer>().gameObject,
-                    MonitorLocation.Beach => GameObject.Find("Beach/Beach Texture Baker - ABOVE WATER/Uncover Beach Lit/").GetComponentInChildren<MeshRenderer>().gameObject,
+                    MonitorLocation.Treehouse => FindZoneData(GTZone.forest).rootGameObjects[1].transform.Find("Terrain/Uncover ForestCombined/").GetComponentInChildren<MeshRenderer>(true).gameObject,
+                    MonitorLocation.Mountains => FindZoneData(GTZone.mountain).rootGameObjects[0].transform.Find("Mountain Texture Baker/Uncover Mountain Lit/").GetComponentInChildren<MeshRenderer>(true).gameObject,
+                    MonitorLocation.Beach => FindZoneData(GTZone.beach).rootGameObjects[0].transform.Find("Beach Texture Baker - ABOVE WATER/Uncover Beach Lit/").GetComponentInChildren<MeshRenderer>(true).gameObject,
                     _ => null,
                 };
 
