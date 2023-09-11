@@ -16,7 +16,7 @@ namespace ComputerInterface.ViewLib
         /// <summary>
         /// How many characters fit in the x axis of the screen
         /// </summary>
-        public static int SCREEN_WIDTH = 41;
+        public static int SCREEN_WIDTH = 47;
 
         /// <summary>
         /// How many characters fit in the y axis of the screen

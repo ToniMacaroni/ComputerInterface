@@ -18,6 +18,7 @@ namespace ComputerInterface
 {
     public class CustomComputer : MonoBehaviour, IInitializable
     {
+        public static CustomComputer Instance => GorillaComputer.instance.GetComponent<CustomComputer>();
         private bool _initialized;
 
         private GorillaComputer _gorillaComputer;
@@ -296,7 +297,7 @@ namespace ComputerInterface
             _keyboardAudios.Add(audioSource);
 
             if (_keyboard.GetComponent<MeshRenderer>() is MeshRenderer renderer) {
-                renderer.material.color = new Color(0.3f, 0.3f, 0.3f);
+                //renderer.material.color = new Color(0.3f, 0.3f, 0.3f);
             }
 
             var enterKey = _keys.Last(x => x.KeyboardKey == EKeyboardKey.Enter);
@@ -416,23 +417,21 @@ namespace ComputerInterface
         {
             RemoveMonitor(computer, location);
 
-            var tmpSettings = await _assetsLoader.GetAsset<TMP_Settings>("TMP Settings");
+            // Might need this later, but who knows
+            /* var tmpSettings = await _assetsLoader.GetAsset<TMP_Settings>("TMP Settings");
             typeof(TMP_Settings).GetField(
                     "s_Instance",
                     System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Static)?
-                .SetValue(null, tmpSettings);
+                .SetValue(null, tmpSettings); */
 
             var monitorAsset = await _assetsLoader.GetAsset<GameObject>("Monitor");
 
             var newMonitor = Instantiate(monitorAsset);
             newMonitor.name = $"{location} Custom Monitor";
             newMonitor.transform.SetParent(computer.transform.Find("monitor") ?? computer.transform.Find("monitor (1)"), false);
-            newMonitor.transform.localPosition = new Vector3(2.28f, -0.72f, 0.0f);
-            newMonitor.transform.localEulerAngles = new Vector3(0.0f, 270.0f, 270.02f);
+            newMonitor.transform.localPosition = new Vector3(-0.0787f, -0.21f, 0.5344f);
+            newMonitor.transform.localEulerAngles = new Vector3(90f, 0f, 0f);
             newMonitor.transform.SetParent(computer.transform.parent, true);
-
-            foreach (RectTransform rect in newMonitor.GetComponentsInChildren<RectTransform>()) rect.gameObject.layer = 9;
-            newMonitor.GetComponentInChildren<ReflectionProbe>().enabled = false;
 
             var info = new CustomScreenInfo
             {
@@ -441,14 +440,14 @@ namespace ComputerInterface
                 Renderer = newMonitor.GetComponentsInChildren<MeshRenderer>().First(x => x.name == "Main Monitor"),
                 RawImage = newMonitor.GetComponentInChildren<RawImage>()
             };
-            info.RawImage.color = new Color(0.05f, 0.05f, 0.05f);
+            info.Renderer.gameObject.AddComponent<GorillaSurfaceOverride>();
             info.Materials = info.Renderer.materials;
             info.Color = new Color(0.05f, 0.05f, 0.05f);
 
             return info;
         }
 
-        private void RemoveMonitor(GameObject computer, MonitorLocation monitorIndex)
+        private void RemoveMonitor(GameObject computer, MonitorLocation computerLocation)
         {
             GameObject monitor = null;
             foreach (Transform child in computer.transform)
@@ -474,6 +473,12 @@ namespace ComputerInterface
                 terminal.myScreenText?.gameObject?.SetActive(false);
             }
 
+            if (computerLocation == MonitorLocation.Treehouse)
+            {
+                var monitorTransform = computer.transform.parent.parent?.Find("Static/monitor") ?? null;
+                monitorTransform?.gameObject?.SetActive(false);
+            }
+
             try
             {
                 // Some monitors were baked into the scene, so we need to do all this jank to get rid of them
@@ -487,7 +492,7 @@ namespace ComputerInterface
                 ZoneData FindZoneData(GTZone zone)
                     => (ZoneData)AccessTools.Method(typeof(ZoneManagement), "GetZoneData").Invoke(zoneManager, new object[] { zone });
 
-                GameObject combinedScene = monitorIndex switch
+                GameObject combinedScene = computerLocation switch
                 {
                     MonitorLocation.Treehouse => FindZoneData(GTZone.forest).rootGameObjects[1].transform.Find("Terrain/Uncover ForestCombined/").GetComponentInChildren<MeshRenderer>(true).gameObject,
                     MonitorLocation.Mountains => FindZoneData(GTZone.mountain).rootGameObjects[0].transform.Find("Mountain Texture Baker/Uncover Mountain Lit/").GetComponentInChildren<MeshRenderer>(true).gameObject,

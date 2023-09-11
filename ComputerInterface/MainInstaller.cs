@@ -15,7 +15,7 @@ namespace ComputerInterface
         public override void InstallBindings()
         {
             Container
-                .BindFactory<Type, IComputerView, ComputerViewPlaceholderFactory>()
+                .BindFactory<Type, ComputerView, ComputerViewPlaceholderFactory>()
                 .FromFactory<ComputerViewFactory>();
 
             Container.BindInterfacesAndSelfTo<CustomComputer>().FromNewComponentOn(ComputerGetter).AsSingle();
