@@ -241,8 +241,12 @@ namespace ComputerInterface
             PlayerPrefs.SetString("voiceChatOn", computer.voiceChatOn);
             PlayerPrefs.Save();
 
-            var gorillaAssembly = typeof(GorillaTagger).Assembly;
-            gorillaAssembly.GetType("RigContainer").GetMethod("RefreshAllRigVoices", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Static).Invoke(null, null);
+            if (PhotonNetwork.InRoom)
+            {
+                var GorillaAssembly = typeof(GorillaTagger).Assembly;
+                var ContainerType = GorillaAssembly.GetType("RigContainer");
+                AccessTools.Method(ContainerType, "RefreshAllRigVoices").Invoke(null, null);
+            }
         }
 
         public static bool GetVoiceMode()
