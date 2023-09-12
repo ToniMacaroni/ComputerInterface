@@ -148,7 +148,10 @@ namespace ComputerInterface
 
         public static void SetInstrumentVolume(int value)
         {
-            PlayerPrefs.SetFloat("instrumentVolume", value / 50f);
+            if (!CheckForComputer(out var computer)) return;
+
+            computer.instrumentVolume = value / 50f;
+            PlayerPrefs.SetFloat("instrumentVolume", computer.instrumentVolume);
             PlayerPrefs.Save();
         }
 
@@ -237,6 +240,9 @@ namespace ComputerInterface
             computer.voiceChatOn = voiceChatOn ? "TRUE" : "FALSE";
             PlayerPrefs.SetString("voiceChatOn", computer.voiceChatOn);
             PlayerPrefs.Save();
+
+            var gorillaAssembly = typeof(GorillaTagger).Assembly;
+            gorillaAssembly.GetType("RigContainer").GetMethod("RefreshAllRigVoices", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Static).Invoke(null, null);
         }
 
         public static bool GetVoiceMode()

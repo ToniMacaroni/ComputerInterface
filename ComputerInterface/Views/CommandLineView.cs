@@ -17,6 +17,7 @@ namespace ComputerInterface.Views
         private readonly UITextInputHandler _textInputHandler;
 
         private string _notification = "";
+        private string _previousCommand = "";
 
         public CommandLineView(CommandHandler commandHandler)
         {
@@ -76,6 +77,12 @@ namespace ComputerInterface.Views
                 case EKeyboardKey.Option1:
                     ShowView<CommandLineHelpView>();
                     break;
+                case EKeyboardKey.Up:
+                    if (_previousCommand == "") return;
+                    _textInputHandler.Text = _previousCommand;
+                    _previousCommand = "";
+                    Redraw();
+                    break;
             }
         }
 
@@ -86,8 +93,10 @@ namespace ComputerInterface.Views
 
             _notification = messageString;
 
+            _previousCommand = "";
             if (success)
             {
+                _previousCommand = _textInputHandler.Text;
                 _textInputHandler.Text = "";
             }
 

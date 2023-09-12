@@ -6,7 +6,7 @@ namespace ComputerInterface.Commands
     {
         public override void InstallBindings()
         {
-            Container.Bind<CommandRegistrar>().AsSingle();
+            Container.BindInterfacesAndSelfTo<CommandRegistrar>().AsSingle();
         }
     }
 }

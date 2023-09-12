@@ -36,7 +36,7 @@ namespace ComputerInterface.Views.GameSettings
 
             str.BeginCenter().Repeat("=", SCREEN_WIDTH).AppendLine();
             str.Append("Item Tab").AppendLine();
-            str.AppendClr("0 - 9 to set instrument volume", "ffffff50").AppendLine();
+            str.AppendClr("0 - 9 to set Instrument Volume", "ffffff50").AppendLine();
             str.Repeat("=", SCREEN_WIDTH).EndAlign().AppendLines(2);
 
             str.Append("Instrument Volume: ").Append(Mathf.CeilToInt(_insVolumeFloat * 50f));

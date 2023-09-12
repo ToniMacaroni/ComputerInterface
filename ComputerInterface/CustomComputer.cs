@@ -1,10 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using BepInEx;
 using BepInEx.Bootstrap;
 using ComputerInterface.Interfaces;
+using ComputerInterface.Monitors;
 using ComputerInterface.ViewLib;
 using ComputerInterface.Views;
 using GorillaNetworking;
@@ -18,7 +20,6 @@ namespace ComputerInterface
 {
     public class CustomComputer : MonoBehaviour, IInitializable
     {
-        public static CustomComputer Instance => GorillaComputer.instance.GetComponent<CustomComputer>();
         private bool _initialized;
 
         private GorillaComputer _gorillaComputer;
@@ -28,10 +29,10 @@ namespace ComputerInterface
 
         private ComputerViewPlaceholderFactory _viewFactory;
 
-
         private MainMenuView _mainMenuView;
 
-        private List<CustomScreenInfo> _customScreenInfos = new List<CustomScreenInfo>();
+        private readonly List<CustomScreenInfo> _customScreenInfos = new List<CustomScreenInfo>();
+        private readonly Dictionary<MonitorLocation, CustomScreenInfo> _customScreenDict = new Dictionary<MonitorLocation, CustomScreenInfo>();
 
         private List<CustomKeyboardKey> _keys;
         private GameObject _keyboard;
@@ -42,7 +43,24 @@ namespace ComputerInterface
 
         private CIConfig _config;
 
-        private List<AudioSource> _keyboardAudios = new List<AudioSource>();
+        private readonly List<AudioSource> _keyboardAudios = new List<AudioSource>();
+
+        public IMonitor Monitor
+        {
+            get => _monitor;
+            set
+            {
+                _monitor = value;
+                MonitorType = _monitorDict.FirstOrDefault(a => a.Value == _monitor).Key;
+                MonitorScale = Tuple.Create(_monitor.Width, _monitor.Height);
+            }
+        }
+        public MonitorType MonitorType;
+        public static Tuple<int, int> MonitorScale;
+
+        public Dictionary<MonitorType, IMonitor> _monitorDict = new Dictionary<MonitorType, IMonitor>();
+        private List<IMonitor> _monitors = new List<IMonitor>();
+        private IMonitor _monitor;
 
 		enum MonitorLocation
         {
@@ -65,7 +83,8 @@ namespace ComputerInterface
             MainMenuView mainMenuView,
             ComputerViewPlaceholderFactory viewFactory,
             List<IComputerModEntry> computerModEntries,
-            List<IQueueInfo> queues)
+            List<IQueueInfo> queues,
+            List<IMonitor> monitors)
         {
             if (_initialized) return;
             _initialized = true;
@@ -84,44 +103,16 @@ namespace ComputerInterface
             _gorillaComputer.enabled = false;
             GorillaComputer.instance = _gorillaComputer;
 
+            _monitors = monitors;
+            _monitors.ForEach(a => _monitorDict.Add((MonitorType)_monitors.IndexOf(a), a));
+            Monitor = _monitors[Mathf.Clamp((int)config.SavedMonitorType.Value, 0, _monitors.Count)];
+
             _computerViewController = new ComputerViewController();
             _computerViewController.OnTextChanged += SetText;
             _computerViewController.OnSwitchView += SwitchView;
             _computerViewController.OnSetBackground += SetBGImage;
 
-            // https://github.com/legoandmars/Utilla/blob/457bc612eda8e63b989dcdb219e04e8e7f06393a/Utilla/GamemodeManager.cs#L54
-            ZoneManagement zoneManager = FindObjectOfType<ZoneManagement>();
-
-            // https://github.com/legoandmars/Utilla/blob/457bc612eda8e63b989dcdb219e04e8e7f06393a/Utilla/GamemodeManager.cs#L56
-            ZoneData FindZoneData(GTZone zone)
-                => (ZoneData)AccessTools.Method(typeof(ZoneManagement), "GetZoneData").Invoke(zoneManager, new object[] { zone });
-
-            Transform[] physicalComputers =
-            {
-                FindZoneData(GTZone.forest).rootGameObjects[1].transform.Find("TreeRoomInteractables/UI/-- PhysicalComputer UI --"),
-                FindZoneData(GTZone.mountain).rootGameObjects[0].transform.Find("Geometry/goodigloo/PhysicalComputer (2)"),
-                FindZoneData(GTZone.skyJungle).rootGameObjects[0].transform.Find("UI/-- Clouds PhysicalComputer UI --"),
-                FindZoneData(GTZone.basement).rootGameObjects[0].transform.Find("DungeonRoomAnchor/BasementComputer/PhysicalComputer (2)"),
-                FindZoneData(GTZone.beach).rootGameObjects[0].transform.Find("BeachComputer/PhysicalComputer (2)")
-            };
-
-            for (int i = 0; i < physicalComputers.Length; i++)
-            {
-                // Keys should pretty much always be done seperate from the computer so you can atleast see what you're doing
-                try { await ReplaceKeys(physicalComputers[i]); } // TODO: Update Clouds key texts
-                catch (Exception ex) { Debug.LogError($"CI: The keyboard for the {(MonitorLocation)i} computer couldn't be replaced: {ex}"); }
-
-                // Then load the computer screens
-                try
-                {
-                    CustomScreenInfo screenInfo = await CreateMonitor(physicalComputers[i], (MonitorLocation)i);
-                    screenInfo.Color = _config.ScreenBackgroundColor.Value;
-                    screenInfo.Background = _config.BackgroundTexture;
-                    _customScreenInfos.Add(screenInfo);
-                }
-                catch (Exception ex) { Debug.LogError($"CI: The monitor for the {(MonitorLocation)i} computer couldn't be created: {ex}"); }
-            }
-
+            await CreateMonitors(); // Wait for the mod to finish creating the modified computers
             try
             {
                 BaseGameInterface.InitAll();
@@ -238,6 +229,61 @@ namespace ComputerInterface
             var newView = _viewFactory.Create(type);
             _cachedViews.Add(type, newView);
             return newView;
+        }
+
+        public async Task SetMonitorType(MonitorType monitorType)
+        {
+            Monitor = _monitors[Mathf.Clamp((int)monitorType, 0, _monitors.Count)];
+            _config.SavedMonitorType.Value = monitorType;
+            await CreateMonitors(false);
+
+            // Re-open the current view as some of the width and height dependent stuff might look a bit off
+            _computerViewController.CurrentComputerView.OnShow(new object[] { });
+        }
+
+        public async Task CreateMonitors(bool includeKeys = true)
+        {
+            // https://github.com/legoandmars/Utilla/blob/457bc612eda8e63b989dcdb219e04e8e7f06393a/Utilla/GamemodeManager.cs#L54
+            ZoneManagement zoneManager = FindObjectOfType<ZoneManagement>();
+
+            // https://github.com/legoandmars/Utilla/blob/457bc612eda8e63b989dcdb219e04e8e7f06393a/Utilla/GamemodeManager.cs#L56
+            ZoneData FindZoneData(GTZone zone)
+                => (ZoneData)AccessTools.Method(typeof(ZoneManagement), "GetZoneData").Invoke(zoneManager, new object[] { zone });
+
+            Transform[] physicalComputers =
+            {
+                FindZoneData(GTZone.forest).rootGameObjects[1].transform.Find("TreeRoomInteractables/UI/-- PhysicalComputer UI --"),
+                FindZoneData(GTZone.mountain).rootGameObjects[0].transform.Find("Geometry/goodigloo/PhysicalComputer (2)"),
+                FindZoneData(GTZone.skyJungle).rootGameObjects[0].transform.Find("UI/-- Clouds PhysicalComputer UI --"),
+                FindZoneData(GTZone.basement).rootGameObjects[0].transform.Find("DungeonRoomAnchor/BasementComputer/PhysicalComputer (2)"),
+                FindZoneData(GTZone.beach).rootGameObjects[0].transform.Find("BeachComputer/PhysicalComputer (2)")
+            };
+
+            for (int i = 0; i < physicalComputers.Length; i++)
+            {
+                if (includeKeys)
+                {
+                    // Keys should pretty much always be done seperate from the computer so you can atleast see what you're doing
+                    try { await ReplaceKeys(physicalComputers[i]); } // TODO: Update Clouds key texts
+                    catch (Exception ex) { Debug.LogError($"CI: The keyboard for the {(MonitorLocation)i} computer couldn't be replaced: {ex}"); }
+                }
+
+                // Then load the computer screens
+                try
+                {
+                    CustomScreenInfo screenInfo = await CreateMonitor(physicalComputers[i], (MonitorLocation)i);
+                    screenInfo.Color = _config.ScreenBackgroundColor.Value;
+                    screenInfo.Background = _config.BackgroundTexture;
+                    if (_customScreenDict.TryGetValue((MonitorLocation)i, out var _tempMonitor))
+                    {
+                        _customScreenInfos.Remove(_tempMonitor);
+                        _customScreenDict.Remove((MonitorLocation)i);
+                    }
+                    _customScreenInfos.Add(screenInfo);
+                    _customScreenDict.Add((MonitorLocation)i, screenInfo);
+                }
+                catch (Exception ex) { Debug.LogError($"CI: The monitor for the {(MonitorLocation)i} computer couldn't be created: {ex}"); }
+            }
         }
 
         private async Task ReplaceKeys(Transform computer) => await ReplaceKeys(computer.gameObject);
@@ -415,22 +461,15 @@ namespace ComputerInterface
 
         private async Task<CustomScreenInfo> CreateMonitor(GameObject computer, MonitorLocation location) // index used for removing the base game computer.
         {
-            RemoveMonitor(computer, location);
+            bool monitorExists = _customScreenDict.ContainsKey(location);
+            if (!monitorExists) RemoveMonitor(computer, location);
 
-            // Might need this later, but who knows
-            /* var tmpSettings = await _assetsLoader.GetAsset<TMP_Settings>("TMP Settings");
-            typeof(TMP_Settings).GetField(
-                    "s_Instance",
-                    System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Static)?
-                .SetValue(null, tmpSettings); */
-
-            var monitorAsset = await _assetsLoader.GetAsset<GameObject>("Monitor");
-
+            var monitorAsset = await _assetsLoader.GetAsset<GameObject>(Monitor.AssetName);
             var newMonitor = Instantiate(monitorAsset);
             newMonitor.name = $"{location} Custom Monitor";
             newMonitor.transform.SetParent(computer.transform.Find("monitor") ?? computer.transform.Find("monitor (1)"), false);
-            newMonitor.transform.localPosition = new Vector3(-0.0787f, -0.21f, 0.5344f);
-            newMonitor.transform.localEulerAngles = new Vector3(90f, 0f, 0f);
+            newMonitor.transform.localPosition = Monitor.Position;
+            newMonitor.transform.localEulerAngles = Monitor.EulerAngles;
             newMonitor.transform.SetParent(computer.transform.parent, true);
 
             var info = new CustomScreenInfo
@@ -443,6 +482,16 @@ namespace ComputerInterface
             info.Renderer.gameObject.AddComponent<GorillaSurfaceOverride>();
             info.Materials = info.Renderer.materials;
             info.Color = new Color(0.05f, 0.05f, 0.05f);
+
+            if (monitorExists)
+            {
+                // Remove the existing monitor
+                var oldInfo = _customScreenDict[location];
+                Destroy(oldInfo.Transform.gameObject);
+
+                // Sync the text
+                info.TextMeshProUgui.text = _computerViewController.CurrentComputerView.Text;
+            }
 
             return info;
         }

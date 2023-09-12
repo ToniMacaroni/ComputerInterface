@@ -3,12 +3,15 @@ using System.Text;
 using UnityEngine;
 using ComputerInterface.Interfaces;
 using ComputerInterface.ViewLib;
+using ComputerInterface.Monitors;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace ComputerInterface.Views
 {
     public class ComputerSettingsEntry : IComputerModEntry
     {
-        public string EntryName => "Computer Display Settings";
+        public string EntryName => "Computer Settings";
         public Type EntryViewType => typeof(ComputerSettingsView);
     }
 
@@ -19,12 +22,16 @@ namespace ComputerInterface.Views
         private readonly UISelectionHandler _columnSelectionHandler;
         private Color _color;
 
+        private MonitorType savedMonitor;
+        private bool isSaving;
+
         public ComputerSettingsView(CustomComputer computer)
         {
             _computer = computer;
 
             _rowSelectionHandler = new UISelectionHandler(EKeyboardKey.Up, EKeyboardKey.Down);
-            _rowSelectionHandler.MaxIdx = 2;
+            _rowSelectionHandler.ConfigureSelectionIndicator($"<color=#{PrimaryColor}> ></color> ", "", "   ", "");
+            _rowSelectionHandler.MaxIdx = 4;
 
             _columnSelectionHandler = new UISelectionHandler(EKeyboardKey.Left, EKeyboardKey.Right);
             _columnSelectionHandler.MaxIdx = 2;
@@ -35,17 +42,24 @@ namespace ComputerInterface.Views
             base.OnShow(args);
 
             _color = _computer.GetBG();
+            savedMonitor = _computer.MonitorType;
             Redraw();
         }
 
         public void Redraw()
         {
+            var str = new StringBuilder();
+            if (isSaving)
+            {
+                str.AppendLine().BeginCenter().Append("Updating Monitor..").EndAlign();
+                Text = str.ToString();
+                return;
+            }
             Color savedColor = _computer.GetBG();
 
-            var str = new StringBuilder();
             str.Repeat("=", SCREEN_WIDTH).AppendLine();
-            str.BeginCenter().Append("Computer Display Settings").AppendLine();
-            str.Repeat("=", SCREEN_WIDTH).AppendLines(2);
+            str.BeginCenter().Append("Computer Settings").AppendLine();
+            str.Repeat("=", SCREEN_WIDTH).EndAlign().AppendLines(2);
 
             str.AppendLine(" Background Color:");
 
@@ -60,19 +74,40 @@ namespace ComputerInterface.Views
             DrawRow('G', _color.g, savedColor.g, 1);
             DrawRow('B', _color.b, savedColor.b, 2);
 
-            str.AppendLines(2)
-                .AppendClr(" * Press Enter to update settings.", "ffffff50").AppendLine();
+            str.AppendLine().AppendLine(" Monitor Type:");
+            str.AppendLine(_rowSelectionHandler.GetIndicatedText(3, "Classic"));
+            str.AppendLine(_rowSelectionHandler.GetIndicatedText(4, "Modern"));
 
             Text = str.ToString();
         }
 
+        public async void ProcessSave()
+        {
+            var newMonitor = _rowSelectionHandler.CurrentSelectionIndex == 4 ? MonitorType.Modern : (_rowSelectionHandler.CurrentSelectionIndex == 3 ? MonitorType.Classic : savedMonitor);
+            if (newMonitor != savedMonitor && _rowSelectionHandler.CurrentSelectionIndex >= 3)
+            {
+                isSaving = true;
+                Redraw();
+
+                // Switch the current monitor type, then wait a bit as transitioning could result in an unwanted flicker of redrawing the screen and updating the monitor
+                await _computer.SetMonitorType(newMonitor);
+                await Task.Delay(300);
+
+                savedMonitor = newMonitor;
+                isSaving = false;
+            }
+
+            _computer.SetBG(_color);
+            Redraw();
+        }
+
         public override void OnKeyPressed(EKeyboardKey key)
         {
+            if (isSaving) return;
             switch (key)
             {
                 case EKeyboardKey.Enter:
-                    _computer.SetBG(_color);
-                    Redraw();
+                    ProcessSave();
                     break;
                 case EKeyboardKey.Back:
                     ReturnToMainMenu();

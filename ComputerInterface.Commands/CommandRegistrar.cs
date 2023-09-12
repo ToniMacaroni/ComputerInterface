@@ -4,12 +4,13 @@ using Zenject;
 
 namespace ComputerInterface.Commands
 {
-    internal class CommandRegistrar : IInitializable
+    public class CommandRegistrar : IInitializable
     {
-        private readonly CommandHandler _commandHandler;
-        private readonly CustomComputer _computer;
+        private CommandHandler _commandHandler;
+        private CustomComputer _computer;
 
-        public CommandRegistrar(CommandHandler commandHandler, CustomComputer computer)
+        [Inject]
+        public void Construct(CommandHandler commandHandler, CustomComputer computer)
         {
             _commandHandler = commandHandler;
             _computer = computer;

@@ -1,5 +1,6 @@
 ﻿using System;
 using ComputerInterface.Interfaces;
+using ComputerInterface.Monitors;
 using ComputerInterface.Queues;
 using ComputerInterface.ViewLib;
 using ComputerInterface.Views;
@@ -17,8 +18,11 @@ namespace ComputerInterface
             Container
                 .BindFactory<Type, ComputerView, ComputerViewPlaceholderFactory>()
                 .FromFactory<ComputerViewFactory>();
+            Container.Bind<CIConfig>().AsSingle();
 
             Container.BindInterfacesAndSelfTo<CustomComputer>().FromNewComponentOn(ComputerGetter).AsSingle();
+            Container.BindInterfacesAndSelfTo<AssetsLoader>().AsSingle();
+            Container.Bind<CommandHandler>().AsSingle();
 
             Container.Bind<MainMenuView>().AsSingle();
             Container.Bind<IComputerModEntry>().To<GameSettingsEntry>().AsSingle();
@@ -26,12 +30,13 @@ namespace ComputerInterface
             Container.Bind<IComputerModEntry>().To<CommandLineEntry>().AsSingle();
             Container.Bind<IComputerModEntry>().To<DetailsEntry>().AsSingle();
             Container.Bind<IComputerModEntry>().To<ModListEntry>().AsSingle();
-            Container.Bind<CommandHandler>().AsSingle();
-            Container.BindInterfacesAndSelfTo<AssetsLoader>().AsSingle();
-            Container.Bind<CIConfig>().AsSingle();
+
             Container.Bind<IQueueInfo>().To<DefaultQueue>().AsSingle();
             Container.Bind<IQueueInfo>().To<CompetitiveQueue>().AsSingle();
             Container.Bind<IQueueInfo>().To<MinigamesQueue>().AsSingle();
+
+            Container.Bind<IMonitor>().To<ClassicMonitor>().AsSingle();
+            Container.Bind<IMonitor>().To<ModernMonitor>().AsSingle();
         }
 
         private GameObject ComputerGetter(InjectContext ctx)
