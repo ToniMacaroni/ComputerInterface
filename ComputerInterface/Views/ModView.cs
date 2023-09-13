@@ -58,7 +58,7 @@ namespace ComputerInterface.Views
         {
             if (!_plugin.Supported)
             {
-                str.BeginCenter().AppendClr("This mod doesn't implement the Enable/Disable feature.", "50ff5050").EndAlign();
+                str.BeginCenter().AppendClr("This mod doesn't support toggling between Enabled/Disabled states.", "ff505050").EndAlign();
                 return;
             }
 
