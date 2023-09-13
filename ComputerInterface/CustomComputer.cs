@@ -64,9 +64,9 @@ namespace ComputerInterface
 
 		enum MonitorLocation
         {
-            Treehouse,
-            Mountains,
-            Sky,
+            Stump,
+            Igloo,
+            Clouds,
             Basement,
             Beach
         }
@@ -264,14 +264,14 @@ namespace ComputerInterface
                 if (includeKeys)
                 {
                     // Keys should pretty much always be done seperate from the computer so you can atleast see what you're doing
-                    try { await ReplaceKeys(physicalComputers[i]); } // TODO: Update Clouds key texts
+                    try { await ReplaceKeys(physicalComputers[i].gameObject); } // TODO: Update Clouds key texts
                     catch (Exception ex) { Debug.LogError($"CI: The keyboard for the {(MonitorLocation)i} computer couldn't be replaced: {ex}"); }
                 }
 
                 // Then load the computer screens
                 try
                 {
-                    CustomScreenInfo screenInfo = await CreateMonitor(physicalComputers[i], (MonitorLocation)i);
+                    CustomScreenInfo screenInfo = await CreateMonitor(physicalComputers[i].gameObject, (MonitorLocation)i);
                     screenInfo.Color = _config.ScreenBackgroundColor.Value;
                     screenInfo.Background = _config.BackgroundTexture;
                     if (_customScreenDict.TryGetValue((MonitorLocation)i, out var _tempMonitor))
@@ -285,8 +285,6 @@ namespace ComputerInterface
                 catch (Exception ex) { Debug.LogError($"CI: The monitor for the {(MonitorLocation)i} computer couldn't be created: {ex}"); }
             }
         }
-
-        private async Task ReplaceKeys(Transform computer) => await ReplaceKeys(computer.gameObject);
 
         private async Task ReplaceKeys(GameObject computer)
         {
@@ -306,6 +304,7 @@ namespace ComputerInterface
                 if (button.characterString == "up" || button.characterString == "down")
                 {
                     button.GetComponentInChildren<MeshRenderer>(true).material.color = new Color(0.1f, 0.1f, 0.1f);
+                    button.GetComponentInChildren<MeshFilter>().mesh = CubeMesh;
                     button.transform.localPosition -= new Vector3(0, 0.6f, 0);
                     DestroyImmediate(button.GetComponent<BoxCollider>());
                     if(FindText(button.gameObject, button.name + "text")?.GetComponent<Text>() is Text arrowBtnText)
@@ -457,8 +456,6 @@ namespace ComputerInterface
             return customKeyboardKey;
         }
 
-        private async Task<CustomScreenInfo> CreateMonitor(Transform computer, MonitorLocation location) => await CreateMonitor(computer.gameObject, location);
-
         private async Task<CustomScreenInfo> CreateMonitor(GameObject computer, MonitorLocation location) // index used for removing the base game computer.
         {
             bool monitorExists = _customScreenDict.ContainsKey(location);
@@ -522,7 +519,7 @@ namespace ComputerInterface
                 terminal.myScreenText?.gameObject?.SetActive(false);
             }
 
-            if (computerLocation == MonitorLocation.Treehouse)
+            if (computerLocation == MonitorLocation.Stump)
             {
                 var monitorTransform = computer.transform.parent.parent?.Find("Static/monitor") ?? null;
                 monitorTransform?.gameObject?.SetActive(false);
@@ -543,8 +540,8 @@ namespace ComputerInterface
 
                 GameObject combinedScene = computerLocation switch
                 {
-                    MonitorLocation.Treehouse => FindZoneData(GTZone.forest).rootGameObjects[1].transform.Find("Terrain/Uncover ForestCombined/").GetComponentInChildren<MeshRenderer>(true).gameObject,
-                    MonitorLocation.Mountains => FindZoneData(GTZone.mountain).rootGameObjects[0].transform.Find("Mountain Texture Baker/Uncover Mountain Lit/").GetComponentInChildren<MeshRenderer>(true).gameObject,
+                    MonitorLocation.Stump => FindZoneData(GTZone.forest).rootGameObjects[1].transform.Find("Terrain/Uncover ForestCombined/").GetComponentInChildren<MeshRenderer>(true).gameObject,
+                    MonitorLocation.Igloo => FindZoneData(GTZone.mountain).rootGameObjects[0].transform.Find("Mountain Texture Baker/Uncover Mountain Lit/").GetComponentInChildren<MeshRenderer>(true).gameObject,
                     MonitorLocation.Beach => FindZoneData(GTZone.beach).rootGameObjects[0].transform.Find("Beach Texture Baker - ABOVE WATER/Uncover Beach Lit/").GetComponentInChildren<MeshRenderer>(true).gameObject,
                     _ => null,
                 };

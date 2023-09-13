@@ -35,8 +35,8 @@ namespace ComputerInterface
             Container.Bind<IQueueInfo>().To<CompetitiveQueue>().AsSingle();
             Container.Bind<IQueueInfo>().To<MinigamesQueue>().AsSingle();
 
-            Container.Bind<IMonitor>().To<ClassicMonitor>().AsSingle();
             Container.Bind<IMonitor>().To<ModernMonitor>().AsSingle();
+            Container.Bind<IMonitor>().To<ClassicMonitor>().AsSingle();
         }
 
         private GameObject ComputerGetter(InjectContext ctx)

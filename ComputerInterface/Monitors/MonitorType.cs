@@ -2,6 +2,7 @@
 {
     public enum MonitorType
     {
-        Classic, Modern
+        Modern = 0,
+        Classic = 1
     }
 }

@@ -1,6 +1,7 @@
 ﻿using System;
 using UnityEngine;
 using Zenject;
+using Photon.Pun;
 
 namespace ComputerInterface.Commands
 {
@@ -30,63 +31,61 @@ namespace ComputerInterface.Commands
                 if (b > 0) b /= 255;
 
                 BaseGameInterface.SetColor(r, g, b);
-                return $"R: {r} ({args[0]})\nG: {g} ({args[1]})\nB: {b} ({args[2]})\n";
+                return $"Updated color:\n\nR: {r} ({args[0]})\nG: {g} ({args[1]})\nB: {b} ({args[2]})\n";
             }));
 
             // setname: setname <name>
-            _commandHandler.AddCommand(new Command("setname", new Type[] { null }, args =>
+            _commandHandler.AddCommand(new Command("setname", new Type[] { typeof(string) }, args =>
             {
                 var newName = ((string)args[0]).ToUpper();
 
                 var result = BaseGameInterface.SetName(newName);
 
-                if (result == BaseGameInterface.WordCheckResult.Allowed) return $"Name set to {newName.Replace(" ", "")}";
-                else return BaseGameInterface.WordCheckResultToMessage(result);
+                if (result == BaseGameInterface.WordCheckResult.Allowed) return $"Updated name: {newName.Replace(" ", "")}";
+                else return $"Error: {BaseGameInterface.WordCheckResultToMessage(result)}";
             }));
 
             // leave: leave
             // disconnects from the current room
             _commandHandler.AddCommand(new Command("leave", null, args =>
             {
-                BaseGameInterface.Disconnect();
-                return "Left room";
+                if (PhotonNetwork.InRoom)
+                {
+                    BaseGameInterface.Disconnect();
+                    return "Left room!";
+                }
+                return "You aren't currently in a room.";
             }));
 
             // join <roomId>
             // join a private room
-            _commandHandler.AddCommand(new Command("join", new Type[] { null }, args =>
+            _commandHandler.AddCommand(new Command("join", new Type[] { typeof(string) }, args =>
             {
                 var roomId = (string)args[0];
 
                 roomId = roomId.ToUpper();
                 var result = BaseGameInterface.JoinRoom(roomId);
 
-                if (result == BaseGameInterface.WordCheckResult.Allowed) return $"Joined {roomId}";
-                else return BaseGameInterface.WordCheckResultToMessage(result);
+                if (result == BaseGameInterface.WordCheckResult.Allowed) return $"Joining room: {roomId}";
+                else return $"Error: {BaseGameInterface.WordCheckResultToMessage(result)}";
             }));
 
             // cam <fp|tp>
             // sets the screen camera to either first or third person
-            _commandHandler.AddCommand(new Command("cam", new Type[] { null }, args =>
+            _commandHandler.AddCommand(new Command("cam", new Type[] { typeof(string) }, args =>
             {
-                var cam = GameObject.Find("Shoulder Camera")?.GetComponent<Camera>();
-                if (cam == null) return "camera not found";
+                var cam = GorillaTagger.Instance.thirdPersonCamera.GetComponentInChildren<Camera>();
+                if (cam == null) return "Error: Could not find camera";
 
                 var argString = (string)args[0];
 
-                if (argString == "fp")
+                if (argString == "fp" || argString == "tp")
                 {
-                    cam.enabled = false;
-                    return "Set to first person";
+                    cam.enabled = argString == "tp";
+                    return $"Updated camera: {(argString == "tp" ? "Third" : "First")} person";
                 }
 
-                if (argString == "tp")
-                {
-                    cam.enabled = true;
-                    return "Set to third person";
-                }
-
-                return "usage: cam <fp|tp>";
+                return "Invalid syntax! Use fp/tp to use the command";
             }));
 
             // setbg <r> <g> <b>
@@ -103,7 +102,7 @@ namespace ComputerInterface.Commands
 
                 _computer.SetBG(r, g, b);
 
-                return "Background set";
+                return $"Updated background:\n\nR: {r} ({args[0]})\nG: {g} ({args[1]})\nB: {b} ({args[2]})\n";
             }));
         }
 

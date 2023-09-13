@@ -49,7 +49,7 @@ namespace ComputerInterface
             var commandStrings = commandString.Split(' ');
             if (!_commands.TryGetValue(commandStrings[0], out var command))
             {
-                messageString = "couldn't find command";
+                messageString = "Command not found!";
                 return false;
             }
 
@@ -57,7 +57,7 @@ namespace ComputerInterface
             var argumentCount = commandStrings.Length - 1;
             if (argumentCount != command.ArgumentCount)
             {
-                messageString = $"wrong argument count\nGot {argumentCount}\nShould be {command.ArgumentCount}";
+                messageString = $"Incorrect arguments!\n{command.ArgumentCount}";
                 return false;
             }
 
@@ -84,7 +84,7 @@ namespace ComputerInterface
                 }
                 catch
                 {
-                    messageString = "arguments not in correct format";
+                    messageString = "Incorrect arguments!\nArguments aren't in the correct format.";
                     return false;
                 }
                 

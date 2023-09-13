@@ -64,15 +64,9 @@ namespace ComputerInterface.Views
 
         public void DrawHeader(StringBuilder str)
         {
-            str.BeginColor("ffffff80").BeginCenter().Append("Page ").Append(_pageHandler.CurrentPage+1).EndAlign().AppendLine();
-            str.Append("Navigate with left / right arrow key").AppendLine();
-
-            for (int x = 0; x < SCREEN_WIDTH; x++)
-            {
-                str.Append("=");
-            }
-
-            str.EndColor().AppendLine();
+            str.BeginColor("ffffff50").Append("== ").EndColor();
+            str.Append("Command Line Info").BeginColor("ffffff50").Append(" ==").EndColor().AppendLine();
+            str.Append("<size=40>Nativate with the left/right arrow keys</size>").AppendLines(2);
         }
 
         public void DrawCommands(StringBuilder str)
