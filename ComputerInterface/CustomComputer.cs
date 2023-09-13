@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading;
 using System.Threading.Tasks;
 using BepInEx;
 using BepInEx.Bootstrap;
@@ -56,7 +55,7 @@ namespace ComputerInterface
             }
         }
         public MonitorType MonitorType;
-        public static Tuple<int, int> MonitorScale;
+        public static Tuple<int, int> MonitorScale = Tuple.Create(0, 0);
 
         public Dictionary<MonitorType, IMonitor> _monitorDict = new Dictionary<MonitorType, IMonitor>();
         private List<IMonitor> _monitors = new List<IMonitor>();

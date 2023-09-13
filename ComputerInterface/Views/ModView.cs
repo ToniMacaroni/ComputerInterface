@@ -1,6 +1,5 @@
 ﻿using System.Text;
 using ComputerInterface.ViewLib;
-using HarmonyLib;
 
 namespace ComputerInterface.Views
 {
@@ -41,15 +40,17 @@ namespace ComputerInterface.Views
 
         private void RedrawHeader(StringBuilder str)
         {
-            str.Append("/// ").Append(_plugin.PluginInfo.Metadata.Name).Append(" ").Append(_plugin.PluginInfo.Metadata.Version).Append(" ///").AppendLine();
-            str.Append("/// ").Append(_plugin.PluginInfo.Instance.enabled ? "<color=#00ff00>Enabled</color>" : "<color=#ff0000>Disabled</color>").AppendLine();
+            var pluginInfo = _plugin.PluginInfo;
+            str.BeginColor("ffffff50").Append("== ").EndColor();
+            str.Append($"{pluginInfo.Metadata.Name} ({(_plugin.PluginInfo.Instance.enabled ? "<color=#00ff00>Enabled</color>" : "<color=#ff0000>Disabled</color>")})").BeginColor("ffffff50").Append(" ==").EndColor().AppendLine();
+            str.Append($"<size=40>{pluginInfo.Metadata.GUID}, v{pluginInfo.Metadata.Version}</size>").AppendLines(2);
         }
 
         private void RedrawSelection(StringBuilder str)
         {
             str.AppendLine();
-            str.Append(GetSelectionString(0, "[")).Append("Enable").Append(GetSelectionString(0, "]")).AppendLine();
-            str.Append(GetSelectionString(1, "[")).Append("Disable").Append(GetSelectionString(1, "]")).AppendLine();
+            str.Append(GetSelectionString(0, "[")).Append("<color=#7Cff7C>Enabled</color>").Append(GetSelectionString(0, "]")).AppendLine();
+            str.Append(GetSelectionString(1, "[")).Append("<color=#ff7C7C>Disabled</color>").Append(GetSelectionString(1, "]")).AppendLine();
             str.AppendLine().AppendLine();
         }
 
@@ -57,8 +58,12 @@ namespace ComputerInterface.Views
         {
             if (!_plugin.Supported)
             {
-                str.BeginCenter().AppendClr("Mod doesn't implement this feature", "ffffff50").EndAlign();
+                str.BeginCenter().AppendClr("This mod doesn't implement the Enable/Disable feature.", "50ff5050").EndAlign();
+                return;
             }
+
+            str.Append("1. Select an option, either Enable or Disable").AppendLines(2);
+            str.Append("2. Press Enter, the mod will be toggled accordingly");
         }
 
         private string GetSelectionString(int idx, string chararcter)

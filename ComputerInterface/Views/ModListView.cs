@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Linq;
 using System.Text;
+using BepInEx;
 using BepInEx.Bootstrap;
+using Bepinject;
 using ComputerInterface.Interfaces;
 using ComputerInterface.ViewLib;
 using HarmonyLib;
@@ -104,9 +106,11 @@ namespace ComputerInterface.Views
 
         private void RedrawHeader(StringBuilder str)
         {
-            str.BeginColor("ffffff50");
-            str.Append("/// ").Append(_plugins.Length).Append(" Mods loaded ///");
-            str.EndColor().AppendLine();
+            str.BeginColor("ffffff50").Append("== ").EndColor();
+            str.Append($"Mod Status").BeginColor("ffffff50").Append(" ==").EndColor().AppendLine();
+
+            string labelContents = $"{_plugins.Length} mod{(_plugins.Length == 1 ? "" : "s")} loaded, {_plugins.Count(a => a.Supported)} toggleable mod{(_plugins.Count(a => a.Supported) == 1 ? "" : "s")} loaded";
+            str.Append($"<size=40><margin=0.55em>{labelContents}</margin></size>").Append("\n<size=24> </size>");
         }
 
         private void DrawMods(StringBuilder str)
@@ -122,18 +126,16 @@ namespace ComputerInterface.Views
 
             _pageHandler.EnumarateElements((plugin, idx) =>
             {
+                str.AppendLine();
                 str.Append(plugin.PluginInfo.Instance.enabled ? enabledPrefix : disabledPrefix);
                 if (!plugin.Supported) str.BeginColor(unsupportedColor);
                 str.Append(_selectionHandler.GetIndicatedText(idx, lineIdx, plugin.PluginInfo.Metadata.Name));
                 if (!plugin.Supported) str.EndColor();
                 // str.Append(plugin.Instance.enabled ? enabledPostfix : disabledPostfix);
-                str.AppendLine();
             });
 
             str.AppendLine();
-
             _pageHandler.AppendFooter(str);
-            str.AppendLine();
         }
 
         public override void OnKeyPressed(EKeyboardKey key)

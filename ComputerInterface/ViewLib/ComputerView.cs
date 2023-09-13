@@ -16,12 +16,12 @@ namespace ComputerInterface.ViewLib
         /// <summary>
         /// How many characters fit in the x axis of the screen
         /// </summary>
-        public static int SCREEN_WIDTH => CustomComputer.MonitorScale.Item1;
+        public static int SCREEN_WIDTH = CustomComputer.MonitorScale.Item1;
 
         /// <summary>
         /// How many characters fit in the y axis of the screen
         /// </summary>
-        public static int SCREEN_HEIGHT => CustomComputer.MonitorScale.Item2;
+        public static int SCREEN_HEIGHT = CustomComputer.MonitorScale.Item2;
 
         public string PrimaryColor = "ed6540";
 
@@ -74,6 +74,8 @@ namespace ComputerInterface.ViewLib
         /// </summary>
         public virtual void OnShow(object[] args)
         {
+            SCREEN_WIDTH = CustomComputer.MonitorScale.Item1;
+            SCREEN_HEIGHT = CustomComputer.MonitorScale.Item2;
             RaisePropertyChanged(nameof(Text));
         }
 
