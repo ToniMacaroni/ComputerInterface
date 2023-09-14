@@ -66,7 +66,7 @@ namespace ComputerInterface.Views
         {
             str.BeginColor("ffffff50").Append("== ").EndColor();
             str.Append("Command Line Info").BeginColor("ffffff50").Append(" ==").EndColor().AppendLine();
-            str.Append("<size=40>Nativate with the left/right arrow keys</size>").AppendLines(2);
+            str.Append("<size=40>Nativate using the Left/Right arrow keys</size>").AppendLines(2);
         }
 
         public void DrawCommands(StringBuilder str)

@@ -25,6 +25,8 @@ namespace ComputerInterface
             Container.Bind<CommandHandler>().AsSingle();
 
             Container.Bind<MainMenuView>().AsSingle();
+            Container.Bind<WarnView>().AsSingle();
+
             Container.Bind<IComputerModEntry>().To<GameSettingsEntry>().AsSingle();
             Container.Bind<IComputerModEntry>().To<ComputerSettingsEntry>().AsSingle();
             Container.Bind<IComputerModEntry>().To<CommandLineEntry>().AsSingle();
