@@ -143,10 +143,7 @@ namespace ComputerInterface
 
             if (PhotonNetworkController.Instance.wrongVersion)
             {
-                _computerViewController.SetView(_warningView, new object[] {new WarnInfo()
-                    {
-                        _warnType = WarnType.Outdated
-                    }});
+                _computerViewController.SetView(_warningView, new object[] { new WarnView.OutdatedWarning() });
                 return;
             }
             _computerViewController.SetView(view, null);
@@ -173,10 +170,7 @@ namespace ComputerInterface
                 if (!_internetConnected && !_connectionError)
                 {
                     _connectionError = true;
-                    _computerViewController.SetView(_warningView, new object[] {new WarnInfo()
-                    {
-                        _warnType = WarnType.NoInternet
-                    }});
+                    _computerViewController.SetView(_warningView, new object[] { new WarnView.NoInternetWarning() });
                     _gorillaComputer.UpdateFailureText("NO WIFI OR LAN CONNECTION DETECTED.");
                 }
                

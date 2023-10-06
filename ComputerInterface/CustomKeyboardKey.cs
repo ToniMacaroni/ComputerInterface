@@ -99,16 +99,17 @@ namespace ComputerInterface
                     {
                         color = buttonColor
                     };
-                    goto PrepareColour;
                 }
-                baseRenderer.material.color = buttonColor;
-                goto PrepareColour;
+                else
+                {
+                    baseRenderer.material.color = buttonColor;
+                }
+            } else
+            {
+                _material.color = buttonColor;
+                _originalColor = buttonColor;
             }
 
-            _material.color = buttonColor;
-            _originalColor = buttonColor;
-
-            PrepareColour:
             Color.RGBToHSV(buttonColor, out float H, out float S, out float _);
             _pressedColor = Color.HSVToRGB(H, S, 0.6f);
         }

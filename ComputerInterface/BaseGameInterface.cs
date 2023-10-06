@@ -298,7 +298,9 @@ namespace ComputerInterface
             var roomAllowed = WordAllowed(roomId);
 
             if (roomAllowed == WordCheckResult.Allowed)
+            {
                 PhotonNetworkController.Instance.AttemptToJoinSpecificRoom(roomId);
+            }
 
             return roomAllowed;
         }

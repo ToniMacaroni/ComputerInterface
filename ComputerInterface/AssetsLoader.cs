@@ -15,11 +15,11 @@ namespace ComputerInterface
         private AssetBundle _loadedBundle;
         private Task _loadingTask;
 
-        private readonly Dictionary<string, Object> _loadedObjects = new Dictionary<string, Object>();
+        private readonly Dictionary<string, Object> _assetCache = new Dictionary<string, Object>();
 
         public async Task<T> GetAsset<T>(string name) where T : Object
         {
-            if (_loadedObjects.TryGetValue(name, out var cachedObject)) return (T)cachedObject;
+            if (_assetCache.TryGetValue(name, out var cachedObject)) return (T)cachedObject;
 
             if (!IsLoaded)
             {
@@ -44,7 +44,7 @@ namespace ComputerInterface
             };
 
             var completedTask = await completionSource.Task;
-            _loadedObjects.Add(name, completedTask);
+            _assetCache.Add(name, completedTask);
             return completedTask;
         }
 

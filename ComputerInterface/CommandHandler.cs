@@ -57,7 +57,7 @@ namespace ComputerInterface
             var argumentCount = commandStrings.Length - 1;
             if (argumentCount != command.ArgumentCount)
             {
-                messageString = $"Incorrect arguments!\n{command.ArgumentCount}";
+                messageString = $"Incorrect number of arguments!\nGot {argumentCount}\nShould be {command.ArgumentCount}";
                 return false;
             }
 
