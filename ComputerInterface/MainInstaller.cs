@@ -24,6 +24,8 @@ namespace ComputerInterface
             Container.BindInterfacesAndSelfTo<AssetsLoader>().AsSingle();
             Container.Bind<CommandHandler>().AsSingle();
 
+            Container.Bind<MonitorSettings>().AsSingle();
+
             Container.Bind<MainMenuView>().AsSingle();
             Container.Bind<WarnView>().AsSingle();
 

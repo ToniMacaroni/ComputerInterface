@@ -18,17 +18,18 @@ namespace ComputerInterface.Views
     public class ComputerSettingsView : ComputerView
     {
         private readonly CustomComputer _computer;
+        private readonly List<IMonitor> _monitorList;
+        private readonly MonitorSettings _monitorSettings;
+
         private readonly UISelectionHandler _rowSelectionHandler;
         private readonly UISelectionHandler _columnSelectionHandler;
         private Color _color;
 
-        private Dictionary<int, MonitorType> _monitorIndexDict;
-        private MonitorType _currentMonitor;
-        private bool _isUpdatingMonitors;
-
-        public ComputerSettingsView(CustomComputer computer)
+        public ComputerSettingsView(CustomComputer computer, MonitorSettings monitorSettings, List<IMonitor> monitorList)
         {
             _computer = computer;
+            _monitorList = monitorList;
+            _monitorSettings = monitorSettings;
 
             _rowSelectionHandler = new UISelectionHandler(EKeyboardKey.Up, EKeyboardKey.Down);
             _rowSelectionHandler.ConfigureSelectionIndicator($"<color=#{PrimaryColor}> ></color> ", "", "   ", "");
@@ -43,32 +44,12 @@ namespace ComputerInterface.Views
             base.OnShow(args);
 
             _color = _computer.GetBG();
-            _currentMonitor = _computer.MonitorType;
-
-            if (_monitorIndexDict == null)
-            {
-                _monitorIndexDict = new Dictionary<int, MonitorType>();
-                var monitorTypes = (MonitorType[])Enum.GetValues(typeof(MonitorType));
-                for (int i = 0; i < monitorTypes.Length; i++)
-                {
-                    var currentType = monitorTypes[i];
-                    _monitorIndexDict.Add(i + 3, currentType);
-                }
-            }
-
             Redraw();
         }
 
         public void Redraw()
         {
             var str = new StringBuilder();
-            if (_isUpdatingMonitors)
-            {
-                str.AppendLine().BeginCenter().Append("Updating Monitor").EndAlign();
-                Text = str.ToString();
-                return;
-            }
-
             Color savedColor = _computer.GetBG();
 
             str.Repeat("=", SCREEN_WIDTH).AppendLine();
@@ -89,42 +70,35 @@ namespace ComputerInterface.Views
             DrawRow('B', _color.b, savedColor.b, 2);
 
             str.AppendLine().AppendLine(" Monitor Type:");
-            var monitorEnumerator = _monitorIndexDict.GetEnumerator();
-            while (monitorEnumerator.MoveNext())
+            for(int i = 0; i < _monitorList.Count; i++)
             {
-                var monitorPair = monitorEnumerator.Current;
-                str.AppendLine(_rowSelectionHandler.GetIndicatedText(monitorPair.Key, monitorPair.Value.ToString()));
+                str.AppendLine(_rowSelectionHandler.GetIndicatedText(i + 3, ((MonitorType)i).ToString()));
             }
 
             Text = str.ToString();
         }
 
-        public async void ProcessSave()
+        private void RedrawUpdating()
         {
-            if (_monitorIndexDict.TryGetValue(_rowSelectionHandler.CurrentSelectionIndex, out var _selectedMonitor) && _selectedMonitor != _currentMonitor && _rowSelectionHandler.CurrentSelectionIndex > 2)
-            {
-                _isUpdatingMonitors = true;
-                Redraw();
+            StringBuilder str = new StringBuilder();
+            str.AppendLine().BeginCenter().Append("Updating Monitor").EndAlign();
+            Text = str.ToString();
+        }
 
-                // Change the current monitor with a new one based on which monitor we're selecting
-                await _computer.SetMonitorType(_selectedMonitor);
-                await Task.Delay(300);
-
-                _currentMonitor = _selectedMonitor;
-                _isUpdatingMonitors = false;
-            }
+        public async void UpdateSettings()
+        {
+            int monitorIndex = _rowSelectionHandler.CurrentSelectionIndex - 3;
+            if (monitorIndex >= 0) await _monitorSettings.SetCurrentMonitor((MonitorType)monitorIndex);
 
             _computer.SetBG(_color);
-            Redraw();
         }
 
         public override void OnKeyPressed(EKeyboardKey key)
         {
-            if (_isUpdatingMonitors) return;
             switch (key)
             {
                 case EKeyboardKey.Enter:
-                    ProcessSave();
+                    UpdateSettings();
                     break;
                 case EKeyboardKey.Back:
                     ReturnToMainMenu();

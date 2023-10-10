@@ -83,7 +83,7 @@ namespace ComputerInterface.Views
             _selectionHandler.ConfigureSelectionIndicator($"<color=#{PrimaryColor}>> </color>", "", "  ", "");
 
             _pageHandler = new UIElementPageHandler<ModListItem>();
-            _pageHandler.EntriesPerPage = 10;
+            _pageHandler.EntriesPerPage = 9;
 
             _pageHandler.SetElements(_plugins);
         }
@@ -134,7 +134,7 @@ namespace ComputerInterface.Views
                 // str.Append(plugin.Instance.enabled ? enabledPostfix : disabledPostfix);
             });
 
-            str.AppendLine();
+            str.AppendLines(2);
             _pageHandler.AppendFooter(str);
         }
 

@@ -9,7 +9,7 @@ using ComputerInterface.Monitors;
 
 namespace ComputerInterface
 {
-    internal class CIConfig
+    public class CIConfig
     {
         public ConfigEntry<Color> ScreenBackgroundColor;
         public ConfigEntry<MonitorType> SavedMonitorType;

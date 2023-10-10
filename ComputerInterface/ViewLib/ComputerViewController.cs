@@ -4,11 +4,12 @@ using UnityEngine;
 
 namespace ComputerInterface.ViewLib
 {
-    internal class ComputerViewController
+    public class ComputerViewController
     {
         public event Action<string> OnTextChanged;
+        public event Action<IMonitor> OnMonitorChanged;
         public event Action<ComputerViewSwitchEventArgs> OnSwitchView;
-        public event Action<ComputerViewChangeBackgroundEventArgs> OnSetBackground; 
+        public event Action<ComputerViewChangeBackgroundEventArgs> OnSetBackground;
 
         public IComputerView CurrentComputerView { get; private set; }
 
@@ -18,6 +19,12 @@ namespace ComputerInterface.ViewLib
         {
             _propUpdateBinder = new PropUpdateBinder();
             _propUpdateBinder.Bind("Text", RaiseOnTextChanged);
+        }
+
+        public void SetMonitor(IMonitor monitor)
+        {
+            OnMonitorChanged?.Invoke(monitor);
+            SetView(CurrentComputerView, null);
         }
 
         public void SetView(IComputerView computerView, object[] args)

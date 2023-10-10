@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using BepInEx;
 using BepInEx.Bootstrap;
@@ -45,23 +46,8 @@ namespace ComputerInterface
 
         private readonly List<AudioSource> _keyboardAudios = new List<AudioSource>();
 
-        public IMonitor Monitor
-        {
-            get => _monitor;
-            set
-            {
-                _monitor = value;
-                MonitorType = _monitorDict.FirstOrDefault(a => a.Value == _monitor).Key;
-                MonitorScale = Tuple.Create(_monitor.Width, _monitor.Height);
-            }
-        }
-        public static Tuple<int, int> MonitorScale = Tuple.Create(0, 0);
-
-        private IMonitor _monitor;
-        private List<IMonitor> _monitors = new List<IMonitor>();
-
-        public MonitorType MonitorType;
-        public Dictionary<MonitorType, IMonitor> _monitorDict = new Dictionary<MonitorType, IMonitor>();
+        private List<IMonitor> _monitors;
+        private MonitorSettings _monitorSettings;
 
         private bool _internetConnected => Application.internetReachability != NetworkReachability.NotReachable;
         private bool _connectionError;
@@ -89,7 +75,8 @@ namespace ComputerInterface
             ComputerViewPlaceholderFactory viewFactory,
             List<IComputerModEntry> computerModEntries,
             List<IQueueInfo> queues,
-            List<IMonitor> monitors)
+            List<IMonitor> monitors,
+            MonitorSettings monitorSettings)
         {
             if (_initialized) return;
             _initialized = true;
@@ -110,17 +97,21 @@ namespace ComputerInterface
             GorillaComputer.instance = _gorillaComputer;
 
             _monitors = monitors;
-            _monitors.ForEach(a => _monitorDict.Add((MonitorType)_monitors.IndexOf(a), a));
-            Monitor = _monitors[Mathf.Clamp((int)config.SavedMonitorType.Value, 0, _monitors.Count)];
+            _monitorSettings = monitorSettings;
 
             _computerViewController = new ComputerViewController();
             _computerViewController.OnTextChanged += SetText;
+            _computerViewController.OnMonitorChanged += SetMonitor;
             _computerViewController.OnSwitchView += SwitchView;
             _computerViewController.OnSetBackground += SetBGImage;
 
-            await CreateMonitors(); // Wait for the mod to finish creating the modified computers
+            // Wait for the mod to create all monitors before proceeding
+            await CreateMonitors();
+
             try
             {
+                SetMonitor(_monitorSettings.GetCurrentMonitor());
+
                 BaseGameInterface.InitAll();
                 ShowInitialView(_mainMenuView, computerModEntries);
 
@@ -192,6 +183,13 @@ namespace ComputerInterface
             }
         }
 
+        public void SetMonitor(IMonitor monitor)
+        {
+            Vector2 monitorDimensions = _monitorSettings.GetComputerDimensions(monitor);
+            ComputerView.SCREEN_WIDTH = (int)monitorDimensions.x;
+            ComputerView.SCREEN_HEIGHT = (int)monitorDimensions.y;
+        }
+
         public void SetBG(float r, float g, float b) => SetBG(new Color(r, g, b));
         public void SetBG(Color color) 
         {
@@ -260,16 +258,6 @@ namespace ComputerInterface
             var newView = _viewFactory.Create(type);
             _cachedViews.Add(type, newView);
             return newView;
-        }
-
-        public async Task SetMonitorType(MonitorType monitorType)
-        {
-            Monitor = _monitors[Mathf.Clamp((int)monitorType, 0, _monitors.Count)];
-            _config.SavedMonitorType.Value = monitorType;
-            await CreateMonitors(false);
-
-            // Re-open the current view as some of the width and height dependent stuff might look a bit off
-            _computerViewController.CurrentComputerView.OnShow(new object[] { });
         }
 
         public async Task CreateMonitors(bool includeKeys = true)
@@ -492,12 +480,13 @@ namespace ComputerInterface
             bool monitorExists = _customScreenDict.ContainsKey(location);
             if (!monitorExists) RemoveMonitor(computer, location);
 
-            var monitorAsset = await _assetsLoader.GetAsset<GameObject>(Monitor.AssetName);
+            IMonitor currentMonitor = _monitorSettings.GetCurrentMonitor();
+            var monitorAsset = await _assetsLoader.GetAsset<GameObject>(currentMonitor.AssetName);
             var newMonitor = Instantiate(monitorAsset);
             newMonitor.name = $"{location} Custom Monitor";
             newMonitor.transform.SetParent(computer.transform.Find("monitor") ?? computer.transform.Find("monitor (1)"), false);
-            newMonitor.transform.localPosition = Monitor.Position;
-            newMonitor.transform.localEulerAngles = Monitor.EulerAngles;
+            newMonitor.transform.localPosition = currentMonitor.Position;
+            newMonitor.transform.localEulerAngles = currentMonitor.EulerAngles;
             newMonitor.transform.SetParent(computer.transform.parent, true);
 
             var info = new CustomScreenInfo
@@ -513,11 +502,7 @@ namespace ComputerInterface
 
             if (monitorExists)
             {
-                // Remove the existing monitor
-                var oldInfo = _customScreenDict[location];
-                Destroy(oldInfo.Transform.gameObject);
-
-                // Sync the text
+                Destroy(_customScreenDict[location].Transform.gameObject);
                 info.TextMeshProUgui.text = _computerViewController.CurrentComputerView.Text;
             }
 
@@ -554,6 +539,9 @@ namespace ComputerInterface
             {
                 var monitorTransform = computer.transform.parent.parent?.Find("Static/monitor") ?? null;
                 monitorTransform?.gameObject?.SetActive(false);
+
+                var eyesTransform = computer.transform.parent.parent?.parent?.Find("Halloween2023TreeRoom")?.GetChild(1)?.GetChild(0) ?? null;
+                eyesTransform?.gameObject?.SetActive(false);
             }
 
             try
