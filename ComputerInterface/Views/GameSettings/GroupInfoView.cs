@@ -13,11 +13,13 @@ namespace ComputerInterface.Views.GameSettings
 
         public void Redraw(StringBuilder str)
         {
-            str.BeginCenter().BeginColor("ffffff50").Append("How to:").EndColor().EndAlign().AppendLine();
-            str.AppendLine("1) Create private room").AppendLine();
-            str.AppendLine("2) Let your friends join the room").AppendLine();
-            str.AppendLine("3) Meet at the computer").AppendLine();
-            str.AppendLine("4) Select map and press enter").AppendLine();
+            str.BeginColor("ffffff50").Append("== ").EndColor();
+            str.Append("Group Info").BeginColor("ffffff50").Append(" ==").EndColor().AppendLines(2);
+            str.AppendLine("1. Create/Join a Private room").AppendLine();
+            str.AppendLine("2. Select a map in the Group tab").AppendLine();
+            str.AppendLine("3. Gather everyone near the computer").AppendLine();
+            str.AppendLine("4. Make sure everyone is on the same gamemode").AppendLine();
+            str.AppendLine("5. Press the Enter key").AppendLine();
         }
 
         public override void OnKeyPressed(EKeyboardKey key)

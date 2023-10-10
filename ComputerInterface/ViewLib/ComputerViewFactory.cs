@@ -4,7 +4,7 @@ using Zenject;
 
 namespace ComputerInterface.ViewLib
 {
-    public class ComputerViewFactory : IFactory<Type, IComputerView>
+    public class ComputerViewFactory : IFactory<Type, ComputerView>
     {
         private readonly DiContainer _container;
 
@@ -13,9 +13,9 @@ namespace ComputerInterface.ViewLib
             _container = container;
         }
 
-        public IComputerView Create(Type viewType)
+        public ComputerView Create(Type viewType)
         {
-            return (IComputerView) _container.Instantiate(viewType);
+            return (ComputerView) _container.Instantiate(viewType);
         }
     }
 }

@@ -14,8 +14,8 @@ namespace ComputerInterface
 
         public Color Color
         {
-            get => RawImage.material.color;
-            set => RawImage.material.color = value;
+            get => RawImage.color;
+            set => RawImage.color = value;
         }
 
         public string Text

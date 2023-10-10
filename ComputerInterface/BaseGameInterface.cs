@@ -148,7 +148,10 @@ namespace ComputerInterface
 
         public static void SetInstrumentVolume(int value)
         {
-            PlayerPrefs.SetFloat("instrumentVolume", value / 50f);
+            if (!CheckForComputer(out var computer)) return;
+
+            computer.instrumentVolume = value / 50f;
+            PlayerPrefs.SetFloat("instrumentVolume", computer.instrumentVolume);
             PlayerPrefs.Save();
         }
 
@@ -237,6 +240,13 @@ namespace ComputerInterface
             computer.voiceChatOn = voiceChatOn ? "TRUE" : "FALSE";
             PlayerPrefs.SetString("voiceChatOn", computer.voiceChatOn);
             PlayerPrefs.Save();
+
+            if (PhotonNetwork.InRoom)
+            {
+                var GorillaAssembly = typeof(GorillaTagger).Assembly;
+                var ContainerType = GorillaAssembly.GetType("RigContainer");
+                AccessTools.Method(ContainerType, "RefreshAllRigVoices").Invoke(null, null);
+            }
         }
 
         public static bool GetVoiceMode()
@@ -276,12 +286,7 @@ namespace ComputerInterface
         #region Room settings
 
         public static void Disconnect()
-        {
-            if (CheckForComputer(out var computer))
-            {
-                computer.networkController.AttemptDisconnect();
-            }
-        }
+            => PhotonNetworkController.Instance.AttemptDisconnect();
 
         public static WordCheckResult JoinRoom(string roomId)
         {
@@ -294,7 +299,7 @@ namespace ComputerInterface
 
             if (roomAllowed == WordCheckResult.Allowed)
             {
-                computer.networkController.AttemptToJoinSpecificRoom(roomId);
+                PhotonNetworkController.Instance.AttemptToJoinSpecificRoom(roomId);
             }
 
             return roomAllowed;
