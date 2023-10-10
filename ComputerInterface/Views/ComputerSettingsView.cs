@@ -78,13 +78,6 @@ namespace ComputerInterface.Views
             Text = str.ToString();
         }
 
-        private void RedrawUpdating()
-        {
-            StringBuilder str = new StringBuilder();
-            str.AppendLine().BeginCenter().Append("Updating Monitor").EndAlign();
-            Text = str.ToString();
-        }
-
         public async void UpdateSettings()
         {
             int monitorIndex = _rowSelectionHandler.CurrentSelectionIndex - 3;
