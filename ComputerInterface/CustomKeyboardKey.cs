@@ -87,8 +87,28 @@ namespace ComputerInterface
         public void Init(CustomComputer computer, EKeyboardKey key, Text keyboardText, string text, Color buttonColor)
         {
             Init(computer, key, keyboardText, text);
-            _material.color = buttonColor;
-            _originalColor = buttonColor;
+
+            if (_material == null)
+            {
+                _originalColor = buttonColor;
+
+                var baseRenderer = GetComponent<Renderer>();
+                if (baseRenderer.material == null)
+                {
+                    _material = new Material(Shader.Find("Legacy Shaders/Diffuse"))
+                    {
+                        color = buttonColor
+                    };
+                }
+                else
+                {
+                    baseRenderer.material.color = buttonColor;
+                }
+            } else
+            {
+                _material.color = buttonColor;
+                _originalColor = buttonColor;
+            }
 
             Color.RGBToHSV(buttonColor, out float H, out float S, out float _);
             _pressedColor = Color.HSVToRGB(H, S, 0.6f);

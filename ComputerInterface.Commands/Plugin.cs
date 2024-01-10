@@ -1,6 +1,5 @@
 ﻿using BepInEx;
 using Bepinject;
-
 namespace ComputerInterface.Commands
 {
     [BepInDependency(PluginInfo.Id)]

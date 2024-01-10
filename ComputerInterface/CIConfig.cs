@@ -5,12 +5,14 @@ using BepInEx;
 using BepInEx.Configuration;
 using Bepinject;
 using UnityEngine;
+using ComputerInterface.Monitors;
 
 namespace ComputerInterface
 {
-    internal class CIConfig
+    public class CIConfig
     {
         public ConfigEntry<Color> ScreenBackgroundColor;
+        public ConfigEntry<MonitorType> SavedMonitorType;
         public Texture BackgroundTexture;
 
         public ConfigEntry<string> _screenBackgroundPath;
@@ -21,6 +23,7 @@ namespace ComputerInterface
         {
             var file = config.Config;
 
+            SavedMonitorType = file.Bind("Appearance", "Monitor Type", MonitorType.Modern, "The preferred monitor to use in-game.");
             ScreenBackgroundColor = file.Bind("Colors", "ScreenBackgroundColor", new Color(0.08f, 0.08f, 0.08f), "The background color of the screen");
             _screenBackgroundPath = file.Bind("Textures", "ScreenBackgroundPath", "BepInEx/plugins/ComputerInterface/background.png", "Path to a custom screen background");
             _disabledMods = file.Bind("Mod Management", "DisabledMods", "", "List of disabled mods");

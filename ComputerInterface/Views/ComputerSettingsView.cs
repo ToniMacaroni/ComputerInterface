@@ -3,28 +3,37 @@ using System.Text;
 using UnityEngine;
 using ComputerInterface.Interfaces;
 using ComputerInterface.ViewLib;
+using ComputerInterface.Monitors;
+using System.Threading.Tasks;
+using System.Collections.Generic;
 
 namespace ComputerInterface.Views
 {
     public class ComputerSettingsEntry : IComputerModEntry
     {
-        public string EntryName => "Computer Display Settings";
+        public string EntryName => "Computer Settings";
         public Type EntryViewType => typeof(ComputerSettingsView);
     }
 
     public class ComputerSettingsView : ComputerView
     {
         private readonly CustomComputer _computer;
+        private readonly List<IMonitor> _monitorList;
+        private readonly MonitorSettings _monitorSettings;
+
         private readonly UISelectionHandler _rowSelectionHandler;
         private readonly UISelectionHandler _columnSelectionHandler;
         private Color _color;
 
-        public ComputerSettingsView(CustomComputer computer)
+        public ComputerSettingsView(CustomComputer computer, MonitorSettings monitorSettings, List<IMonitor> monitorList)
         {
             _computer = computer;
+            _monitorList = monitorList;
+            _monitorSettings = monitorSettings;
 
             _rowSelectionHandler = new UISelectionHandler(EKeyboardKey.Up, EKeyboardKey.Down);
-            _rowSelectionHandler.MaxIdx = 2;
+            _rowSelectionHandler.ConfigureSelectionIndicator($"<color=#{PrimaryColor}> ></color> ", "", "   ", "");
+            _rowSelectionHandler.MaxIdx = 4;
 
             _columnSelectionHandler = new UISelectionHandler(EKeyboardKey.Left, EKeyboardKey.Right);
             _columnSelectionHandler.MaxIdx = 2;
@@ -40,12 +49,12 @@ namespace ComputerInterface.Views
 
         public void Redraw()
         {
+            var str = new StringBuilder();
             Color savedColor = _computer.GetBG();
 
-            var str = new StringBuilder();
             str.Repeat("=", SCREEN_WIDTH).AppendLine();
-            str.BeginCenter().Append("Computer Display Settings").AppendLine();
-            str.Repeat("=", SCREEN_WIDTH).AppendLines(2);
+            str.BeginCenter().Append("Computer Settings").AppendLine();
+            str.Repeat("=", SCREEN_WIDTH).EndAlign().AppendLines(2);
 
             str.AppendLine(" Background Color:");
 
@@ -60,10 +69,21 @@ namespace ComputerInterface.Views
             DrawRow('G', _color.g, savedColor.g, 1);
             DrawRow('B', _color.b, savedColor.b, 2);
 
-            str.AppendLines(2)
-                .AppendClr(" * Press Enter to update settings.", "ffffff50").AppendLine();
+            str.AppendLine().AppendLine(" Monitor Type:");
+            for(int i = 0; i < _monitorList.Count; i++)
+            {
+                str.AppendLine(_rowSelectionHandler.GetIndicatedText(i + 3, ((MonitorType)i).ToString()));
+            }
 
             Text = str.ToString();
+        }
+
+        public async void UpdateSettings()
+        {
+            int monitorIndex = _rowSelectionHandler.CurrentSelectionIndex - 3;
+            if (monitorIndex >= 0) await _monitorSettings.SetCurrentMonitor((MonitorType)monitorIndex);
+
+            _computer.SetBG(_color);
         }
 
         public override void OnKeyPressed(EKeyboardKey key)
@@ -71,8 +91,7 @@ namespace ComputerInterface.Views
             switch (key)
             {
                 case EKeyboardKey.Enter:
-                    _computer.SetBG(_color);
-                    Redraw();
+                    UpdateSettings();
                     break;
                 case EKeyboardKey.Back:
                     ReturnToMainMenu();

@@ -1,13 +1,16 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using BepInEx;
 using BepInEx.Bootstrap;
 using ComputerInterface.Interfaces;
+using ComputerInterface.Monitors;
 using ComputerInterface.ViewLib;
 using ComputerInterface.Views;
 using GorillaNetworking;
+using HarmonyLib;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -26,10 +29,11 @@ namespace ComputerInterface
 
         private ComputerViewPlaceholderFactory _viewFactory;
 
-
         private MainMenuView _mainMenuView;
+        private WarnView _warningView;
 
-        private List<CustomScreenInfo> _customScreenInfos = new List<CustomScreenInfo>();
+        private readonly List<CustomScreenInfo> _customScreenInfos = new List<CustomScreenInfo>();
+        private readonly Dictionary<MonitorLocation, CustomScreenInfo> _customScreenDict = new Dictionary<MonitorLocation, CustomScreenInfo>();
 
         private List<CustomKeyboardKey> _keys;
         private GameObject _keyboard;
@@ -40,30 +44,34 @@ namespace ComputerInterface
 
         private CIConfig _config;
 
-        private List<AudioSource> _keyboardAudios = new List<AudioSource>();
+        private readonly List<AudioSource> _keyboardAudios = new List<AudioSource>();
 
-		enum MonitorLocation
+        private List<IMonitor> _monitors;
+        private MonitorSettings _monitorSettings;
+
+        private bool _internetConnected => Application.internetReachability != NetworkReachability.NotReachable;
+        private bool _connectionError;
+
+        enum MonitorLocation
         {
-            Treehouse,
-            Mountains,
-            Sky,
+            Stump,
+            Igloo,
+            Clouds,
             Basement,
             Beach
         }
-
-        void Awake()
-        {
-            enabled = false;
-        }
-
+        void Awake() => enabled = false;
         [Inject]
         internal async void Construct(
             CIConfig config,
             AssetsLoader assetsLoader,
             MainMenuView mainMenuView,
+            WarnView warningView,
             ComputerViewPlaceholderFactory viewFactory,
             List<IComputerModEntry> computerModEntries,
-            List<IQueueInfo> queues)
+            List<IQueueInfo> queues,
+            List<IMonitor> monitors,
+            MonitorSettings monitorSettings)
         {
             if (_initialized) return;
             _initialized = true;
@@ -74,6 +82,7 @@ namespace ComputerInterface
             _assetsLoader = assetsLoader;
 
             _mainMenuView = mainMenuView;
+            _warningView = warningView;
             _cachedViews.Add(typeof(MainMenuView), _mainMenuView);
 
             _viewFactory = viewFactory;
@@ -82,58 +91,52 @@ namespace ComputerInterface
             _gorillaComputer.enabled = false;
             GorillaComputer.instance = _gorillaComputer;
 
+            _monitors = monitors;
+            _monitorSettings = monitorSettings;
+
             _computerViewController = new ComputerViewController();
             _computerViewController.OnTextChanged += SetText;
+            _computerViewController.OnMonitorChanged += SetMonitor;
             _computerViewController.OnSwitchView += SwitchView;
             _computerViewController.OnSetBackground += SetBGImage;
 
-            // Treehouse, Mountains, Sky, Basement, Beach
-            GameObject[] physicalComputers = { GameObject.Find("UI/-- PhysicalComputer UI --"), GameObject.Find("goodigloo/PhysicalComputer (2)"), GameObject.Find("skyjungle/UI/-- Clouds PhysicalComputer UI --/"), GameObject.Find("BasementComputer/PhysicalComputer (2)"), GameObject.Find("beach/BeachComputer/PhysicalComputer (2)/") };
+            // Wait for the mod to create all monitors before proceeding
+            await CreateMonitors();
 
-            for (int i = 0; i < physicalComputers.Length; i++)
+            try
             {
-                try
-                {
-                    await ReplaceKeys(physicalComputers[i]); // TODO: Update Clouds key texts
-                    CustomScreenInfo screenInfo = await CreateMonitor(physicalComputers[i], (MonitorLocation)i);
-                    screenInfo.Color = _config.ScreenBackgroundColor.Value;
-                    screenInfo.Background = _config.BackgroundTexture;
-                    _customScreenInfos.Add(screenInfo);
-                }
-                catch (Exception e)
-                {
-                    Debug.LogError($"CI: computer {i} could not be initialized: {e}");
-                }
-            }
+                SetMonitor(_monitorSettings.GetCurrentMonitor());
 
-            BaseGameInterface.InitAll();
+                BaseGameInterface.InitAll();
+                ShowInitialView(_mainMenuView, computerModEntries);
+
+                QueueManager.Queues = queues;
+                QueueManager.Init();
+            }
+            catch (Exception ex) { Debug.LogError($"CI: Failed to successfully end initalizing the mod: {ex}"); }
 
             enabled = true;
-
-            ShowInitialView(_mainMenuView, computerModEntries);
-
-            QueueManager.Queues = queues;
-            QueueManager.Init();
-
             Debug.Log("Initialized computers");
         }
 
         private void ShowInitialView(MainMenuView view, List<IComputerModEntry> computerModEntries)
         {
+            foreach (var pluginInfo in Chainloader.PluginInfos.Values)
+            {
+                if (!_config.IsModDisabled(pluginInfo.Metadata.GUID)) continue;
+                pluginInfo.Instance.enabled = false;
+            }
+
+            if (PhotonNetworkController.Instance.wrongVersion)
+            {
+                _computerViewController.SetView(_warningView, new object[] { new WarnView.OutdatedWarning() });
+                return;
+            }
             _computerViewController.SetView(view, null);
             view.ShowEntries(computerModEntries);
         }
 
-        public void Initialize()
-        {
-            foreach (var pluginInfo in Chainloader.PluginInfos.Values)
-            {
-                if (_config.IsModDisabled(pluginInfo.Metadata.GUID))
-                {
-                    pluginInfo.Instance.enabled = false;
-                }
-            }
-        }
+        public void Initialize() { }
 
         private void Update()
         {
@@ -145,6 +148,26 @@ namespace ComputerInterface
                     key.Fetch();
                 }
             }
+
+            // Make sure the computer is ready
+            if (_computerViewController.CurrentComputerView != null)
+            {
+                // Check to see if our connection is off
+                if (!_internetConnected && !_connectionError)
+                {
+                    _connectionError = true;
+                    _computerViewController.SetView(_warningView, new object[] { new WarnView.NoInternetWarning() });
+                    _gorillaComputer.UpdateFailureText("NO WIFI OR LAN CONNECTION DETECTED.");
+                }
+               
+                // Check to see if we're back online
+                if (_internetConnected && _connectionError)
+                {
+                    _connectionError = false;
+                    _computerViewController.SetView(_computerViewController.CurrentComputerView == _warningView ? _mainMenuView : _computerViewController.CurrentComputerView, null);
+                    _gorillaComputer.InvokeMethod("RestoreFromFailureState", null);
+                }
+            }
         }
 
         public void SetText(string text)
@@ -153,6 +176,13 @@ namespace ComputerInterface
             {
                 customScreenInfo.Text = text;
             }
+        }
+
+        public void SetMonitor(IMonitor monitor)
+        {
+            Vector2 monitorDimensions = _monitorSettings.GetComputerDimensions(monitor);
+            ComputerView.SCREEN_WIDTH = (int)monitorDimensions.x;
+            ComputerView.SCREEN_HEIGHT = (int)monitorDimensions.y;
         }
 
         public void SetBG(float r, float g, float b) => SetBG(new Color(r, g, b));
@@ -225,6 +255,51 @@ namespace ComputerInterface
             return newView;
         }
 
+        public async Task CreateMonitors(bool includeKeys = true)
+        {
+            // https://github.com/legoandmars/Utilla/blob/457bc612eda8e63b989dcdb219e04e8e7f06393a/Utilla/GamemodeManager.cs#L54
+            ZoneManagement zoneManager = FindObjectOfType<ZoneManagement>();
+
+            // https://github.com/legoandmars/Utilla/blob/457bc612eda8e63b989dcdb219e04e8e7f06393a/Utilla/GamemodeManager.cs#L56
+            ZoneData FindZoneData(GTZone zone)
+                => (ZoneData)AccessTools.Method(typeof(ZoneManagement), "GetZoneData").Invoke(zoneManager, new object[] { zone });
+
+            Transform[] physicalComputers =
+            {
+                FindZoneData(GTZone.forest).rootGameObjects[2].transform.Find("TreeRoomInteractables/UI/-- PhysicalComputer UI --"),
+                FindZoneData(GTZone.mountain).rootGameObjects[1].transform.Find("Geometry/goodigloo/PhysicalComputer (2)"),
+                FindZoneData(GTZone.skyJungle).rootGameObjects[1].transform.Find("UI/-- Clouds PhysicalComputer UI --"),
+                FindZoneData(GTZone.basement).rootGameObjects[0].transform.Find("DungeonRoomAnchor/BasementComputer/PhysicalComputer (2)"),
+                FindZoneData(GTZone.beach).rootGameObjects[0].transform.Find("BeachComputer/PhysicalComputer (2)")
+            };
+
+            for (int i = 0; i < physicalComputers.Length; i++)
+            {
+                if (includeKeys)
+                {
+                    // Keys should pretty much always be done seperate from the computer so you can atleast see what you're doing
+                    try { await ReplaceKeys(physicalComputers[i].gameObject); } // TODO: Update Clouds key texts
+                    catch (Exception ex) { Debug.LogError($"CI: The keyboard for the {(MonitorLocation)i} computer couldn't be replaced: {ex}"); }
+                }
+
+                // Then load the computer screens
+                try
+                {
+                    CustomScreenInfo screenInfo = await CreateMonitor(physicalComputers[i].gameObject, (MonitorLocation)i);
+                    screenInfo.Color = _config.ScreenBackgroundColor.Value;
+                    screenInfo.Background = _config.BackgroundTexture;
+                    if (_customScreenDict.TryGetValue((MonitorLocation)i, out var _tempMonitor))
+                    {
+                        _customScreenInfos.Remove(_tempMonitor);
+                        _customScreenDict.Remove((MonitorLocation)i);
+                    }
+                    _customScreenInfos.Add(screenInfo);
+                    _customScreenDict.Add((MonitorLocation)i, screenInfo);
+                }
+                catch (Exception ex) { Debug.LogError($"CI: The monitor for the {(MonitorLocation)i} computer couldn't be created: {ex}"); }
+            }
+        }
+
         private async Task ReplaceKeys(GameObject computer)
         {
             _keys = new List<CustomKeyboardKey>();
@@ -237,12 +312,13 @@ namespace ComputerInterface
                 nameToEnum.Add(key, (EKeyboardKey)Enum.Parse(typeof(EKeyboardKey), enumString));
             }
 
-            foreach (var button in computer.GetComponentsInChildren<GorillaKeyboardButton>())
+            foreach (var button in computer.GetComponentsInChildren<GorillaKeyboardButton>(true))
             {
 
                 if (button.characterString == "up" || button.characterString == "down")
                 {
-                    button.GetComponentInChildren<MeshRenderer>().material.color = new Color(0.1f, 0.1f, 0.1f);
+                    button.GetComponentInChildren<MeshRenderer>(true).material.color = new Color(0.1f, 0.1f, 0.1f);
+                    button.GetComponentInChildren<MeshFilter>().mesh = CubeMesh;
                     button.transform.localPosition -= new Vector3(0, 0.6f, 0);
                     DestroyImmediate(button.GetComponent<BoxCollider>());
                     if(FindText(button.gameObject, button.name + "text")?.GetComponent<Text>() is Text arrowBtnText)
@@ -280,7 +356,7 @@ namespace ComputerInterface
             _keyboardAudios.Add(audioSource);
 
             if (_keyboard.GetComponent<MeshRenderer>() is MeshRenderer renderer) {
-                renderer.material.color = new Color(0.3f, 0.3f, 0.3f);
+                //renderer.material.color = new Color(0.3f, 0.3f, 0.3f);
             }
 
             var enterKey = _keys.Last(x => x.KeyboardKey == EKeyboardKey.Enter);
@@ -376,61 +452,59 @@ namespace ComputerInterface
             newKeyText.transform.localPosition += offset;
 
             var customKeyboardKey = newKey.GetComponent<CustomKeyboardKey>();
+
             if (label.IsNullOrWhiteSpace())
             {
                 customKeyboardKey.Init(this, key);
             }
+            else if (color.HasValue)
+            {
+                customKeyboardKey.Init(this, key, newKeyText, label, color.Value);
+            }
             else
             {
-                if (color.HasValue)
-                {
-                    customKeyboardKey.Init(this, key, newKeyText, label, color.Value);
-                }
-                else
-                {
-                    customKeyboardKey.Init(this, key, newKeyText, label);
-                }
+                customKeyboardKey.Init(this, key, newKeyText, label);
             }
-            _keys.Add(customKeyboardKey);
 
+            _keys.Add(customKeyboardKey);
             return customKeyboardKey;
         }
 
         private async Task<CustomScreenInfo> CreateMonitor(GameObject computer, MonitorLocation location) // index used for removing the base game computer.
         {
-            RemoveMonitor(computer, location);
+            bool monitorExists = _customScreenDict.ContainsKey(location);
+            if (!monitorExists) RemoveMonitor(computer, location);
 
-            var tmpSettings = await _assetsLoader.GetAsset<TMP_Settings>("TMP Settings");
-            typeof(TMP_Settings).GetField(
-                    "s_Instance",
-                    System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Static)?
-                .SetValue(null, tmpSettings);
-
-            var monitorAsset = await _assetsLoader.GetAsset<GameObject>("Monitor");
-
+            IMonitor currentMonitor = _monitorSettings.GetCurrentMonitor();
+            var monitorAsset = await _assetsLoader.GetAsset<GameObject>(currentMonitor.AssetName);
             var newMonitor = Instantiate(monitorAsset);
-            newMonitor.name = "Custom Monitor";
-            newMonitor.transform.parent = computer.transform.Find("monitor") ?? computer.transform.Find("monitor (1)");
-            newMonitor.transform.localPosition = new Vector3(2.28f, -0.72f, 0.0f);
-            newMonitor.transform.localEulerAngles = new Vector3(0.0f, 270.0f, 270.02f);
-            newMonitor.transform.parent = null;
+            newMonitor.name = $"{location} Custom Monitor";
+            newMonitor.transform.SetParent(computer.transform.Find("monitor") ?? computer.transform.Find("monitor (1)"), false);
+            newMonitor.transform.localPosition = currentMonitor.Position;
+            newMonitor.transform.localEulerAngles = currentMonitor.EulerAngles;
+            newMonitor.transform.SetParent(computer.transform.parent, true);
 
-            foreach (RectTransform rect in newMonitor.GetComponentsInChildren<RectTransform>()) rect.gameObject.layer = 9;
-
-            var info = new CustomScreenInfo();
-
-            info.Transform = newMonitor.transform;
-            info.TextMeshProUgui = newMonitor.GetComponentInChildren<TextMeshProUGUI>();
-            info.Renderer = newMonitor.GetComponentsInChildren<MeshRenderer>().First(x => x.name == "Main Monitor");
-            info.RawImage = newMonitor.GetComponentInChildren<RawImage>();
-            info.RawImage.color = new Color(0.05f, 0.05f, 0.05f);
+            var info = new CustomScreenInfo
+            {
+                Transform = newMonitor.transform,
+                TextMeshProUgui = newMonitor.GetComponentInChildren<TextMeshProUGUI>(),
+                Renderer = newMonitor.GetComponentsInChildren<MeshRenderer>().First(x => x.name == "Main Monitor"),
+                RawImage = newMonitor.GetComponentInChildren<RawImage>()
+            };
+            info.Renderer.gameObject.AddComponent<GorillaSurfaceOverride>();
             info.Materials = info.Renderer.materials;
             info.Color = new Color(0.05f, 0.05f, 0.05f);
+
+            if (monitorExists)
+            {
+                Destroy(_customScreenDict[location].Transform.gameObject);
+                info.TextMeshProUgui.text = _computerViewController.CurrentComputerView.Text;
+            }
 
             return info;
         }
 
-        private void RemoveMonitor(GameObject computer, MonitorLocation monitorIndex)
+        private void RemoveMonitor(GameObject computer, MonitorLocation computerLocation)
         {
             GameObject monitor = null;
             foreach (Transform child in computer.transform)
@@ -456,17 +530,33 @@ namespace ComputerInterface
                 terminal.myScreenText?.gameObject?.SetActive(false);
             }
 
+            if (computerLocation == MonitorLocation.Stump)
+            {
+                var monitorTransform = computer.transform.parent.parent?.Find("Static/monitor") ?? null;
+                monitorTransform?.gameObject?.SetActive(false);
+
+                var eyesTransform = computer.transform.parent.parent?.parent?.Find("Halloween2023TreeRoom")?.GetChild(1)?.GetChild(0) ?? null;
+                eyesTransform?.gameObject?.SetActive(false);
+            }
+
             try
             {
                 // Some monitors were baked into the scene, so we need to do all this jank to get rid of them
                 // Currently, This is broken as the combined mesh has isReadable set to false
                 // so all the mesh info lives on the GPU, which makes it unaccessabel afaik
 
-                GameObject combinedScene = monitorIndex switch
+                // https://github.com/legoandmars/Utilla/blob/457bc612eda8e63b989dcdb219e04e8e7f06393a/Utilla/GamemodeManager.cs#L54
+                ZoneManagement zoneManager = FindObjectOfType<ZoneManagement>();
+
+                // https://github.com/legoandmars/Utilla/blob/457bc612eda8e63b989dcdb219e04e8e7f06393a/Utilla/GamemodeManager.cs#L56
+                ZoneData FindZoneData(GTZone zone)
+                    => (ZoneData)AccessTools.Method(typeof(ZoneManagement), "GetZoneData").Invoke(zoneManager, new object[] { zone });
+
+                GameObject combinedScene = computerLocation switch
                 {
-                    MonitorLocation.Treehouse => GameObject.Find("forest/ForestObjects/Uncover ForestCombined/").GetComponentInChildren<MeshRenderer>().gameObject,
-                    MonitorLocation.Mountains => GameObject.Find("mountain/Mountain Texture Baker/Uncover Mountain Lit/CombinedMesh-Uncover Mountain Lit-mesh/").GetComponentInChildren<MeshRenderer>().gameObject,
-                    MonitorLocation.Beach => GameObject.Find("beach/Beach Texture Baker - ABOVE WATER/Uncover Beach Lit/").GetComponentInChildren<MeshRenderer>().gameObject,
+                    MonitorLocation.Stump => FindZoneData(GTZone.forest).rootGameObjects[1].transform.Find("Terrain/Uncover ForestCombined/").GetComponentInChildren<MeshRenderer>(true).gameObject,
+                    MonitorLocation.Igloo => FindZoneData(GTZone.mountain).rootGameObjects[0].transform.Find("Mountain Texture Baker/Uncover Mountain Lit/").GetComponentInChildren<MeshRenderer>(true).gameObject,
+                    MonitorLocation.Beach => FindZoneData(GTZone.beach).rootGameObjects[0].transform.Find("Beach Texture Baker - ABOVE WATER/Uncover Beach Lit/").GetComponentInChildren<MeshRenderer>(true).gameObject,
                     _ => null,
                 };
 
@@ -553,7 +643,7 @@ namespace ComputerInterface
                     }
                 }
 
-                // Remove the vertices that are not connected to the starting vertex
+                // Remove the vertices that are not connected to the starting vertex (nerd)
                 foreach (int connectedVertex in monitorVertices)
                 {
                     combinedSceneVertices[connectedVertex] = new Vector3(combinedSceneVertices[connectedVertex].x, -100, combinedSceneVertices[connectedVertex].z);

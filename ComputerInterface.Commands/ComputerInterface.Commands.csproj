@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
 	<PropertyGroup>
-		<TargetFramework>netstandard2.0</TargetFramework>
+		<TargetFramework>netstandard2.1</TargetFramework>
 	</PropertyGroup>
 
 	<ItemGroup>
@@ -16,11 +16,20 @@
 	</ItemGroup>
 
 	<ItemGroup>
+		<Reference Include="Assembly-CSharp">
+		  <HintPath>$(GameAssemblyPath)\Assembly-CSharp.dll</HintPath>
+		</Reference>
 		<Reference Include="BepInEx">
 			<HintPath>$(BepInExAssemblyPath)\BepInEx.dll</HintPath>
 		</Reference>
 		<Reference Include="Bepinject">
-			<HintPath>$(PluginsPath)\Bepinject-Auros\Bepinject.dll</HintPath>
+			<HintPath>$(PluginsCorePath)\Bepinject-Auros\Bepinject.dll</HintPath>
+		</Reference>
+		<Reference Include="PhotonRealtime">
+		  <HintPath>$(GameAssemblyPath)\PhotonRealtime.dll</HintPath>
+		</Reference>
+		<Reference Include="PhotonUnityNetworking">
+		  <HintPath>$(GameAssemblyPath)\PhotonUnityNetworking.dll</HintPath>
 		</Reference>
 		<Reference Include="UnityEngine">
 			<HintPath>$(GameAssemblyPath)\UnityEngine.dll</HintPath>
@@ -29,10 +38,10 @@
 			<HintPath>$(GameAssemblyPath)\UnityEngine.CoreModule.dll</HintPath>
 		</Reference>
 		<Reference Include="Zenject">
-			<HintPath>$(PluginsPath)\Extenject\Zenject.dll</HintPath>
+			<HintPath>$(PluginsCorePath)\Extenject\Zenject.dll</HintPath>
 		</Reference>
 		<Reference Include="Zenject-usage">
-			<HintPath>$(PluginsPath)\Extenject\Zenject-usage.dll</HintPath>
+			<HintPath>$(PluginsCorePath)\Extenject\Zenject-usage.dll</HintPath>
 		</Reference>
 	</ItemGroup>
 
